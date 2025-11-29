@@ -11,6 +11,7 @@ import { useState } from "react";
 
 
 
+
 function ClentNavbarWithSession({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => void }) {
   useSession(); // If you need session info for side effects, keep this line; otherwise, you can remove it.
   return <Navbar setSidebarOpen={setSidebarOpen} />;
@@ -23,6 +24,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       <ClentNavbarWithSession setSidebarOpen={setSidebarOpen} />
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       {children}
+
     </SessionProvider>
   );
 }
