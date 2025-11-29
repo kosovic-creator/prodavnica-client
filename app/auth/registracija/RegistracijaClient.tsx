@@ -1,16 +1,21 @@
 "use client";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { useTranslation } from 'react-i18next';
 import { FaUserPlus, FaEnvelope, FaLock, FaUser } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from 'react-hot-toast';
 import { registrujKorisnika } from '@/lib/actions';
-
+import i18n from '@/i18n/config';
 interface RegistracijaClientProps {
   lang: string;
 }
 
 export default function RegistracijaClient({ lang }: RegistracijaClientProps) {
+  useEffect(() => {
+    if (i18n.language !== lang) {
+      i18n.changeLanguage(lang);
+    }
+  }, [lang]);
   const { t } = useTranslation('auth', { lng: lang });
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -68,7 +73,7 @@ export default function RegistracijaClient({ lang }: RegistracijaClientProps) {
         </h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex items-center gap-3 border border-gray-300 p-3 rounded-lg hover:border-blue-400 transition-colors">
-            <FaEnvelope className="text-blue-600 text-lg flex-shrink-0" />
+            <FaEnvelope className="text-blue-600 text-lg shrink-0" />
             <input
               id="email"
               name="email"
@@ -81,7 +86,7 @@ export default function RegistracijaClient({ lang }: RegistracijaClientProps) {
             />
           </div>
           <div className="flex items-center gap-3 border border-gray-300 p-3 rounded-lg hover:border-blue-400 transition-colors">
-            <FaUser className="text-blue-600 text-lg flex-shrink-0" />
+            <FaUser className="text-blue-600 text-lg shrink-0" />
             <input
               id="ime"
               name="ime"
@@ -94,7 +99,7 @@ export default function RegistracijaClient({ lang }: RegistracijaClientProps) {
             />
           </div>
           <div className="flex items-center gap-3 border border-gray-300 p-3 rounded-lg hover:border-blue-400 transition-colors">
-            <FaUser className="text-blue-600 text-lg flex-shrink-0" />
+            <FaUser className="text-blue-600 text-lg shrink-0" />
             <input
               id="prezime"
               name="prezime"
@@ -107,7 +112,7 @@ export default function RegistracijaClient({ lang }: RegistracijaClientProps) {
             />
           </div>
           <div className="flex items-center gap-3 border border-gray-300 p-3 rounded-lg hover:border-blue-400 transition-colors">
-            <FaLock className="text-blue-600 text-lg flex-shrink-0" />
+            <FaLock className="text-blue-600 text-lg shrink-0" />
             <input
               id="lozinka"
               name="lozinka"
@@ -120,7 +125,7 @@ export default function RegistracijaClient({ lang }: RegistracijaClientProps) {
             />
           </div>
           <div className="flex items-center gap-3 border border-gray-300 p-3 rounded-lg hover:border-blue-400 transition-colors">
-            <FaLock className="text-blue-600 text-lg flex-shrink-0" />
+            <FaLock className="text-blue-600 text-lg shrink-0" />
             <input
               id="potvrdaLozinke"
               name="potvrdaLozinke"
