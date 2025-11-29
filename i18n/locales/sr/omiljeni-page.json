@@ -1,0 +1,21 @@
+{
+  "omiljeni_proizvodi": "Omiljeni proizvodi",
+  "nema_omiljenih_proizvoda": "Nemate omiljenih proizvoda.",
+  "dodajte_u_omiljene_opis": "Dodajte proizvode u omiljene da biste ih videli ovde.",
+  "pregled_proizvoda": "Pregled proizvoda",
+  "ukloni_iz_omiljenih": "Ukloni iz omiljenih",
+  "kategorija": "Kategorija",
+  "kolicina": "Količina",
+  "detalji": "Detalji",
+  "dodaj_u_korpu": "Dodaj u korpu",
+  "nema_na_zalihama": "Nema na zalihama",
+  "dodato_u_korpu": "Artikal je dodat u korpu.",
+  "morate_biti_prijavljeni_za_omiljene": "Morate biti prijavljeni za dodavanje u omiljene.",
+  "morate_biti_prijavljeni_za_korpu": "Morate biti prijavljeni za dodavanje u korpu.",
+  "prijavi_se": "Prijavi se",
+  "uklonjen_iz_omiljenih": "Uklonjen iz omiljenih.",
+  "greska": "Greška",
+  "neuspesno_uklanjanje": "Neuspešno uklanjanje",
+  "greska_uklanjanje_omiljeni": "Greška prilikom uklanjanja iz omiljenih.",
+  "dodaje": "Dodaje..."
+}
