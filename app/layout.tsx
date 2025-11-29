@@ -23,8 +23,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  banner,
+  grid,
 }: Readonly<{
   children: React.ReactNode;
+  banner?: React.ReactNode;
+  grid?: React.ReactNode;
 }>) {
   return (
     <html lang="en">
@@ -32,8 +36,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
       >
         <ClientLayout>
-
-        {children}
+          {/* Paralelne rute za @banner i @grid */}
+          {banner}
+          {grid}
+          {children}
         </ClientLayout>
         <Footer />
       </body>
