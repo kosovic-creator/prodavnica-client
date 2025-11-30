@@ -43,6 +43,8 @@ export default function ProizvodiClient({ proizvodi, total, page, pageSize, lang
               const karakteristike = lang === 'en' ? proizvod.karakteristike_en : proizvod.karakteristike_sr;
               const kategorija = lang === 'en' ? proizvod.kategorija_en : proizvod.kategorija_sr;
 
+                const glavnaSlika = proizvod.slika || (Array.isArray(proizvod.slike) && proizvod.slike[0]) || '/placeholder.png';
+
               return (
                 <div
                   key={proizvod.id}
@@ -54,13 +56,18 @@ export default function ProizvodiClient({ proizvodi, total, page, pageSize, lang
                   </div>
 
                   <div className="mb-3 flex justify-center">
-                    <Image
-                      src={proizvod.slika || (Array.isArray(proizvod.slike) && proizvod.slike[0]) || '/placeholder.png'}
-                      alt={naziv ?? ''}
-                      width={100}
-                      height={100}
-                      className="object-cover rounded-md"
-                    />
+                    {/* Link za uvećanje slike (modal/intercepting ruta) */}
+                    <Link href={`/(.)proizvodi/${proizvod.id}?lang=${lang}`}>
+                      <Image
+                        src={glavnaSlika}
+                        alt={naziv || 'Slika proizvoda'}
+                        width={400}
+                        height={300}
+                        className="object-contain rounded-lg shadow-lg"
+                        unoptimized
+                        priority
+                      />
+                    </Link>
                   </div>
 
                   <div className="flex-1 space-y-2">

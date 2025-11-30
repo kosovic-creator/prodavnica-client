@@ -60,6 +60,9 @@ export default function ProizvodClient({ proizvod, lang }: { proizvod: any, lang
   const slike: string[] = Array.isArray(proizvod.slike) && proizvod.slike.length > 0 ? proizvod.slike : (proizvod.slika ? [proizvod.slika] : []);
   const [glavnaSlikaIdx, setGlavnaSlikaIdx] = useState(0);
   const glavnaSlika = slike[glavnaSlikaIdx] || '';
+  const [modalOpen, setModalOpen] = useState(false);
+  const handleOpenModal = () => setModalOpen(true);
+  const handleCloseModal = () => setModalOpen(false);
 
   const handlePrev = () => {
     setGlavnaSlikaIdx((prev) => (prev - 1 + slike.length) % slike.length);
@@ -74,6 +77,34 @@ export default function ProizvodClient({ proizvod, lang }: { proizvod: any, lang
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
+      {/* Modal za uvećanje slike */}
+      {modalOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+          }}
+          onClick={handleCloseModal}
+        >
+          <Image
+            src={glavnaSlika}
+            alt={naziv || 'Slika proizvoda'}
+            width={600}
+            height={400}
+            className="object-contain rounded-lg shadow-lg"
+            unoptimized
+            priority
+          />
+        </div>
+      )}
       <Toaster position="top-center" />
       <div className="max-w-4xl mx-auto p-4">
         {/* Dugme za nazad */}
@@ -115,9 +146,10 @@ export default function ProizvodClient({ proizvod, lang }: { proizvod: any, lang
                         alt={naziv || 'Slika proizvoda'}
                         width={500}
                         height={400}
-                        className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-110"
+                        className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-110 cursor-zoom-in"
                         unoptimized
                         priority
+                        onClick={handleOpenModal}
                       />
                     </div>
                     {/* Strelica desno */}
@@ -155,14 +187,16 @@ export default function ProizvodClient({ proizvod, lang }: { proizvod: any, lang
                       </button>
                     ))}
                   </div>
-                  <Link href={`/proizvodi/slika/${proizvod.id}`}>
-                    <div className="flex items-center justify-center mt-3 text-blue-600 text-sm bg-blue-50 border border-blue-200 rounded-lg py-2 px-3 hover:bg-blue-100 transition-colors cursor-pointer">
-                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                      </svg>
-                      <span className="font-medium">Kliknite za povećanje slike</span>
-                    </div>
-                  </Link>
+                  <button
+                    type="button"
+                    onClick={handleOpenModal}
+                    className="flex items-center justify-center mt-3 text-blue-600 text-sm bg-blue-50 border border-blue-200 rounded-lg py-2 px-3 hover:bg-blue-100 transition-colors cursor-pointer"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <span className="font-medium">Kliknite za povećanje slike</span>
+                  </button>
                 </div>
               ) : (
                 <div className="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center">
