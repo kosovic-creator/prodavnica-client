@@ -2,7 +2,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
 import ClientLayout from "./components/ClientLayout";
 import Footer from "./components/Footer";
 
@@ -23,22 +22,23 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-  banner,
-  grid,
+
 }: Readonly<{
   children: React.ReactNode;
   banner?: React.ReactNode;
   grid?: React.ReactNode;
-}>) {
+}>): React.ReactElement {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="shortcut icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/favicon.svg" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
       >
         <ClientLayout>
-          {/* Paralelne rute za @banner i @grid */}
-          {banner}
-          {grid}
           {children}
         </ClientLayout>
         <Footer />
