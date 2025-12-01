@@ -10,5 +10,5 @@ export default async function GridPage() {
   const result = await getProizvodi(1, 12);
   const proizvodi = result.success ? result.data?.proizvodi || [] : [];
 
-  return <ProizvodiGridHomeClient initialProizvodi={proizvodi} session={session} />;
+  return <ProizvodiGridHomeClient initialProizvodi={proizvodi} />;
 }
