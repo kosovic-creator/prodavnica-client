@@ -103,7 +103,8 @@ export default function UspjesnoPlacanjePage() {
                 html
               }));
               if (emailSent) {
-                toast.success('Email potvrda o plaćanju je poslata!', { duration: 3000 });
+                // toast.success('Email potvrda o plaćanju je poslata!', { duration: 3000 });
+                console.log('Email potvrda o plaćanju je poslata');
               } else {
                 toast.error('Greška pri slanju email potvrde!');
               }

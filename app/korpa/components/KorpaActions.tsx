@@ -123,7 +123,7 @@ export default function KorpaActions({ userId, stavke, onUpdate }: KorpaActionsP
         // Create order
         const success = await potvrdiPorudzbinu();
         if (success) {
-          toast.success('Potvrda porudžbine je poslata na email!', { duration: 4000 });
+          // toast.success('Potvrda porudžbine je poslata na email!', { duration: 4000 });
           router.push('/');
         }
       } catch (error) {

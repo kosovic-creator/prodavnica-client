@@ -59,7 +59,7 @@ export default function KorpaItem({ stavka, onUpdate }: KorpaItemProps) {
         }
 
         onUpdate();
-        toast.success(t('artikal_izbrisan') || 'Artikal je uklonjen iz korpe');
+        // toast.success(t('artikal_izbrisan') || 'Artikal je uklonjen iz korpe');
       } catch (error) {
         console.error('Greška pri brisanju stavke:', error);
         toast.error(t('error') || 'Greška pri brisanju stavke');
