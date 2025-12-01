@@ -60,10 +60,7 @@ function SidebarContent({ open, onClose }: SidebarProps) {
       <div className={`
         fixed top-16 left-0 h-[calc(100vh-4rem)] bg-white shadow-lg z-50 transition-transform duration-300 ease-in-out
         ${open ? 'translate-x-0' : '-translate-x-full'}
-        w-64
-        md:relative md:top-0 md:h-screen md:translate-x-0 md:z-auto
-        ${open ? 'md:block' : 'md:hidden'}
-        flex flex-col
+        w-64 flex flex-col
       `}>
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 shrink-0">

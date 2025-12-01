@@ -15,8 +15,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     <SessionProvider>
       <Navbar setSidebarOpen={setSidebarOpen} />
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-      {children}
+      <div className={`transition-all ${sidebarOpen ? 'md:pl-64' : ''}`}>
+        {children}
+      </div>
     </SessionProvider>
   );
 }
