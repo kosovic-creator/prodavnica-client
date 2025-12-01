@@ -9,7 +9,7 @@ export default async function Home() {
   return (
     <>
       <ProizvodiBannerClient initialProizvodi={initialProizvodi} />
-      <ProizvodiGridHomeClient initialProizvodi={initialProizvodi} session={null} />
+      <ProizvodiGridHomeClient initialProizvodi={initialProizvodi} />
     </>
   );
 }
