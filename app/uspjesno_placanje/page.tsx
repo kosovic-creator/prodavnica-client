@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import React, { useEffect, useState, useTransition } from 'react';
 import { useKorpa } from '../components/KorpaContext';
@@ -11,7 +12,7 @@ import {
 } from '@/lib/actions';
 
 export default function UspjesnoPlacanjePage() {
-  const { stavke, resetKorpa } = useKorpa();
+  const { stavke, resetKorpa, refreshKorpa } = useKorpa();
   const [isLoading, setIsLoading] = useState(true);
   const [paymentProvider, setPaymentProvider] = useState<'monripay' | 'unknown'>('unknown');
   const [emailError, setEmailError] = useState<string | null>(null);
@@ -61,27 +62,16 @@ export default function UspjesnoPlacanjePage() {
               }
             }
 
-            // 2. Prazni korpu u bazi
-            if (session?.user?.id) {
-              const result = await ocistiKorpu(session.user.id);
-              if (result.success) {
-                console.log('Backend korpa je obrisana');
-              } else {
-                console.error('Greška pri brisanju korpe u bazi:', result.error);
-              }
-            }
-
-            // 3. Resetuj korpu na frontendu
-            resetKorpa();
-
-            // 4. Pošalji email potvrdu o plaćanju
+            // 2. Pošalji email potvrdu o plaćanju PRE brisanja korpe
             if (session?.user?.email) {
-              // Izračunaj ukupno
-              const ukupno = stavke.reduce((acc, s) => acc + (s.proizvod ? s.proizvod.cena * s.kolicina : 0), 0);
+              // Dohvati podatke iz baze
+              const korpaResult = await import('@/lib/actions/korpa').then(mod => mod.getKorpa(session.user.id));
+              const stavkeBaza = korpaResult.success && korpaResult.data ? korpaResult.data.stavke : [];
+              const ukupno = stavkeBaza.reduce((acc: number, s: any) => acc + (s.proizvod ? s.proizvod.cena * s.kolicina : 0), 0);
               let proizvodiHtml = '';
-              if (stavke && stavke.length > 0) {
+              if (stavkeBaza && stavkeBaza.length > 0) {
                 proizvodiHtml = `<ul style=\"padding-left:0; margin-bottom:16px;\">` +
-                  stavke.map((s) =>
+                  stavkeBaza.map((s: any) =>
                     `<li style='list-style:none; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:8px;'>
                       <span style='font-weight:bold;'>${s.proizvod?.naziv_sr || s.proizvod?.naziv_en || 'Proizvod'}</span> &times; ${s.kolicina} <span style='color:#888;'>(${s.proizvod?.cena} €)</span>
                     </li>`
@@ -107,7 +97,7 @@ export default function UspjesnoPlacanjePage() {
               const emailSent = await import('@/lib/actions/email').then(mod => mod.posaljiEmailObavjestenje({
                 email: session.user.email || '',
                 ukupno,
-                stavke,
+                stavke: stavkeBaza,
                 subject: 'Potvrda o plaćanju - Prodavnica',
                 text: `Vaša uplata je uspešno obrađena. Ukupno: ${ukupno} €.`,
                 html
@@ -118,6 +108,23 @@ export default function UspjesnoPlacanjePage() {
                 toast.error('Greška pri slanju email potvrde!');
               }
             }
+
+            // 3. Prazni korpu u bazi
+            if (session?.user?.id) {
+              const result = await ocistiKorpu(session.user.id);
+              if (result.success) {
+                console.log('Backend korpa je obrisana');
+                // Sinhronizuj frontend korpu sa backendom
+                if (typeof refreshKorpa === 'function') {
+                  await refreshKorpa();
+                }
+              } else {
+                console.error('Greška pri brisanju korpe u bazi:', result.error);
+              }
+            }
+
+            // 4. Resetuj korpu na frontendu
+            resetKorpa();
 
             toast.success('Plaćanje je uspešno obrađeno!', { duration: 3000 });
 

@@ -26,6 +26,7 @@
   "no_data_redirect": "Nemate unete podatke za preuzimanje. Bićete preusmereni na stranicu za unos podataka.",
   "isprazni_korpu": "Isprazni korpu",
   "order_success": "Potvrda porudžbine je poslata na email!",
-  "cart_emptied": "Korpa je ispražnjena"
+  "cart_emptied": "Korpa je ispražnjena",
+  "dodajte_proizvode": "Dodajte proizvode u korpu da biste nastavili sa kupovinom."
 
 }

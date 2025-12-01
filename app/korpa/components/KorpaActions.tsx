@@ -93,7 +93,8 @@ export default function KorpaActions({ userId, stavke, onUpdate }: KorpaActionsP
           await posaljiEmailObavjestenje({
             email: result.data?.email || '',
             ukupno,
-            tip: 'porudzbina'
+            tip: 'porudzbina',
+            stavke: stavke
           });
           resolve(true);
         } catch (error) {

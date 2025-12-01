@@ -26,5 +26,6 @@
   "no_data_redirect": "You have not entered delivery data. You will be redirected to the data entry page.",
   "isprazni_korpu": "Empty cart",
   "order_success": "Order confirmation has been sent to your email!",
-  "cart_emptied": "Cart has been emptied"
+  "cart_emptied": "Cart has been emptied",
+  "dodajte_proizvode": "Add products to the cart to continue shopping."
 }

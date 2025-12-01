@@ -4,6 +4,7 @@ import '../../i18n/config';
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 import { useState } from "react";
+import { KorpaProvider } from "./KorpaContext";
 
 
 
@@ -13,11 +14,13 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
   return (
     <SessionProvider>
+       <KorpaProvider>
       <Navbar setSidebarOpen={setSidebarOpen} />
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className={`transition-all ${sidebarOpen ? 'md:pl-64' : ''}`}>
         {children}
       </div>
+      </KorpaProvider>
     </SessionProvider>
   );
 }

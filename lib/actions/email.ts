@@ -29,7 +29,7 @@ export async function posaljiEmailObavjestenje(porudzbinaData: PorudzbinaData): 
       proizvodiHtml = `<ul style="padding-left:0; margin-bottom:16px;">` +
         porudzbinaData.stavke.map((s: any) =>
           `<li style='list-style:none; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:8px;'>
-            <span style='font-weight:bold;'>${s.naziv_sr || s.naziv_en || 'Proizvod'}</span> &times; ${s.kolicina} <span style='color:#888;'>(${s.cena} €)</span>
+            <span style='font-weight:bold;'>${s.proizvod?.naziv_sr || s.proizvod?.naziv_en || 'Proizvod'}</span> &times; ${s.kolicina} <span style='color:#888;'>(${s.proizvod?.cena} €)</span>
           </li>`
         ).join('') + '</ul>';
     }
@@ -60,7 +60,7 @@ export async function posaljiEmailObavjestenje(porudzbinaData: PorudzbinaData): 
         proizvodiHtml = `<ul style="padding-left:0; margin-bottom:16px;">` +
           porudzbinaData.stavke.map((s: any) =>
             `<li style='list-style:none; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:8px;'>
-              <span style='font-weight:bold;'>${s.naziv_sr || s.naziv_en || 'Proizvod'}</span> &times; ${s.kolicina} <span style='color:#888;'>(${s.cena} €)</span>
+              <span style='font-weight:bold;'>${s.proizvod?.naziv_sr || s.proizvod?.naziv_en || 'Proizvod'}</span> &times; ${s.kolicina} <span style='color:#888;'>(${s.proizvod?.cena} €)</span>
             </li>`
           ).join('') + '</ul>';
       }
