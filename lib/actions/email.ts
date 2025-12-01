@@ -14,6 +14,9 @@ interface PorudzbinaData {
   ukupno: number;
   tip?: string;
   stavke?: any[];
+  subject?: string;
+  text?: string;
+  html?: string;
 }
 
 export async function posaljiEmailObavjestenje(porudzbinaData: PorudzbinaData): Promise<boolean> {
