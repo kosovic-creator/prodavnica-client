@@ -89,10 +89,11 @@ export default function KorpaActions({ userId, stavke, onUpdate }: KorpaActionsP
           }
 
           await isprazniKorpu();
-          // Poziv za email obavještenje
+          // Poziv za email obavještenje o porudžbini
           await posaljiEmailObavjestenje({
             email: result.data?.email || '',
             ukupno,
+            tip: 'porudzbina'
           });
           resolve(true);
         } catch (error) {

@@ -36,7 +36,6 @@ interface ProizvodiGridHomeProps {
 
 export default function ProizvodiGridHome({ initialProizvodi }: ProizvodiGridHomeProps) {
   const { data: session } = useSession();
-  console.log('Session u @grid:', session);
   const { t, i18n } = useTranslation('proizvodi');
   const router = useRouter();
   const [isPending, startTransition] = useTransition();

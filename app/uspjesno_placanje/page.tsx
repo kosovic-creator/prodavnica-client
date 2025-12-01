@@ -78,6 +78,15 @@ export default function UspjesnoPlacanjePage() {
             if (session?.user?.email) {
               // Izračunaj ukupno
               const ukupno = stavke.reduce((acc, s) => acc + (s.proizvod ? s.proizvod.cena * s.kolicina : 0), 0);
+              let proizvodiHtml = '';
+              if (stavke && stavke.length > 0) {
+                proizvodiHtml = `<ul style=\"padding-left:0; margin-bottom:16px;\">` +
+                  stavke.map((s) =>
+                    `<li style='list-style:none; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:8px;'>
+                      <span style='font-weight:bold;'>${s.proizvod?.naziv_sr || s.proizvod?.naziv_en || 'Proizvod'}</span> &times; ${s.kolicina} <span style='color:#888;'>(${s.proizvod?.cena} €)</span>
+                    </li>`
+                  ).join('') + '</ul>';
+              }
               const html = `
                 <div style=\"font-family: Arial, sans-serif; background: #f9f9f9; padding: 32px; border-radius: 12px; color: #222;\">
                   <div style=\"text-align:center; margin-bottom:24px;\">
@@ -87,6 +96,7 @@ export default function UspjesnoPlacanjePage() {
                   <div style=\"background:#fff; padding:24px; border-radius:8px; box-shadow:0 2px 8px #eee;\">
                     <p style=\"font-size:18px; margin-bottom:12px;\">Vaša uplata je uspešno obrađena.</p>
                     <p style=\"font-size:16px; margin-bottom:8px;\">Ukupan iznos: <span style=\"color:#2196f3; font-weight:bold;\">${ukupno} €</span></p>
+                    ${proizvodiHtml ? `<div style=\"margin-top:16px;\"><h3 style=\"font-size:15px; color:#333; margin-bottom:8px;\">Proizvodi:</h3>${proizvodiHtml}</div>` : ''}
                     <p style=\"font-size:15px; color:#555;\">Uskoro ćete dobiti više informacija o isporuci na ovaj email.</p>
                   </div>
                   <div style=\"text-align:center; margin-top:24px; font-size:13px; color:#888;\">
@@ -97,6 +107,7 @@ export default function UspjesnoPlacanjePage() {
               const emailSent = await import('@/lib/actions/email').then(mod => mod.posaljiEmailObavjestenje({
                 email: session.user.email,
                 ukupno,
+                stavke,
                 subject: 'Potvrda o plaćanju - Prodavnica',
                 text: `Vaša uplata je uspešno obrađena. Ukupno: ${ukupno} €.`,
                 html
