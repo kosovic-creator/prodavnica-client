@@ -31,9 +31,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="shortcut icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/favicon.svg" />
+        {/* Standard favicon */}
+        <link rel="icon" href="/favicon_simple.ico" sizes="any" />
+        <link rel="icon" href="/favicon_simple.svg" type="image/svg+xml" />
+        <link rel="icon" href="/favicon_simple.png" type="image/png" />
+        {/* Apple touch icon for mobile shortcuts */}
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
