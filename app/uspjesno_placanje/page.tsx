@@ -105,7 +105,7 @@ export default function UspjesnoPlacanjePage() {
                 </div>
               `;
               const emailSent = await import('@/lib/actions/email').then(mod => mod.posaljiEmailObavjestenje({
-                email: session.user.email,
+                email: session.user.email || '',
                 ukupno,
                 stavke,
                 subject: 'Potvrda o plaćanju - Prodavnica',
