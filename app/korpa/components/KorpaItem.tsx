@@ -15,7 +15,7 @@ interface StavkaKorpe {
     naziv_sr: string;
     naziv_en: string;
     cena: number;
-    slika?: string | null;
+    slike?: string | null;
   } | null;
 }
 
@@ -69,14 +69,18 @@ export default function KorpaItem({ stavka, onUpdate }: KorpaItemProps) {
 
   if (!stavka.proizvod) return null;
 
+  const imageUrl = Array.isArray(stavka.proizvod.slike) && stavka.proizvod.slike.length > 0
+    ? stavka.proizvod.slike[0]
+    : '/placeholder.png';
   return (
     <div className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm border">
-      <div className="w-20 h-20 relative flex-shrink-0">
+      <div className="w-16 h-16 relative shrink-0">
         <Image
-          src={stavka.proizvod.slika || '/placeholder.png'}
+          src={imageUrl}
           alt={stavka.proizvod.naziv_sr}
           fill
-          className="object-cover rounded-lg"
+          sizes="(max-width: 768px) 100vw, 64px"
+          className="object-contain rounded-lg"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
             target.src = '/placeholder.png';

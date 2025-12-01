@@ -10,7 +10,9 @@ import {
   kreirajPorudzbinu,
   getPodaciPreuzimanja
 } from '../../../lib/actions';
+import { posaljiEmailObavjestenje } from '../../../lib/actions/email';
 import { useKorpa } from '../../components/KorpaContext';
+import { useSession } from 'next-auth/react';
 
 interface StavkaKorpe {
   id: string;
@@ -35,6 +37,7 @@ export default function KorpaActions({ userId, stavke, onUpdate }: KorpaActionsP
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const { resetKorpa } = useKorpa();
+  const { data: session } = useSession();
 
   const ukupno = stavke.reduce((acc, s) => acc + (s.proizvod ? s.proizvod.cena * s.kolicina : 0), 0);
 
@@ -68,6 +71,7 @@ export default function KorpaActions({ userId, stavke, onUpdate }: KorpaActionsP
             korisnikId: userId,
             ukupno,
             status: 'Na čekanju',
+            email: session?.user?.email || '',
             stavke: stavke.map(s => ({
               proizvodId: s.proizvod?.id || '',
               kolicina: s.kolicina,
@@ -85,6 +89,11 @@ export default function KorpaActions({ userId, stavke, onUpdate }: KorpaActionsP
           }
 
           await isprazniKorpu();
+          // Poziv za email obavještenje
+          await posaljiEmailObavjestenje({
+            email: result.data?.email || '',
+            ukupno,
+          });
           resolve(true);
         } catch (error) {
           console.error('Error creating order:', error);

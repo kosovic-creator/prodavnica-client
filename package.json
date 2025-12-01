@@ -6,8 +6,7 @@
     "dev": "next dev -p 3000",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
-    ,
+    "lint": "eslint",
     "postinstall": "prisma generate"
   },
   "dependencies": {
@@ -20,6 +19,7 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/nodemailer": "^7.0.1",
     "autoprefixer": "^10.4.21",
+    "axios": "^1.13.2",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.7.0",
     "clsx": "^2.1.1",

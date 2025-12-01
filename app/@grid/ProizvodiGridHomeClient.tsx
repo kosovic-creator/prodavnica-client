@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { FaEye, FaCartPlus } from 'react-icons/fa';
 import toast, { Toaster } from 'react-hot-toast';
 import OmiljeniButton from '../proizvodi/components/OmiljeniButton';
-import { Session } from 'next-auth';
+import { useSession } from "next-auth/react";
 import { useRouter } from 'next/navigation';
 import { dodajUKorpu, getKorpa } from '@/lib/actions';
 
@@ -32,10 +32,11 @@ interface ProizvodServerAction {
 
 interface ProizvodiGridHomeProps {
   initialProizvodi: ProizvodServerAction[];
-  session: Session | null;
 }
 
-export default function ProizvodiGridHome({ initialProizvodi, session }: ProizvodiGridHomeProps) {
+export default function ProizvodiGridHome({ initialProizvodi }: ProizvodiGridHomeProps) {
+  const { data: session } = useSession();
+  console.log('Session u @grid:', session);
   const { t, i18n } = useTranslation('proizvodi');
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -130,7 +131,7 @@ export default function ProizvodiGridHome({ initialProizvodi, session }: Proizvo
                     />
                   </div>
                 ) : (
-                  <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
+                    <div className="w-24 h-24 bg-linear-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
                     <span className="text-4xl">
                       {currentLang === 'en'
                         ? (proizvod.kategorija_en === 'bike' ? '🚴' : proizvod.kategorija_en === 'shoes' ? '👟' : '📦')
