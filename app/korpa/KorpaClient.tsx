@@ -7,7 +7,6 @@ import { FaShoppingCart } from 'react-icons/fa';
 import { Toaster } from 'react-hot-toast';
 import Link from 'next/link';
 import { getKorpa } from '@/lib/actions';
-import { useKorpa } from '../components/KorpaContext';
 import KorpaItem from './components/KorpaItem';
 import KorpaActions from './components/KorpaActions';
 import PaymentSelector from '../components/PaymentSelector';
@@ -35,7 +34,13 @@ export default function KorpaClient({ lang }: KorpaClientProps) {
   const [stavke, setStavke] = useState<StavkaKorpe[]>([]);
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const { resetKorpa } = useKorpa();
+
+  // Redirect na početnu ako je korpa prazna
+  useEffect(() => {
+    if (!stavke.length && !loading && status !== 'loading' && session) {
+      router.push('/');
+    }
+  }, [stavke.length, loading, status, session, router]);
 
   // Load initial cart data
   useEffect(() => {
@@ -51,7 +56,7 @@ export default function KorpaClient({ lang }: KorpaClientProps) {
           setStavke(result.data.stavke);
         }
       } catch (error) {
-        console.error('Error loading korpa:', error);
+        console.error('Greška pri uitavanju korpe:', error);
       } finally {
         setLoading(false);
       }
@@ -66,17 +71,14 @@ export default function KorpaClient({ lang }: KorpaClientProps) {
       const result = await getKorpa(session.user.id);
       if (result.success && result.data) {
         setStavke(result.data.stavke);
-        const broj = result.data.stavke.reduce((acc: number, s: StavkaKorpe) => acc + s.kolicina, 0);
-        resetKorpa();
-        localStorage.setItem('brojUKorpi', broj.toString());
         window.dispatchEvent(new Event('korpaChanged'));
       }
     } catch (error) {
-      console.error('Error refreshing korpa:', error);
+      console.error('Greška pri osvežavanju korpe:', error);
     } finally {
       setIsRefreshing(false);
     }
-  }, [session?.user?.id, resetKorpa]);
+  }, [session?.user?.id]);
 
   if (status === 'loading' || loading) {
     return (
@@ -91,24 +93,7 @@ export default function KorpaClient({ lang }: KorpaClientProps) {
   }
 
   if (!stavke.length) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] p-8 text-center">
-        <Toaster position="top-right" />
-        <FaShoppingCart className="text-6xl text-gray-300 mb-4" />
-        <h2 className="text-2xl font-semibold text-gray-600 mb-2">
-          {t('prazna_korpa') || 'Vaša korpa je prazna'}
-        </h2>
-        <p className="text-gray-500 mb-6">
-          {t('dodajte_proizvode') || 'Dodajte proizvode u korpu da biste nastavili sa kupovinom'}
-        </p>
-        <Link
-          href="/proizvodi"
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          {t('nastavi_kupovinu') || 'Nastavi kupovinu'}
-        </Link>
-      </div>
-    );
+    return null;
   }
 
   return (

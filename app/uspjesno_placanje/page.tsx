@@ -1,18 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import React, { useEffect, useState, useTransition } from 'react';
-import { useKorpa } from '../components/KorpaContext';
+
 import { useSession } from 'next-auth/react';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import {
+  getKorpa,
   getPodaciPreuzimanja,
   ocistiKorpu,
   updateProizvodStanje
 } from '@/lib/actions';
+import { getProizvodById } from '@/lib/actions/proizvodi';
 
 export default function UspjesnoPlacanjePage() {
-  const { stavke, resetKorpa, refreshKorpa } = useKorpa();
+  // KorpaContext uklonjen, sve se radi direktno iz baze
   const [isLoading, setIsLoading] = useState(true);
   const [paymentProvider, setPaymentProvider] = useState<'monripay' | 'unknown'>('unknown');
   const [emailError, setEmailError] = useState<string | null>(null);
@@ -46,17 +48,25 @@ export default function UspjesnoPlacanjePage() {
         }
 
         console.log('Pokretam obradu uspješnog plaćanja...');
-        console.log('Stavke u korpi:', stavke);
+        // console.log('Stavke u korpi:', stavke);
 
         startTransition(async () => {
           try {
             // 1. Umanji stanje proizvoda u bazi
-            if (stavke && stavke.length > 0) {
-              for (const item of stavke) {
+            // Dohvati stavke iz baze
+            const korpaResult = session?.user?.id ? await getKorpa(session.user.id) : { success: false, data: null };
+            const stavkeBaza = korpaResult.success && korpaResult.data ? korpaResult.data.stavke : [];
+            if (stavkeBaza && stavkeBaza.length > 0) {
+              for (const item of stavkeBaza) {
                 if (item.proizvod?.id && item.kolicina) {
-                  const result = await updateProizvodStanje(item.proizvod.id, item.kolicina);
-                  if (!result.success) {
-                    console.error('Greška pri ažuriranju stanja proizvoda:', result.error);
+                  // Dohvati trenutnu količinu iz baze
+                  const proizvodRes = await getProizvodById(item.proizvod.id);
+                  if (proizvodRes.success && proizvodRes.data) {
+                    const novaKolicina = (proizvodRes.data.kolicina ?? 0) - item.kolicina;
+                    const result = await updateProizvodStanje(item.proizvod.id, novaKolicina);
+                    if (!result.success) {
+                      console.error('Greška pri ažuriranju stanja proizvoda:', result.error);
+                    }
                   }
                 }
               }
@@ -116,25 +126,24 @@ export default function UspjesnoPlacanjePage() {
               if (result.success) {
                 console.log('Backend korpa je obrisana');
                 // Sinhronizuj frontend korpu sa backendom
-                if (typeof refreshKorpa === 'function') {
-                  await refreshKorpa();
-                }
+                localStorage.setItem('brojUKorpi', '0');
+                window.dispatchEvent(new Event('korpaChanged'));
               } else {
                 console.error('Greška pri brisanju korpe u bazi:', result.error);
               }
             }
 
-            // 4. Resetuj korpu na frontendu
-            resetKorpa();
+
 
             toast.success('Plaćanje je uspešno obrađeno!', { duration: 3000 });
 
             setIsLoading(false);
 
             // Redirect to home after showing success
-            setTimeout(() => {
+
+
               router.push('/');
-            }, 2000);
+           
 
           } catch (error) {
             console.error('Greška pri obradi plaćanja:', error);

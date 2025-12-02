@@ -11,7 +11,7 @@ import {
   getPodaciPreuzimanja
 } from '../../../lib/actions';
 import { posaljiEmailObavjestenje } from '../../../lib/actions/email';
-import { useKorpa } from '../../components/KorpaContext';
+import { getProizvodById, updateProizvodStanje } from '../../../lib/actions/proizvodi';
 import { useSession } from 'next-auth/react';
 
 interface StavkaKorpe {
@@ -36,7 +36,6 @@ export default function KorpaActions({ userId, stavke, onUpdate }: KorpaActionsP
   const { t } = useTranslation('korpa');
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
-  const { resetKorpa } = useKorpa();
   const { data: session } = useSession();
 
   const ukupno = stavke.reduce((acc, s) => acc + (s.proizvod ? s.proizvod.cena * s.kolicina : 0), 0);
@@ -44,6 +43,17 @@ export default function KorpaActions({ userId, stavke, onUpdate }: KorpaActionsP
   const isprazniKorpu = async () => {
     startTransition(async () => {
       try {
+        // Smanji stanje proizvoda za svaku stavku u korpi
+        for (const item of stavke) {
+          if (item.proizvod?.id && item.kolicina) {
+            const proizvodRes = await getProizvodById(item.proizvod.id);
+            if (proizvodRes.success && proizvodRes.data) {
+              const novaKolicina = (proizvodRes.data.kolicina ?? 0) - item.kolicina;
+              await updateProizvodStanje(item.proizvod.id, novaKolicina);
+            }
+          }
+        }
+
         const result = await ocistiKorpu(userId);
 
         if (!result.success) {
@@ -51,13 +61,12 @@ export default function KorpaActions({ userId, stavke, onUpdate }: KorpaActionsP
           return;
         }
 
-        resetKorpa();
         localStorage.setItem('brojUKorpi', '0');
         window.dispatchEvent(new Event('korpaChanged'));
         onUpdate();
-        toast.success('Korpa je ispražnjena');
+        console.log('Korpa je ispražnjena i stanje proizvoda smanjeno');
       } catch (error) {
-        console.error('Greška pri brisanju korpe:', error);
+        console.error('Greška pri brisanju korpe ili ažuriranju stanja proizvoda:', error);
         toast.error(t('error') || 'Greška pri brisanju korpe');
       }
     });
@@ -115,7 +124,7 @@ export default function KorpaActions({ userId, stavke, onUpdate }: KorpaActionsP
         if (!podaciResult.success || !podaciResult.data) {
           toast.error(t('no_data_redirect') || "Nemate unete podatke za preuzimanje. Bićete preusmereni na stranicu za unos podataka.", { duration: 5000 });
           setTimeout(() => {
-            router.push('/podaci-preuzimanja');
+            router.push('/');
           }, 2000);
           return;
         }
@@ -123,7 +132,7 @@ export default function KorpaActions({ userId, stavke, onUpdate }: KorpaActionsP
         // Create order
         const success = await potvrdiPorudzbinu();
         if (success) {
-          // toast.success('Potvrda porudžbine je poslata na email!', { duration: 4000 });
+          console.log('Porudžbina uspešno kreirana i korpa ispražnjena.');
           router.push('/');
         }
       } catch (error) {
