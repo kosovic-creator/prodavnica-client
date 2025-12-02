@@ -126,7 +126,6 @@ export default function UspjesnoPlacanjePage() {
               if (result.success) {
                 console.log('Backend korpa je obrisana');
                 // Sinhronizuj frontend korpu sa backendom
-                localStorage.setItem('brojUKorpi', '0');
                 window.dispatchEvent(new Event('korpaChanged'));
               } else {
                 console.error('Greška pri brisanju korpe u bazi:', result.error);
@@ -143,7 +142,7 @@ export default function UspjesnoPlacanjePage() {
 
 
               router.push('/');
-           
+
 
           } catch (error) {
             console.error('Greška pri obradi plaćanja:', error);

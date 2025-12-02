@@ -2,6 +2,7 @@
 'use client';
 import { useSession, signOut } from "next-auth/react";
 import React, { useEffect, useState, Suspense } from "react";
+import { getKorpa } from '@/lib/actions/korpa';
 import { FaShoppingCart, FaHome, FaUser, FaSignInAlt, FaSignOutAlt, FaUserShield, FaChevronDown, FaSearch, FaTimes, FaBars, FaUsers, FaBox, FaHistory, FaHeart } from "react-icons/fa";
 import { useTranslation } from 'react-i18next';
 import i18n from '@/i18n/config';
@@ -59,21 +60,27 @@ function NavbarContent({ setSidebarOpen }: NavbarProps) {
   }, [searchParams, isMounted]);
 
   useEffect(() => {
-    const broj = Number(localStorage.getItem('brojUKorpi') || 0);
-    setTimeout(() => {
-      setBrojUKorpi(broj);
-    }, 0);
+    async function fetchBrojStavki() {
+      if (session?.user?.id) {
+        const result = await getKorpa(session.user.id);
+        if (result.success && result.data) {
+          const broj = result.data.stavke.reduce((acc: number, s: any) => acc + s.kolicina, 0);
+          setBrojUKorpi(broj);
+        } else {
+          setBrojUKorpi(0);
+        }
+      } else {
+        setBrojUKorpi(0);
+      }
+    }
+    fetchBrojStavki();
 
     const handler = () => {
-      const broj = Number(localStorage.getItem('brojUKorpi') || 0);
-      setTimeout(() => {
-        setBrojUKorpi(broj);
-      }, 0);
+      fetchBrojStavki();
     };
-
     window.addEventListener('korpaChanged', handler);
     return () => window.removeEventListener('korpaChanged', handler);
-  }, []);
+  }, [session?.user?.id]);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
