@@ -43,7 +43,7 @@ export default function RegistracijaClient({ lang }: RegistracijaClientProps) {
     }
     startTransition(async () => {
       try {
-        const result = await fetch('/api/auth/korisnici', {
+        const result = await fetch('/api/auth/registracija', {
           method: 'POST',
           body: JSON.stringify({
             email,
