@@ -9,6 +9,7 @@ import {
   getKorpa,
   getPodaciPreuzimanja,
   ocistiKorpu,
+  posaljiEmailObavjestenje,
   updateProizvodStanje
 } from '@/lib/actions';
 import { getProizvodById } from '@/lib/actions/proizvodi';
@@ -74,46 +75,17 @@ export default function UspjesnoPlacanjePage() {
 
             // 2. Pošalji email potvrdu o plaćanju PRE brisanja korpe
             if (session?.user?.email) {
-              // Dohvati podatke iz baze
-              const korpaResult = await import('@/lib/actions/korpa').then(mod => mod.getKorpa(session.user.id));
+              const korpaResult = await getKorpa(session.user.id);
               const stavkeBaza = korpaResult.success && korpaResult.data ? korpaResult.data.stavke : [];
               const ukupno = stavkeBaza.reduce((acc: number, s: any) => acc + (s.proizvod ? s.proizvod.cena * s.kolicina : 0), 0);
-              let proizvodiHtml = '';
-              if (stavkeBaza && stavkeBaza.length > 0) {
-                proizvodiHtml = `<ul style=\"padding-left:0; margin-bottom:16px;\">` +
-                  stavkeBaza.map((s: any) =>
-                    `<li style='list-style:none; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:8px;'>
-                      <span style='font-weight:bold;'>${s.proizvod?.naziv_sr || s.proizvod?.naziv_en || 'Proizvod'}</span> &times; ${s.kolicina} <span style='color:#888;'>(${s.proizvod?.cena} €)</span>
-                    </li>`
-                  ).join('') + '</ul>';
-              }
-              const html = `
-                <div style=\"font-family: Arial, sans-serif; background: #f9f9f9; padding: 32px; border-radius: 12px; color: #222;\">
-                  <div style=\"text-align:center; margin-bottom:24px;\">
-                    <h2 style=\"color:#2196f3; margin-bottom:8px;\">Hvala na kupovini!</h2>
-                    <img src='https://cdn-icons-png.flaticon.com/512/833/833472.png' alt='Potvrda' width='64' style='margin-bottom:16px;' />
-                  </div>
-                  <div style=\"background:#fff; padding:24px; border-radius:8px; box-shadow:0 2px 8px #eee;\">
-                    <p style=\"font-size:18px; margin-bottom:12px;\">Vaša uplata je uspešno obrađena.</p>
-                    <p style=\"font-size:16px; margin-bottom:8px;\">Ukupan iznos: <span style=\"color:#2196f3; font-weight:bold;\">${ukupno} €</span></p>
-                    ${proizvodiHtml ? `<div style=\"margin-top:16px;\"><h3 style=\"font-size:15px; color:#333; margin-bottom:8px;\">Proizvodi:</h3>${proizvodiHtml}</div>` : ''}
-                    <p style=\"font-size:15px; color:#555;\">Uskoro ćete dobiti više informacija o isporuci na ovaj email.</p>
-                  </div>
-                  <div style=\"text-align:center; margin-top:24px; font-size:13px; color:#888;\">
-                    <p>Prodavnica &copy; 2025</p>
-                  </div>
-                </div>
-              `;
-              const emailSent = await import('@/lib/actions/email').then(mod => mod.posaljiEmailObavjestenje({
+              const emailSent = await posaljiEmailObavjestenje({
                 email: session.user.email || '',
                 ukupno,
                 stavke: stavkeBaza,
                 subject: 'Potvrda o plaćanju - Prodavnica',
                 text: `Vaša uplata je uspešno obrađena. Ukupno: ${ukupno} €.`,
-                html
-              }));
+              });
               if (emailSent) {
-                // toast.success('Email potvrda o plaćanju je poslata!', { duration: 3000 });
                 console.log('Email potvrda o plaćanju je poslata');
               } else {
                 toast.error('Greška pri slanju email potvrde!');
@@ -173,24 +145,33 @@ export default function UspjesnoPlacanjePage() {
         ) : (
           <>
               <div className="mb-6">
-                <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
+                <div className="flex items-center justify-center mx-auto mb-4">
+                  <div className="w-20 h-20 rounded-full bg-linear-to-br from-green-400 to-green-600 flex items-center justify-center shadow-lg">
+                    <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
                 </div>
-                <h1 className="text-3xl font-bold text-green-600 mb-2">Plaćanje uspješno!</h1>
-                <p className="text-gray-600 mb-4">Vaša porudžbina je obrađena. Hvala na kupovini!</p>
+                <h1 className="text-3xl font-extrabold text-green-700 mb-2 tracking-tight">Plaćanje uspješno!</h1>
+                <p className="text-base text-gray-700 mb-4">Vaša porudžbina je obrađena.<br className="hidden sm:inline" /> Hvala na kupovini!</p>
               </div>
 
             {paymentProvider === 'monripay' && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-                  <p className="text-green-600 font-medium">MonriPay transakcija je uspješno završena.</p>
+                <div className="bg-green-100 border border-green-300 rounded-lg p-4 mb-4 flex items-center gap-3">
+                  <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-green-700 font-semibold">MonriPay transakcija je uspješno završena.</span>
                 </div>
             )}
 
             {paymentProvider === 'unknown' && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-                  <p className="text-yellow-600">Transakcija je završena, ali nije prepoznat provider.</p>
+                <div className="bg-yellow-100 border border-yellow-300 rounded-lg p-4 mb-4 flex items-center gap-3">
+                  <svg className="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01" />
+                  </svg>
+                  <span className="text-yellow-700 font-semibold">Transakcija je završena, ali nije prepoznat provider.</span>
                 </div>
             )}
 

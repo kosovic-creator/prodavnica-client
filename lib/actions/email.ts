@@ -37,7 +37,6 @@ export async function posaljiEmailObavjestenje(porudzbinaData: PorudzbinaData): 
       <div style="font-family: Arial, sans-serif; background: #f9f9f9; padding: 32px; border-radius: 12px; color: #222;">
         <div style="text-align:center; margin-bottom:24px;">
           <h2 style="color:#2196f3; margin-bottom:8px;">Plaćanje uspješno!</h2>
-          <img src='https://cdn-icons-png.flaticon.com/512/833/833472.png' alt='Plaćanje' width='64' style='margin-bottom:16px;' />
         </div>
         <div style="background:#fff; padding:24px; border-radius:8px; box-shadow:0 2px 8px #eee;">
           <p style="font-size:18px; margin-bottom:12px;">Vaša uplata je uspešno obrađena.</p>
@@ -68,7 +67,6 @@ export async function posaljiEmailObavjestenje(porudzbinaData: PorudzbinaData): 
         <div style="font-family: Arial, sans-serif; background: #f9f9f9; padding: 32px; border-radius: 12px; color: #222;">
           <div style="text-align:center; margin-bottom:24px;">
             <h2 style="color:#4caf50; margin-bottom:8px;">Porudžbina uspešno kreirana!</h2>
-            <img src='https://cdn-icons-png.flaticon.com/512/833/833472.png' alt='Porudžbina' width='64' style='margin-bottom:16px;' />
           </div>
           <div style="background:#fff; padding:24px; border-radius:8px; box-shadow:0 2px 8px #eee;">
             <p style="font-size:18px; margin-bottom:12px;">Vaša porudžbina je uspešno kreirana.</p>
