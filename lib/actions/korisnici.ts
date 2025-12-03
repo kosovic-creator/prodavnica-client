@@ -83,29 +83,46 @@ export async function getKorisnikById(id: string) {
   }
 }
 
-export async function createKorisnik(data: KorisnikData) {
+export async function createKorisnik(data: Partial<KorisnikData>) {
   try {
     const { email, lozinka, ime, prezime, uloga = 'korisnik', adresa, drzava, grad, telefon, postanskiBroj } = data;
 
-    const korisnik = await prisma.korisnik.create({
-      data: {
-        email,
-        lozinka,
-        ime,
-        prezime,
-        uloga,
-        podaciPreuzimanja: {
-          create: {
-            adresa,
-            drzava,
-            grad,
-            telefon,
-            postanskiBroj
+    if (!email || !lozinka || !ime || !prezime) {
+      throw new Error('Nedostaju obavezna polja za korisnika');
+    }
+
+    let korisnik;
+    if (adresa && drzava && grad && telefon && postanskiBroj) {
+      korisnik = await prisma.korisnik.create({
+        data: {
+          email: email as string,
+          lozinka: lozinka as string,
+          ime: ime as string,
+          prezime: prezime as string,
+          uloga,
+          podaciPreuzimanja: {
+            create: {
+              adresa,
+              drzava,
+              grad,
+              telefon,
+              postanskiBroj
+            }
           }
+        },
+        include: { podaciPreuzimanja: true }
+      });
+    } else {
+      korisnik = await prisma.korisnik.create({
+        data: {
+          email: email as string,
+          lozinka: lozinka as string,
+          ime: ime as string,
+          prezime: prezime as string,
+          uloga
         }
-      },
-      include: { podaciPreuzimanja: true }
-    });
+      });
+    }
 
     revalidatePath('/admin/korisnici');
 

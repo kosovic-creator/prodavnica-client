@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { FaUserPlus, FaEnvelope, FaLock, FaUser } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from 'react-hot-toast';
-import { registrujKorisnika } from '@/lib/actions';
 import i18n from '@/i18n/config';
 interface RegistracijaClientProps {
   lang: string;
@@ -44,14 +43,19 @@ export default function RegistracijaClient({ lang }: RegistracijaClientProps) {
     }
     startTransition(async () => {
       try {
-        const result = await registrujKorisnika({
-          email,
-          lozinka,
-          ime,
-          prezime
+        const result = await fetch('/api/auth/korisnici', {
+          method: 'POST',
+          body: JSON.stringify({
+            email,
+            lozinka,
+            ime,
+            prezime
+          }),
+          headers: { 'Content-Type': 'application/json' }
         });
-        if (!result.success) {
-          toast.error(result.error || t('register.error_occurred'));
+        const data = await result.json();
+        if (!data.success) {
+          toast.error(data.error || t('register.error_occurred'));
           return;
         }
         toast.success(t('register.register_success'));
