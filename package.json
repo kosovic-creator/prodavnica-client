@@ -28,7 +28,7 @@
     "i18next": "^25.5.2",
     "lucide-react": "^0.544.0",
     "multer": "^2.0.2",
-    "next": "16.0.5",
+    "next": "^16.0.7",
     "next-auth": "^4.24.13",
     "next-connect": "^1.0.0",
     "nodemailer": "^7.0.11",
