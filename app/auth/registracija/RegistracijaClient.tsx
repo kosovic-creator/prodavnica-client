@@ -5,11 +5,12 @@ import { FaUserPlus, FaEnvelope, FaLock, FaUser } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from 'react-hot-toast';
 import i18n from '@/i18n/config';
-interface RegistracijaClientProps {
-  lang: string;
-}
 
-export default function RegistracijaClient({ lang }: RegistracijaClientProps) {
+import { useSearchParams } from "next/navigation";
+
+export default function RegistracijaClient() {
+  const searchParams = useSearchParams();
+  const lang = typeof searchParams?.get("lang") === "string" ? searchParams.get("lang")! : "sr";
   useEffect(() => {
     if (i18n.language !== lang) {
       i18n.changeLanguage(lang);
