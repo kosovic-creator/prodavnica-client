@@ -1,6 +1,6 @@
 
 import ProizvodiClient from './ProizvodiClient';
-import { getProizvodi,deleteProizvod } from './../../lib/actions/proizvodi';
+import { getProizvodi } from './../../lib/actions/proizvodi';
 
 interface ProizvodiPageProps {
   searchParams: Promise<{
