@@ -48,15 +48,54 @@ export const authOptions: NextAuthOptions = {
         lozinka: { label: "Lozinka", type: "password" },
       },
       async authorize(credentials) {
+        interface LogToApiRequest {
+          msg: string;
+          ts: string;
+        }
+
+        interface LogToApiResponse {
+          status: number;
+          responseText: string;
+        }
+
+        async function logToApi(msg: string): Promise<void> {
+          try {
+            const requestBody: LogToApiRequest = { msg, ts: new Date().toISOString() };
+            const res: Response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/debug-log`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(requestBody)
+            });
+            // Logujemo status i odgovor fetch-a
+            console.log('logToApi status:', res.status);
+            const text: string = await res.text();
+            console.log('logToApi response:', text);
+          } catch (err: unknown) {
+            console.error('logToApi error:', err);
+          }
+        }
+        await logToApi('Authorize credentials: ' + JSON.stringify(credentials));
         const result = loginSchema.safeParse(credentials);
-        if (!result.success) return null;
+        if (!result.success) {
+          await logToApi('Login schema validation failed: ' + JSON.stringify(result.error));
+          return null;
+        }
         const { email, lozinka } = result.data;
         const korisnik = await prisma.korisnik.findUnique({
           where: { email },
         });
-        if (!korisnik || !korisnik.lozinka) return null;
+        if (!korisnik || !korisnik.lozinka) {
+          await logToApi('Korisnik nije pronađen ili nema lozinku: ' + JSON.stringify(korisnik));
+          return null;
+        }
+        await logToApi('Korisnik iz baze: ' + JSON.stringify({ ...korisnik, lozinka: '***' }));
         const valid = await bcrypt.compare(lozinka, korisnik.lozinka);
-        if (!valid) return null;
+        await logToApi('Rezultat bcrypt.compare: ' + valid);
+        if (!valid) {
+          await logToApi('Lozinka nije validna');
+          return null;
+        }
+        await logToApi('Prijava uspješna za: ' + email);
         return {
           id: korisnik.id,
           email: korisnik.email,
@@ -139,8 +178,8 @@ export const authOptions: NextAuthOptions = {
         (session.user as CustomSessionUser).uloga = (token as CustomToken).uloga;
         (session.user as CustomSessionUser).ime = (token as CustomToken).ime;
         (session.user as CustomSessionUser).prezime = (token as CustomToken).prezime;
-        // ...existing code...
         (session.user as CustomSessionUser).id = (token as CustomToken).id;
+        (session.user as CustomSessionUser).email = (token as CustomToken).email;
       }
       return session;
     },

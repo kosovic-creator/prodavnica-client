@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import "../i18nnnnn/config";
+import "../i18n/config";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 

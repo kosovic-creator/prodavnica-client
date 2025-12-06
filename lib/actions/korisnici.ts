@@ -91,12 +91,24 @@ export async function createKorisnik(data: Partial<KorisnikData>) {
       throw new Error('Nedostaju obavezna polja za korisnika');
     }
 
+    // Provjera da li već postoji korisnik sa tim emailom
+    const existing = await prisma.korisnik.findUnique({ where: { email: email as string } });
+    if (existing) {
+      return {
+        success: false,
+        error: 'email_exists'
+      };
+    }
+
+    // Hash lozinke prije upisa
+    const hash = await bcrypt.hash(lozinka as string, 10);
+
     let korisnik;
     if (adresa && drzava && grad && telefon && postanskiBroj) {
       korisnik = await prisma.korisnik.create({
         data: {
           email: email as string,
-          lozinka: lozinka as string,
+          lozinka: hash,
           ime: ime as string,
           prezime: prezime as string,
           uloga,
@@ -116,7 +128,7 @@ export async function createKorisnik(data: Partial<KorisnikData>) {
       korisnik = await prisma.korisnik.create({
         data: {
           email: email as string,
-          lozinka: lozinka as string,
+          lozinka: hash,
           ime: ime as string,
           prezime: prezime as string,
           uloga
@@ -132,6 +144,13 @@ export async function createKorisnik(data: Partial<KorisnikData>) {
     };
   } catch (error) {
     console.error('Error creating korisnik:', error);
+    // Specifična poruka za unique constraint
+    if (error instanceof Error && (error as any).code === 'P2002') {
+      return {
+        success: false,
+        error: 'email_exists'
+      };
+    }
     return {
       success: false,
       error: 'Greška pri kreiranju korisnika'

@@ -15,25 +15,17 @@ interface NavbarProps {
 
 // Komponenta koja koristi useSearchParams - mora biti u Suspense
 function NavbarContent({ setSidebarOpen }: NavbarProps) {
-  const [currentLanguage, setCurrentLanguage] = useState('sr');
   const [languageDropdownOpen, setLanguageDropdownOpen] = useState(false);
   const { data: session } = useSession();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Uzimanje jezika iz URL-a
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const urlLang = new URL(window.location.href).searchParams.get('lang');
-      if (urlLang && urlLang !== currentLanguage) {
-        setCurrentLanguage(urlLang);
-      }
-    }
-  }, [searchParams]);
+  // Derive language from searchParams or default to 'sr'
+  const currentLanguage = searchParams.get('lang') || 'sr';
 
+  // Ispravljen changeLanguage bez setCurrentLanguage i duplikata
   const changeLanguage = (lang: string) => {
-    setCurrentLanguage(lang);
     setLanguageDropdownOpen(false);
     try {
       const urlSearchParams = new URLSearchParams(window.location.search);
@@ -41,14 +33,6 @@ function NavbarContent({ setSidebarOpen }: NavbarProps) {
       router.push(`${pathname}?${urlSearchParams.toString()}`);
     } catch (error) {
       router.push(`${pathname}?lang=${lang}`);
-    }
-  };
-
-  const navigateWithLang = (path: string) => {
-    try {
-      router.push(`${path}?lang=${currentLanguage}`);
-    } catch (error) {
-      router.push(`${path}?lang=sr`);
     }
   };
 
@@ -74,18 +58,26 @@ function NavbarContent({ setSidebarOpen }: NavbarProps) {
         {/* Prijava/Odjava */}
         {!session?.user ? (
           <button
-            onClick={() => navigateWithLang('/auth/prijava')}
+            onClick={() => router.push(`/auth/prijava?lang=${currentLanguage}`)}
             className="flex items-center justify-center p-2 sm:p-3 rounded-lg hover:bg-blue-50 transition touch-manipulation min-w-11 min-h-11"
           >
             <FaSignInAlt className="text-blue-600 w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         ) : (
-          <button
-            onClick={() => signOut({ callbackUrl: "/auth/prijava" })}
-            className="flex items-center justify-center p-2 sm:p-3 rounded-lg hover:bg-blue-50 transition touch-manipulation min-w-11 min-h-11"
-          >
-            <FaSignOutAlt className="text-blue-600 w-4 h-4 sm:w-5 sm:h-5" />
-          </button>
+            <div className="flex items-center gap-2">
+              <span
+                className="text-sm font-medium text-gray-700 max-w-[120px] truncate"
+                title={session.user.name ? session.user.name : (session.user.email ? session.user.email : undefined)}
+              >
+                {session.user.name || session.user.email}
+              </span>
+              <button
+                onClick={() => signOut({ callbackUrl: "/auth/prijava" })}
+                className="flex items-center justify-center p-2 sm:p-3 rounded-lg hover:bg-blue-50 transition touch-manipulation min-w-11 min-h-11"
+              >
+                <FaSignOutAlt className="text-blue-600 w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+            </div>
         )}
         {/* Izbor jezika */}
         <div className="relative language-dropdown ml-2">

@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
+import LoginForm from '../../components/LoginForm';
 import i18next from 'i18next';
 import { korisnikSchema } from '../../../zod';
 import { redirect } from 'next/navigation';
@@ -13,12 +14,15 @@ const resources = {
 };
 
 
+
+
 export default async function Page({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
   const params = await searchParams;
   let lng = 'sr';
   if (params?.lang === 'sr' || params?.lang === 'en') {
     lng = params.lang as string;
   }
+  const errorParam = params?.error;
 
   const i18nInstance = i18next.createInstance();
   await i18nInstance.init({
@@ -32,44 +36,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ [
   const errors: Record<string, string> = {};
   const values: Record<string, string> = {
     email: '',
-    password: ''
+    lozinka: ''
   };
 
-
-  // Server action za validaciju i submit
-  async function handleSubmit(formData: FormData) {
-    'use server';
-    // Inicijalizuj i18n i errors unutar funkcije
-    const lang = (formData.get('lang') as string) || 'sr';
-    const i18nInstance = (await import('i18next')).default.createInstance();
-    await i18nInstance.init({
-      lng: lang,
-      fallbackLng: 'sr',
-      resources,
-      ns: ['auth'],
-      defaultNS: 'auth',
-    });
-    const t = (key: string) => i18nInstance.t(`login.${key}`);
-    const values = {
-      email: formData.get('email') as string,
-      password: formData.get('password') as string,
-    };
-    const schema = korisnikSchema(t).pick({ email: true, lozinka: true });
-    const zodValues = { email: values.email, lozinka: values.password };
-    const result = schema.safeParse(zodValues);
-    const errors: Record<string, string> = {};
-    if (!result.success) {
-      for (const err of result.error.issues) {
-        errors[String(err.path[0] ?? '')] = err.message;
-      }
-      // Ovdje možeš vratiti errors kroz revalidatePath ili cookies, ili prikazati na stranici
-      return;
-    }
-    // Ovdje ide logika za autentifikaciju korisnika
-    // ...autentifikacija...
-    // Ako je autentifikacija uspješna:
-    redirect('/');
-  }
+  // Uklanjam server action, prikazujem klijentsku LoginForm komponentu
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-8 bg-gray-50">
@@ -78,53 +48,15 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ [
           <FaSignInAlt className="text-blue-600" />
           {i18nInstance.t('login.title')}
         </h1>
-        <form action={handleSubmit} className="space-y-4">
-          <div className="flex items-center gap-3 border border-gray-300 p-3 rounded-lg input-focus">
-            <FaEnvelope className="text-blue-600 text-lg shrink-0" />
-            <input
-              type="email"
-              name="email"
-              placeholder={i18nInstance.t('login.email')}
-              className="flex-1 outline-none bg-transparent text-base"
-              required
-              defaultValue={values.email}
-            />
+        {errorParam && (
+          <div className="mb-4 text-red-600 text-center font-medium">
+            {i18nInstance.t('login.invalidCredentials') || 'Pogrešan email ili lozinka.'}
           </div>
-          {errors.email && <div className="text-red-600 text-sm">{errors.email}</div>}
-          <div className="flex items-center gap-3 border border-gray-300 p-3 rounded-lg input-focus">
-            <FaLock className="text-blue-600 text-lg shrink-0" />
-            <input
-              type="password"
-              name="password"
-              placeholder={i18nInstance.t('login.password')}
-              className="flex-1 outline-none bg-transparent text-base"
-              required
-              defaultValue={values.password}
-            />
-          </div>
-          {errors.lozinka && <div className="text-red-600 text-sm">{errors.lozinka}</div>}
-          <div className="flex items-center gap-2">
-            <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-600 hover:text-gray-800 transition-colors">
-              <div className="relative">
-                <input
-                  type="checkbox"
-                  name="rememberMe"
-                  className="sr-only"
-                />
-                <div className="w-4 h-4 border-2 rounded flex items-center justify-center transition-colors border-gray-300 hover:border-blue-400">
-                </div>
-                {i18nInstance.t('login.rememberMe')}
-              </div>
-            </label>
-          </div>
-          <button
-            type="submit"
-            className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-3 rounded-lg shadow-md hover:bg-blue-700 transition-colors text-base font-medium cursor-pointer"
-          >
-            <FaSignInAlt />
-            {i18nInstance.t('login.login')}
-          </button>
-        </form>
+        )}
+        {/* Klijentska login forma */}
+        <div className="mt-4">
+          <LoginForm />
+        </div>
         <div className="mt-6 space-y-4">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">

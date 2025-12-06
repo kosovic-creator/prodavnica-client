@@ -12,11 +12,13 @@ const resources = {
 
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
+
   const params = await searchParams;
   let lng = 'sr';
   if (params?.lang === 'sr' || params?.lang === 'en') {
     lng = params.lang as string;
   }
+  const errorParam = params?.error;
 
   const i18nInstance = i18next.createInstance();
   await i18nInstance.init({
@@ -74,8 +76,28 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ [
       errors.potvrdaLozinke = t('passwords_do_not_match');
       return;
     }
-    // Ovdje ide logika za upis korisnika u bazu ili API poziv
-    // redirect('/auth/prijava');
+    // Upis korisnika u bazu preko API poziva
+    const res = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/auth/korisnici`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: values.email,
+        lozinka: values.lozinka,
+        ime: values.ime,
+        prezime: values.prezime
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      redirect('/auth/prijava');
+    } else if (data.error === 'email_exists') {
+      redirect('/auth/registracija?error=email_exists');
+    } else {
+      redirect('/auth/registracija?error=1');
+    }
+    const errorParam = params?.error;
   }
 
   return (
@@ -85,6 +107,16 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ [
           <FaUserPlus className="text-blue-600" />
           {i18nInstance.t('register.title')}
         </h1>
+        {errorParam === 'email_exists' && (
+          <div className="mb-4 text-red-600 text-center font-medium">
+            {i18nInstance.t('register.email_exists') || 'Email je već registrovan.'}
+          </div>
+        )}
+        {errorParam && errorParam !== 'email_exists' && (
+          <div className="mb-4 text-red-600 text-center font-medium">
+            {i18nInstance.t('register.error_occurred') || 'Došlo je do greške pri registraciji.'}
+          </div>
+        )}
         <form action={handleSubmit} className="space-y-4">
           <div className="flex items-center gap-3 border border-gray-300 p-3 rounded-lg hover:border-blue-400 transition-colors">
             <FaEnvelope className="text-blue-600 text-lg shrink-0" />

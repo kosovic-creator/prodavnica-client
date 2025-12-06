@@ -2,11 +2,14 @@
 
 import { getProizvodi } from './../../lib/actions/proizvodi';
 import Image from 'next/image';
+import AddToCartButton from './components/AddToCartButton';
+import OmiljeniButton from './components/OmiljeniButton';
+import PaginationControls from './components/PaginationControls';
 import fs from 'fs';
 import path from 'path';
 
 function getLocaleMessages(lang: string) {
-  const filePath = path.join(process.cwd(), 'i18nnnnn/locales', lang, 'proizvodi.json');
+  const filePath = path.join(process.cwd(), 'i18n/locales', lang, 'proizvodi.json');
   const raw = fs.readFileSync(filePath, 'utf-8');
   return JSON.parse(raw);
 }
@@ -76,16 +79,21 @@ export default async function ProizvodiPage({ searchParams }: { searchParams: Pr
                       <div className={`text-xs font-medium px-2 py-1 rounded ${proizvod.kolicina === 0 ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-600'}`}>{t['kolicina']}: {proizvod.kolicina}</div>
                     </div>
                   </div>
+                  <div className="absolute top-3 right-3 z-10">
+                    <OmiljeniButton proizvodId={proizvod.id} />
+                  </div>
                   <div className="flex flex-col sm:flex-row gap-2 mt-4">
                     <a href={`/proizvodi/${proizvod.id}?lang=${lang}`} className="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center gap-2 text-sm font-medium">
                       {t['detalji']}
                     </a>
+                    <AddToCartButton proizvod={proizvod} />
                   </div>
                 </div>
               );
             })
           )}
         </div>
+        <PaginationControls page={page} total={result.data.total} pageSize={pageSize} lang={lang} search={search} />
       </div>
     </div>
   );
