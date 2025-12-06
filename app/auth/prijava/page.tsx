@@ -66,7 +66,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ [
       return;
     }
     // Ovdje ide logika za autentifikaciju korisnika
-    // redirect('/');
+    // ...autentifikacija...
+    // Ako je autentifikacija uspješna:
+    redirect('/');
   }
 
   return (

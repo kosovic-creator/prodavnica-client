@@ -148,6 +148,47 @@ function SidebarContent({ open, onClose }: SidebarProps) {
 }
 
 // Glavna Sidebar komponenta sa Suspense
-export default function Sidebar() {
-  return <></>;
+interface SidebarProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+export default function Sidebar({ open, onClose }: SidebarProps) {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const pathname = usePathname();
+  // Link na proizvodi
+  const proizvodiActive = pathname === '/proizvodi';
+  return (
+    <>
+      {open && (
+        <div className="fixed inset-0 z-40">
+          <div className="absolute inset-0 bg-black opacity-30" onClick={onClose}></div>
+          <div className="absolute top-0 left-0 h-full w-64 bg-white shadow-lg z-50 flex flex-col">
+            <button className="absolute top-4 right-4" onClick={onClose} aria-label="Zatvori sidebar">
+              ×
+            </button>
+            <div className="p-4 border-b">
+              {session?.user && (
+                <div className="mb-2">
+                  <div className="font-bold text-blue-700">{session.user.name}</div>
+                  <div className="text-xs text-gray-500">{session.user.email}</div>
+                </div>
+              )}
+            </div>
+            <div className="flex-1" />
+            <div className="p-4 border-t">
+              <button
+                onClick={() => { router.push('/proizvodi'); onClose(); }}
+                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 ${proizvodiActive ? 'bg-blue-100 text-blue-700 font-bold' : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'}`}
+              >
+                <span>🛒</span>
+                <span>Proizvodi</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
 }
