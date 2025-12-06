@@ -1,15 +1,33 @@
+import i18next from 'i18next';
+import en from '../public/locales/en/common.json';
+import sr from '../public/locales/sr/common.json';
 
-import ProizvodiBannerClient from "./@banner/ProizvodiBannerClient";
-import ProizvodiGridHomeClient from "./@grid/ProizvodiGridHomeClient";
-import { getProizvodi } from "@/lib/actions/proizvodi";
+const resources = {
+  en: { common: en },
+  sr: { common: sr }
+};
 
-export default async function Home() {
-  const res = await getProizvodi(1, 10);
-  const initialProizvodi = res.success && res.data ? res.data.proizvodi : [];
+export default async function HomePage({ searchParams }: { searchParams: Promise<{ [key: string]: string }> }) {
+  const params = await searchParams;
+  let lng = 'en';
+  if (params?.lang === 'sr' || params?.lang === 'en') {
+    lng = params.lang;
+  }
+
+  const i18nInstance = i18next.createInstance();
+  await i18nInstance.init({
+    lng,
+    fallbackLng: 'en',
+    resources,
+  });
+
   return (
     <>
-      <ProizvodiBannerClient initialProizvodi={initialProizvodi} />
-      <ProizvodiGridHomeClient initialProizvodi={initialProizvodi} />
+      <main>
+        <h1>{i18nInstance.t('common:welcome')}</h1>
+        <p>{i18nInstance.t('common:info')}</p>
+      </main>
     </>
   );
 }
+

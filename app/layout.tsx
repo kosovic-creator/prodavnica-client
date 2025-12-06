@@ -1,9 +1,10 @@
-
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import ClientLayout from "./components/ClientLayout";
-import Footer from "./components/Footer";
+import ClientLayout from "./ClientLayout";
+import type { ReactNode } from 'react';
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,32 +23,19 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-
-}: Readonly<{
-  children: React.ReactNode;
-  banner?: React.ReactNode;
-  grid?: React.ReactNode;
-}>): React.ReactElement {
+}: {
+  children: ReactNode;
+}): React.ReactElement {
+  // i18n je inicijaliziran globalno, locale i prijevodi se detektuju automatski
+  const locale = 'sr'; // ili 'en', možeš kasnije dinamički postavljati
   return (
-    <html lang="en">
+    <html lang={locale}>
       <head>
-        {/* Standard favicon */}
-        {/* <link rel="icon" href="/favicon_simple.ico" sizes="any" />
-        <link rel="icon" href="/favicon_simple.svg" type="image/svg+xml" />
-        <link rel="icon" href="/favicon_simple.png" type="image/png" /> */}
-         <link rel="shortcut icon" href="/favicon.ico" />
-        {/* Apple touch icon for mobile shortcuts */}
+        <link rel="shortcut icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
-      >
-        <ClientLayout>
-
-            {children}
-
-        </ClientLayout>
-        <Footer />
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}>
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );
