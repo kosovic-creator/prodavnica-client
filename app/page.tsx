@@ -1,33 +1,16 @@
-import i18next from 'i18next';
-import en from '../public/locales/en/common.json';
-import sr from '../public/locales/sr/common.json';
+import BannerPage from './@banner/page';
+import GridPage from './@grid/page';
 
-const resources = {
-  en: { common: en },
-  sr: { common: sr }
-};
-
-export default async function HomePage({ searchParams }: { searchParams: Promise<{ [key: string]: string }> }) {
-  const params = await searchParams;
-  let lng = 'en';
-  if (params?.lang === 'sr' || params?.lang === 'en') {
-    lng = params.lang;
-  }
-
-  const i18nInstance = i18next.createInstance();
-  await i18nInstance.init({
-    lng,
-    fallbackLng: 'en',
-    resources,
-  });
-
+export default async function HomePage({ searchParams }: { searchParams?: Promise<{ lang?: string }> }) {
+  const params = searchParams ? await searchParams : {};
+  const lang = params?.lang === 'en' ? 'en' : 'sr';
   return (
-    <>
-      <main>
-        <h1>{i18nInstance.t('common:welcome')}</h1>
-        <p>{i18nInstance.t('common:info')}</p>
-      </main>
-    </>
+    <main className="flex flex-col gap-8">
+      {/* Banner gore */}
+      <BannerPage lang={lang} />
+      {/* Grid proizvoda dolje */}
+      <GridPage lang={lang} />
+    </main>
   );
 }
 
