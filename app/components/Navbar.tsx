@@ -7,6 +7,8 @@ import CartBadgeClient from '../components/CartBadgeClient';
 import ProfileDropdownClient from '../components/ProfileDropdownClient';
 import LanguageSwitcherClient from './LanguageSwitcherClient';
 
+
+
 interface NavbarProps {
   lang?: string;
   isAdmin?: boolean;
@@ -18,7 +20,6 @@ interface NavbarProps {
 
 export default function Navbar({ lang = 'sr', isAdmin = false, brojUKorpi = 0, setSidebarOpen, isLoggedIn = false, korisnikIme }: NavbarProps) {
   const t = lang === 'en' ? en : sr;
-
   return (
     <nav className="sticky top-0 z-50 flex items-center justify-between gap-2 sm:gap-4 p-3 sm:p-4 border-b border-gray-200 bg-white shadow-sm">
       {!isAdmin && (
@@ -42,11 +43,6 @@ export default function Navbar({ lang = 'sr', isAdmin = false, brojUKorpi = 0, s
                 <span className="xs:hidden">Trgovina</span>
               </span>
             </Link>
-            {korisnikIme && (
-              <span className="font-semibold text-blue-700 ml-2 truncate max-w-[120px] hidden sm:block" title={korisnikIme}>
-                {korisnikIme.trim() || 'Korisnik'}
-              </span>
-            )}
           </div>
           {/* Center Section - Desktop Search */}
           <div className="hidden lg:flex flex-1 max-w-md mx-4">
@@ -63,7 +59,6 @@ export default function Navbar({ lang = 'sr', isAdmin = false, brojUKorpi = 0, s
           </div>
           {/* Right Section - Links */}
           <div className="flex items-center gap-3">
-
             {/* Profil dropdown za prijavljenog korisnika */}
             {isLoggedIn ? (
               <ProfileDropdownClient lang={lang} t={t} />
@@ -79,15 +74,12 @@ export default function Navbar({ lang = 'sr', isAdmin = false, brojUKorpi = 0, s
                 <span>{t.login || 'Prijava'}</span>
               </Link>
             )}
-
             {/* Language Switcher - client component */}
             <LanguageSwitcherClient />
-
           </div>
         </>
       )}
     </nav>
   );
 }
-
 

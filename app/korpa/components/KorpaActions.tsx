@@ -1,7 +1,7 @@
 'use client';
 
 import { useTransition } from 'react';
-import { useTranslation } from 'react-i18next';
+// SSR lokalizacija: primaj lang i t kao prop
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { FaTrashAlt, FaShoppingCart } from 'react-icons/fa';
@@ -13,6 +13,7 @@ import {
 import { posaljiEmailObavjestenje } from '../../../lib/actions/email';
 import { getProizvodById, updateProizvodStanje } from '../../../lib/actions/proizvodi';
 import { useSession } from 'next-auth/react';
+
 
 interface StavkaKorpe {
   id: string;
@@ -29,10 +30,11 @@ interface StavkaKorpe {
 interface KorpaActionsProps {
   userId: string;
   stavke: StavkaKorpe[];
+  lang: string;
+  t: Record<string, string>;
 }
 
-export default function KorpaActions({ userId, stavke }: KorpaActionsProps) {
-  const { t } = useTranslation('korpa');
+export default function KorpaActions({ userId, stavke, lang, t }: KorpaActionsProps) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const { data: session } = useSession();
@@ -91,7 +93,7 @@ export default function KorpaActions({ userId, stavke }: KorpaActionsProps) {
           const result = await kreirajPorudzbinu(porudzbinaData);
 
           if (!result.success) {
-            toast.error(result.error || t('error') || 'Greška pri kreiranju porudžbine');
+            toast.error(result.error || t.error || 'Greška pri kreiranju porudžbine');
             resolve(false);
             return;
           }
@@ -121,7 +123,7 @@ export default function KorpaActions({ userId, stavke }: KorpaActionsProps) {
         const podaciResult = await getPodaciPreuzimanja(userId);
 
         if (!podaciResult.success || !podaciResult.data) {
-          toast.error(t('no_data_redirect') || "Nemate unete podatke za preuzimanje. Bićete preusmereni na stranicu za unos podataka.", { duration: 5000 });
+          toast.error(t.no_data_redirect || "Nemate unete podatke za preuzimanje. Bićete preusmereni na stranicu za unos podataka.", { duration: 5000 });
           setTimeout(() => {
             router.push('/');
           }, 2000);
@@ -136,7 +138,7 @@ export default function KorpaActions({ userId, stavke }: KorpaActionsProps) {
         }
       } catch (error) {
         console.error('Error completing purchase:', error);
-        toast.error(t('error') || 'Greška pri završavanju kupovine');
+        toast.error(t.error || 'Greška pri završavanju kupovine');
       }
     });
   };
@@ -148,7 +150,7 @@ export default function KorpaActions({ userId, stavke }: KorpaActionsProps) {
       {/* Ukupno */}
       <div className="bg-gray-50 p-4 rounded-lg">
         <div className="flex justify-between items-center text-lg font-semibold">
-          <span>{t('ukupno') || 'Ukupno'}:</span>
+          <span>{t.ukupno || 'Ukupno'}:</span>
           <span>{ukupno.toFixed(2)} €</span>
         </div>
       </div>
@@ -165,7 +167,7 @@ export default function KorpaActions({ userId, stavke }: KorpaActionsProps) {
           ) : (
             <FaTrashAlt />
           )}
-          {t('isprazni_korpu') || 'Isprazni korpu'}
+          {t.isprazni_korpu || 'Isprazni korpu'}
         </button>
 
         <button
@@ -178,7 +180,7 @@ export default function KorpaActions({ userId, stavke }: KorpaActionsProps) {
           ) : (
             <FaShoppingCart />
           )}
-          {t('zavrsi_kupovinu') || 'Završi kupovinu'}
+          {t.zavrsi_kupovinu || 'Završi kupovinu'}
         </button>
       </div>
     </div>

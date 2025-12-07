@@ -1,7 +1,7 @@
 'use client';
 
 import { useTransition } from 'react';
-import { useTranslation } from 'react-i18next';
+// SSR lokalizacija: primaj lang i t kao prop
 import Image from 'next/image';
 import { FaTrashAlt, FaPlus, FaMinus } from 'react-icons/fa';
 import toast from 'react-hot-toast';
@@ -21,10 +21,10 @@ interface StavkaKorpe {
 
 interface KorpaItemProps {
   stavka: StavkaKorpe;
+  lang: string;
+  t: Record<string, string>;
 }
-
-export default function KorpaItem({ stavka }: KorpaItemProps) {
-  const { t } = useTranslation('korpa');
+export default function KorpaItem({ stavka, lang, t }: KorpaItemProps) {
   const [isPending, startTransition] = useTransition();
 
   const handleKolicina = async (kolicina: number) => {
@@ -42,7 +42,7 @@ export default function KorpaItem({ stavka }: KorpaItemProps) {
         window.location.reload();
       } catch (error) {
         console.error('Greška pri ažuriranju kolicine:', error);
-        toast.error(t('error') || 'Greška pri ažuriranju količine');
+        toast.error(t.error || 'Greška pri ažuriranju količine');
       }
     });
   };
@@ -61,7 +61,7 @@ export default function KorpaItem({ stavka }: KorpaItemProps) {
         // toast.success(t('artikal_izbrisan') || 'Artikal je uklonjen iz korpe');
       } catch (error) {
         console.error('Greška pri brisanju stavke:', error);
-        toast.error(t('error') || 'Greška pri brisanju stavke');
+        toast.error(t.error || 'Greška pri brisanju stavke');
       }
     });
   };
@@ -71,12 +71,13 @@ export default function KorpaItem({ stavka }: KorpaItemProps) {
   const imageUrl = Array.isArray(stavka.proizvod.slike) && stavka.proizvod.slike.length > 0
     ? stavka.proizvod.slike[0]
     : '/placeholder.png';
+  const naziv = lang === 'en' ? stavka.proizvod.naziv_en : stavka.proizvod.naziv_sr;
   return (
     <div className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm border">
       <div className="w-16 h-16 relative shrink-0">
         <Image
           src={imageUrl}
-          alt={stavka.proizvod.naziv_sr}
+          alt={naziv}
           fill
           sizes="(max-width: 768px) 100vw, 64px"
           className="object-contain rounded-lg"
@@ -88,7 +89,7 @@ export default function KorpaItem({ stavka }: KorpaItemProps) {
       </div>
 
       <div className="flex-1">
-        <h3 className="font-medium text-gray-900">{stavka.proizvod.naziv_sr}</h3>
+        <h3 className="font-medium text-gray-900">{naziv}</h3>
         <p className="text-sm text-gray-600">{stavka.proizvod.cena.toFixed(2)} €</p>
       </div>
 

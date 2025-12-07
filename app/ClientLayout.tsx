@@ -6,11 +6,11 @@ import Sidebar from "./components/Sidebar";
 import Footer from "./components/Footer";
 
 
-export default function ClientLayout({ children, lang, korisnikIme, isLoggedIn, brojUKorpi }: {
+export default function ClientLayout({ children, lang, isLoggedIn, korisnikIme, brojUKorpi }: {
   children: React.ReactNode;
   lang: string;
-  korisnikIme?: string;
   isLoggedIn?: boolean;
+  korisnikIme?: string;
   brojUKorpi?: number;
 }) {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
@@ -19,11 +19,11 @@ export default function ClientLayout({ children, lang, korisnikIme, isLoggedIn, 
       <Navbar
         setSidebarOpen={setSidebarOpen}
         lang={lang}
-        korisnikIme={korisnikIme}
         isLoggedIn={isLoggedIn}
+        korisnikIme={korisnikIme}
         brojUKorpi={brojUKorpi}
       />
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} lang={lang} />
       <main style={{ marginLeft: sidebarOpen ? 256 : 0, transition: 'margin-left 0.3s' }}>{children}</main>
       <Footer />
     </>

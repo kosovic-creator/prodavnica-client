@@ -51,9 +51,7 @@ export default async function RootLayout({
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}>
         <AuthProvider>
-          <ClientLayout lang={lang} korisnikIme={korisnikIme} isLoggedIn={isLoggedIn} brojUKorpi={brojUKorpi}>
-            {children}
-          </ClientLayout>
+          {children}
         </AuthProvider>
       </body>
     </html>

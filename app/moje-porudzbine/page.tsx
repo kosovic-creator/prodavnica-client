@@ -6,6 +6,7 @@ import { getPorudzbineKorisnika } from '@/lib/actions';
 
 import sr from '@/i18n/locales/sr/moje_porudzbine.json';
 import en from '@/i18n/locales/en/moje_porudzbine.json';
+import ClientLayout from '../ClientLayout';
 import { FaClipboardList, FaBox, FaCalendarAlt, FaEuroSign, FaImage } from 'react-icons/fa';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -18,6 +19,8 @@ export default async function MojePorudzbinePage({ searchParams }: { searchParam
   if (!session?.user?.id) {
     redirect('/auth/prijava');
   }
+  const isLoggedIn = !!session?.user;
+  const korisnikIme = typeof session?.user?.name === 'string' ? session.user.name : undefined;
   const params = await searchParams;
   const page = parseInt(params.page || '1');
   const pageSize = parseInt(params.pageSize || '10');
@@ -26,12 +29,14 @@ export default async function MojePorudzbinePage({ searchParams }: { searchParam
   const result = await getPorudzbineKorisnika(session.user.id, page, pageSize);
   if (!result.success) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-600 text-lg mb-4">Greška pri učitavanju porudžbina</div>
-          <p className="text-gray-600">{result.error}</p>
+      <ClientLayout lang={lang} isLoggedIn={isLoggedIn} korisnikIme={korisnikIme}>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-red-600 text-lg mb-4">Greška pri učitavanju porudžbina</div>
+            <p className="text-gray-600">{result.error}</p>
+          </div>
         </div>
-      </div>
+      </ClientLayout>
     );
   }
   const porudzbine = result.data?.porudzbine || [];
@@ -67,7 +72,8 @@ export default async function MojePorudzbinePage({ searchParams }: { searchParam
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <ClientLayout lang={lang} isLoggedIn={isLoggedIn} korisnikIme={korisnikIme}>
+      <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
         <h1 className="text-2xl md:text-3xl font-bold mb-6 flex items-center gap-2 text-center justify-center">
           <FaClipboardList className="text-blue-600" />
@@ -182,6 +188,7 @@ export default async function MojePorudzbinePage({ searchParams }: { searchParam
           {t.ukupno_porudzbina}: {total}
         </div>
       </div>
-    </div>
+      </div>
+    </ClientLayout>
   );
 }

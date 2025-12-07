@@ -3,8 +3,10 @@ import { getServerSession } from 'next-auth';
 import { getKorisnikById } from '@/lib/actions';
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/authOptions';
+
 import sr from '@/i18n/locales/sr/profil.json';
 import en from '@/i18n/locales/en/profil.json';
+import ClientLayout from '../ClientLayout';
 
 export default async function ProfilPage({ searchParams }: { searchParams?: Promise<{ lang?: string }> }) {
   const params = searchParams ? await searchParams : {};
@@ -19,12 +21,14 @@ export default async function ProfilPage({ searchParams }: { searchParams?: Prom
   const result = await getKorisnikById(session.user.id);
   if (!result.success || !result.data) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-600 text-lg mb-4">{t.error_fetch_korisnik || 'Greška pri učitavanju profila'}</div>
-          <p className="text-gray-600">{result.error}</p>
+      <ClientLayout lang={lang}>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-red-600 text-lg mb-4">{t.error_fetch_korisnik || 'Greška pri učitavanju profila'}</div>
+            <p className="text-gray-600">{result.error}</p>
+          </div>
         </div>
-      </div>
+      </ClientLayout>
     );
   }
 
@@ -37,7 +41,8 @@ export default async function ProfilPage({ searchParams }: { searchParams?: Prom
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <ClientLayout lang={lang} isLoggedIn={!!session?.user} korisnikIme={typeof session?.user?.name === 'string' ? session.user.name : undefined}>
+      <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-2xl mx-auto px-4">
         <h1 className="text-2xl md:text-3xl font-bold mb-6 flex items-center gap-2 text-center justify-center">
           {/* Ikonica korisnika */}
@@ -91,6 +96,7 @@ export default async function ProfilPage({ searchParams }: { searchParams?: Prom
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </ClientLayout>
   );
 }

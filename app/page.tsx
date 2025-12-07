@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 import BannerPage from './@banner/page';
 import GridPage from './@grid/page';
+import ClientLayout from './ClientLayout';
 
 export default async function HomePage({ searchParams }: { searchParams?: { lang?: string } | Promise<{ lang?: string }> }) {
   let params: { lang?: string } | undefined;
@@ -11,12 +13,14 @@ export default async function HomePage({ searchParams }: { searchParams?: { lang
   }
   const lang = params?.lang === 'en' ? 'en' : 'sr';
   return (
-    <main className="flex flex-col gap-8">
-      {/* Banner gore */}
-      <BannerPage lang={lang} />
-      {/* Grid proizvoda dolje */}
-      <GridPage lang={lang} />
-    </main>
+    <ClientLayout lang={lang}>
+      <main className="flex flex-col gap-8">
+        {/* Banner gore */}
+        <BannerPage lang={lang} />
+        {/* Grid proizvoda dolje */}
+        <GridPage lang={lang} />
+      </main>
+    </ClientLayout>
   );
 }
 
