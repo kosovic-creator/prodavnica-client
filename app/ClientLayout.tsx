@@ -5,11 +5,21 @@ import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 
 
-export default function ClientLayout({ children }: { children: React.ReactNode }) {
+export default function ClientLayout({ children, lang, korisnikIme, isLoggedIn }: {
+  children: React.ReactNode;
+  lang: string;
+  korisnikIme?: string;
+  isLoggedIn?: boolean;
+}) {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   return (
     <>
-      <Navbar setSidebarOpen={setSidebarOpen} />
+      <Navbar
+        setSidebarOpen={setSidebarOpen}
+        lang={lang}
+        korisnikIme={korisnikIme}
+        isLoggedIn={isLoggedIn}
+      />
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <main style={{ marginLeft: sidebarOpen ? 256 : 0, transition: 'margin-left 0.3s' }}>{children}</main>
     </>

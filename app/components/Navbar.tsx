@@ -1,14 +1,19 @@
 import sr from '@/i18n/locales/sr/navbar.json';
 import en from '@/i18n/locales/en/navbar.json';
+import Link from 'next/link';
+// import ProfileDropdownClient from './ProfileDropdownClient';
+import { FaShoppingCart, FaHome, FaUser, FaSignInAlt, FaSignOutAlt, FaBars } from "react-icons/fa";
 
 interface NavbarProps {
   lang?: string;
   isAdmin?: boolean;
   brojUKorpi?: number;
   setSidebarOpen?: (open: boolean) => void;
+  isLoggedIn?: boolean;
+  korisnikIme?: string;
 }
 
-export default function Navbar({ lang = 'sr', isAdmin = false, brojUKorpi = 0, setSidebarOpen }: NavbarProps) {
+export default function Navbar({ lang = 'sr', isAdmin = false, brojUKorpi = 0, setSidebarOpen, isLoggedIn = false, korisnikIme }: NavbarProps) {
   const t = lang === 'en' ? en : sr;
 
   return (
@@ -22,18 +27,23 @@ export default function Navbar({ lang = 'sr', isAdmin = false, brojUKorpi = 0, s
               onClick={() => setSidebarOpen?.(true)}
               aria-label="Open sidebar"
             >
-              <span className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700">☰</span>
+              <FaBars className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" />
             </button>
             <a
               href={`/?lang=${lang}`}
               className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg hover:bg-red-50 transition touch-manipulation min-w-0"
             >
-              <span className="text-xl sm:text-2xl">🛒</span>
+              <FaHome className="text-xl sm:text-2xl text-blue-700" />
               <span className="font-bold text-blue-700 text-sm sm:text-base truncate">
                 <span className="hidden xs:inline">{t.title}</span>
                 <span className="xs:hidden">Trgovina</span>
               </span>
             </a>
+            {korisnikIme && (
+              <span className="font-semibold text-blue-700 ml-2 truncate max-w-[120px] hidden sm:block" title={korisnikIme}>
+                {korisnikIme.trim() || 'Korisnik'}
+              </span>
+            )}
           </div>
           {/* Center Section - Desktop Search */}
           <div className="hidden lg:flex flex-1 max-w-md mx-4">
@@ -50,29 +60,54 @@ export default function Navbar({ lang = 'sr', isAdmin = false, brojUKorpi = 0, s
           </div>
           {/* Right Section - Links */}
           <div className="flex items-center gap-3">
-            <a href={`/?lang=${lang}`} className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
-              <span>🏠</span>
-              <span>{t.home}</span>
-            </a>
+
+            {/* Profil dugme */}
             <a href={`/profil?lang=${lang}`} className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
-              <span>👤</span>
-              <span>{t.profile}</span>
-            </a>
-            <a href={`/omiljeni?lang=${lang}`} className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
-              <span>❤️</span>
-              <span>{t.favorites}</span>
-            </a>
-            <a href={`/moje-porudzbine?lang=${lang}`} className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
-              <span>📦</span>
-              <span>{t.my_orders}</span>
+              <FaUser />
+              <span>{t.profile || 'Profil'}</span>
             </a>
             <a href={`/korpa?lang=${lang}`} className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition relative">
-              <span>🛒</span>
+              <FaShoppingCart />
               <span>{t.cart}</span>
               {brojUKorpi > 0 && (
                 <span className="ml-1 bg-blue-600 text-white rounded-full px-2 py-0.5 text-xs font-bold">{brojUKorpi}</span>
               )}
             </a>
+            {!isLoggedIn && (
+              <a href={`/auth/prijava?lang=${lang}`} className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
+                <FaSignInAlt />
+                <span>{t.login || 'Prijava'}</span>
+              </a>
+            )}
+
+            {isLoggedIn && (
+              <a href={`/auth/odjava?lang=${lang}`} className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
+                <FaSignOutAlt className="text-blue-600" />
+                <span>{t.logout || 'Odjava'}</span>
+              </a>
+            )}
+
+            {/* Language Switcher Toggle - SSR link */}
+            {/* Language Switcher Toggle - SSR link */}
+            <Link
+              href="/?lang=en"
+              className={`flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition cursor-pointer${lang === 'en' ? ' font-bold underline' : ''}`}
+              title="Switch to English"
+              prefetch={false}
+            >
+              <span>🇬🇧</span>
+              <span>English</span>
+            </Link>
+            <Link
+              href="/?lang=sr"
+              className={`flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition cursor-pointer${lang === 'en' ? ' font-bold underline' : ''}`}
+              title="Switch to Montenegron"
+              prefetch={false}
+            >
+              <span>🇲🇪</span>
+              <span>Crnogorski</span>
+            </Link>
+
           </div>
         </>
       )}
