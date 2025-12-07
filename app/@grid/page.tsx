@@ -2,6 +2,8 @@
 import { getProizvodi } from '@/lib/actions';
 import Image from 'next/image';
 import Link from 'next/link';
+import AddToCartButton from '../proizvodi/components/AddToCartButton';
+import OmiljeniButton from '../proizvodi/components/OmiljeniButton';
 import sr from '@/i18n/locales/sr/proizvodi.json';
 import en from '@/i18n/locales/en/proizvodi.json';
 
@@ -43,6 +45,10 @@ export default async function GridPage({ lang = 'sr' }: { lang?: string }) {
               key={proizvod.id}
               className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-lg transition-all duration-300 relative"
             >
+              {/* Omiljeni button in top-right corner */}
+              <div className="absolute top-3 right-3 z-10">
+                <OmiljeniButton proizvodId={proizvod.id} />
+              </div>
               <div className="flex justify-center mb-4">
                 {imageUrl ? (
                   <div className="relative w-24 h-24">
@@ -97,14 +103,25 @@ export default async function GridPage({ lang = 'sr' }: { lang?: string }) {
                   </span>
                 </p>
               )}
-              <div className="flex gap-2">
+              <div className="flex gap-2 mb-2">
+                <AddToCartButton
+                  proizvod={{
+                    ...proizvod,
+                    naziv,
+                    opis: opis ?? '',
+                    kategorija,
+                    opis_sr: proizvod.opis_sr ?? undefined,
+                    opis_en: proizvod.opis_en ?? undefined,
+                    karakteristike_sr: proizvod.karakteristike_sr ?? undefined,
+                    karakteristike_en: proizvod.karakteristike_en ?? undefined,
+                  }}
+                />
                 <Link
                   href={`/proizvodi/${proizvod.id}`}
                   className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-2"
                 >
                   {t.detalji || (lang === 'en' ? 'Details' : 'Detalji')}
                 </Link>
-                {/* Dugme za dodavanje u korpu i omiljene može se dodati serverski ili izbaciti */}
               </div>
             </div>
           );

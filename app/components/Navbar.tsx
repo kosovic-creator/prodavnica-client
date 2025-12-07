@@ -131,12 +131,7 @@ const Navbar: React.FC<NavbarProps> = ({ lang, isAdmin, setSidebarOpen }) => {
               <span>{t.cart}</span>
             </Link>
             {/* Login link for guests */}
-            {!isLoggedIn && (
-              <Link href={`/auth/prijava?lang=${currentLang}`} className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
-                <FaSignInAlt />
-                <span>{t.login || 'Prijava'}</span>
-              </Link>
-            )}
+            {/* Login link for guests - removed duplicate */}
             {/* Language Switcher inline */}
             <button
               onClick={handleLangSwitch}

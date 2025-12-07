@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { getServerSession } from 'next-auth';
@@ -83,11 +84,11 @@ export default async function OmiljeniPage({ searchParams }: { searchParams?: Pr
                 className="bg-white border border-gray-200 rounded-lg flex flex-col shadow-sm hover:shadow-md transition-shadow cursor-pointer relative p-3 pl-4"
               >
                 {/* Product image */}
-                {o.proizvod.slike && o.proizvod.slike[0] && (
+                {o.proizvod.slika && (
                   <div className="mb-3 flex justify-center">
                     <Image
-                      src={o.proizvod.slike[0]}
-                      alt={lang === 'en' ? o.proizvod.naziv_en : o.proizvod.naziv_sr}
+                      src={o.proizvod.slika}
+                      alt={lang === 'en' ? o.proizvod.prevodi?.find((p: { jezik: string; }) => p.jezik === 'en')?.naziv : o.proizvod.prevodi?.find((p: { jezik: string; }) => p.jezik === 'sr')?.naziv}
                       width={100}
                       height={100}
                       className="object-cover rounded-md"
