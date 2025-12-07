@@ -12,7 +12,6 @@ export async function POST(request: Request) {
     }
 
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      console.log('Email konfiguracija nije postavljena');
       return NextResponse.json({
         success: false,
         message: 'Email servis nije konfigurisan'
@@ -27,13 +26,15 @@ export async function POST(request: Request) {
       },
     });
 
-    await transporter.sendMail({
+    const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
       subject,
       text: text || undefined,
       html: html || undefined,
-    });
+    };
+
+    await transporter.sendMail(mailOptions);
 
     return NextResponse.json({
       success: true,
@@ -41,8 +42,6 @@ export async function POST(request: Request) {
     });
 
   } catch (error) {
-    console.error('Greška pri slanju email-a:', error);
-
     return NextResponse.json({
       success: false,
       error: 'Greška pri slanju email-a',

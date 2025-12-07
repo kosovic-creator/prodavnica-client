@@ -4,8 +4,11 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/authOptions';
 import { getKorpa } from '@/lib/actions/korpa';
 import Link from 'next/link';
+
 import KorpaItem from './components/KorpaItem';
 import KorpaActions from './components/KorpaActions';
+import PaymentSelector from '../components/PaymentSelector';
+import MonriPaySuccessEffect from './components/MonriPaySuccessEffect';
 
 import sr from '@/i18n/locales/sr/korpa.json';
 import en from '@/i18n/locales/en/korpa.json';
@@ -46,6 +49,7 @@ export default async function KorpaPage({ searchParams }: { searchParams?: Promi
 
   return (
     <ClientLayout lang={lang} isLoggedIn={!!session?.user} korisnikIme={typeof session?.user?.name === 'string' ? session.user.name : undefined}>
+      <MonriPaySuccessEffect />
       <>
         <h1 className="text-2xl md:text-3xl font-bold mb-6 flex items-center justify-center gap-2 text-center">
           {t.naslov}
@@ -73,7 +77,11 @@ export default async function KorpaPage({ searchParams }: { searchParams?: Promi
               ))}
             </div>
             <div className="mt-8">
-                <KorpaActions userId={userId} stavke={stavke} lang={lang} t={t} />
+              <KorpaActions userId={userId} stavke={stavke} lang={lang} t={t} />
+            </div>
+            <div className="mt-8">
+              {/* Prikaz MonriPay dugmeta za checkout */}
+              <PaymentSelector amount={stavke.reduce((sum, s) => sum + ((s.proizvod?.cena || 0) * s.kolicina), 0)} />
             </div>
           </>
         )}

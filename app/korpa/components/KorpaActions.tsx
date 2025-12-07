@@ -12,6 +12,7 @@ import {
   getPodaciPreuzimanja
 } from '../../../lib/actions';
 import { posaljiEmailObavjestenje } from '../../../lib/actions/email';
+import { clearCartAndSendEmail } from '../../../lib/utils/clearCartAndSendEmail';
 import { getProizvodById, updateProizvodStanje } from '../../../lib/actions/proizvodi';
 import { useSession } from 'next-auth/react';
 
@@ -36,6 +37,18 @@ interface KorpaActionsProps {
 }
 
 export default function KorpaActions({ userId, stavke, lang, t }: KorpaActionsProps) {
+  // Primjer: pozovi clearCartAndSendEmail nakon MonriPay checkouta
+  const handleMonriPaySuccess = async () => {
+    if (!session?.user?.id || !session?.user?.email) return;
+    const result = await clearCartAndSendEmail(session.user.id, session.user.email);
+    if (result.success && result.emailSent) {
+      toast.success('Korpa je ispražnjena i email je poslat!');
+    } else {
+      toast.error('Greška pri čišćenju korpe ili slanju emaila!');
+    }
+    await refreshKorpa();
+    window.location.reload();
+  };
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const { data: session } = useSession();
@@ -44,6 +57,7 @@ export default function KorpaActions({ userId, stavke, lang, t }: KorpaActionsPr
 
   const { refreshKorpa } = useCart();
   const isprazniKorpu = async () => {
+      // ...existing code...
     startTransition(async () => {
       try {
         // Smanji stanje proizvoda za svaku stavku u korpi
@@ -75,9 +89,11 @@ export default function KorpaActions({ userId, stavke, lang, t }: KorpaActionsPr
   };
 
   const potvrdiPorudzbinu = async (): Promise<boolean> => {
+      console.log('[KorpaActions] Email koji se šalje:', session?.user?.email);
     return new Promise<boolean>((resolve) => {
       startTransition(async () => {
         try {
+          console.log('[KorpaActions] Kreiranje porudžbine...');
           const porudzbinaData = {
             korisnikId: userId,
             ukupno,
@@ -92,6 +108,7 @@ export default function KorpaActions({ userId, stavke, lang, t }: KorpaActionsPr
           };
 
           const result = await kreirajPorudzbinu(porudzbinaData);
+          console.log('[KorpaActions] Rezultat kreiranja porudžbine:', result);
 
           if (!result.success) {
             toast.error(result.error || t.error || 'Greška pri kreiranju porudžbine');
@@ -101,15 +118,17 @@ export default function KorpaActions({ userId, stavke, lang, t }: KorpaActionsPr
 
           await isprazniKorpu();
           // Poziv za email obavještenje o porudžbini
-          await posaljiEmailObavjestenje({
+          console.log('[KorpaActions] Slanje email obavještenja...');
+          const emailResult = await posaljiEmailObavjestenje({
             email: result.data?.email || '',
             ukupno,
             tip: 'porudzbina',
             stavke: stavke
           });
+          console.log('[KorpaActions] Rezultat slanja email-a:', emailResult);
           resolve(true);
         } catch (error) {
-          console.error('Error creating order:', error);
+          console.error('[KorpaActions] Error creating order:', error);
           toast.error(t.error || 'Greška pri kreiranju porudžbine');
           resolve(false);
         }
@@ -120,8 +139,10 @@ export default function KorpaActions({ userId, stavke, lang, t }: KorpaActionsPr
   const handleZavrsiKupovinu = async () => {
     startTransition(async () => {
       try {
+        console.log('[KorpaActions] Pokrenut završetak kupovine');
         // Check delivery data
         const podaciResult = await getPodaciPreuzimanja(userId);
+        console.log('[KorpaActions] Podaci za preuzimanje:', podaciResult);
 
         if (!podaciResult.success || !podaciResult.data) {
           toast.error(t.no_data_redirect || "Nemate unete podatke za preuzimanje. Bićete preusmereni na stranicu za unos podataka.", { duration: 5000 });
@@ -133,12 +154,13 @@ export default function KorpaActions({ userId, stavke, lang, t }: KorpaActionsPr
 
         // Create order
         const success = await potvrdiPorudzbinu();
+        console.log('[KorpaActions] Rezultat potvrde porudžbine:', success);
         if (success) {
-          console.log('Porudžbina uspešno kreirana i korpa ispražnjena.');
+          console.log('[KorpaActions] Porudžbina uspešno kreirana i korpa ispražnjena.');
           router.push('/');
         }
       } catch (error) {
-        console.error('Error completing purchase:', error);
+        console.error('[KorpaActions] Error completing purchase:', error);
         toast.error(t.error || 'Greška pri završavanju kupovine');
       }
     });

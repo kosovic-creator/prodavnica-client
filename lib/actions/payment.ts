@@ -20,7 +20,7 @@ export async function createMonriPayCheckout(amount: number) {
     // 3. Return the URL for redirect
 
     // Mock implementation - replace with actual MonriPay integration
-    const mockRedirectUrl = `/uspjesno_placanje?provider=monripay&amount=${amount}&Success=true`;
+    const mockRedirectUrl = `/korpa?provider=monripay&Success=true&amount=${amount}`;
 
     return {
       success: true,
