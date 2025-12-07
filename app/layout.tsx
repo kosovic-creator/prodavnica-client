@@ -2,12 +2,13 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import ClientLayout from "./ClientLayout";
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
-import AuthProvider from "./AuthProvider";
+
 import { getKorpa } from '@/lib/actions/korpa';
 import type { ReactNode } from 'react';
+import AuthProvider from "./components/AuthProvider";
 
 
 const geistSans = Geist({

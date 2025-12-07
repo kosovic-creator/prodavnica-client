@@ -6,7 +6,7 @@ import { authOptions } from '@/lib/authOptions';
 
 import sr from '@/i18n/locales/sr/profil.json';
 import en from '@/i18n/locales/en/profil.json';
-import ClientLayout from '../ClientLayout';
+import ClientLayout from '../components/ClientLayout';
 
 export default async function ProfilPage({ searchParams }: { searchParams?: Promise<{ lang?: string }> }) {
   const params = searchParams ? await searchParams : {};

@@ -9,7 +9,7 @@ import KorpaActions from './components/KorpaActions';
 
 import sr from '@/i18n/locales/sr/korpa.json';
 import en from '@/i18n/locales/en/korpa.json';
-import ClientLayout from '../ClientLayout';
+import ClientLayout from '../components/ClientLayout';
 
 export default async function KorpaPage({ searchParams }: { searchParams?: Promise<{ lang?: string }> }) {
   const params = searchParams ? await searchParams : {};
@@ -28,7 +28,7 @@ export default async function KorpaPage({ searchParams }: { searchParams?: Promi
 
   if (!userId) {
     return (
-      <ClientLayout lang={lang} isLoggedIn={false} korisnikIme={undefined} brojUKorpi={0}>
+      <ClientLayout lang={lang} isLoggedIn={false} korisnikIme={undefined}>
         <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
           <h2 className="text-xl font-semibold text-gray-600 mb-2">
             {t.morate_biti_prijavljeni}
@@ -45,7 +45,7 @@ export default async function KorpaPage({ searchParams }: { searchParams?: Promi
   }
 
   return (
-    <ClientLayout lang={lang} isLoggedIn={!!session?.user} korisnikIme={typeof session?.user?.name === 'string' ? session.user.name : undefined} brojUKorpi={stavke.length}>
+    <ClientLayout lang={lang} isLoggedIn={!!session?.user} korisnikIme={typeof session?.user?.name === 'string' ? session.user.name : undefined}>
       <>
         <h1 className="text-2xl md:text-3xl font-bold mb-6 flex items-center justify-center gap-2 text-center">
           {t.naslov}

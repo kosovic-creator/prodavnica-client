@@ -1,6 +1,7 @@
 'use client';
 
 import { useTransition } from 'react';
+import { useCart } from '../../components/CartContext';
 // SSR lokalizacija: primaj lang i t kao prop
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
@@ -41,6 +42,7 @@ export default function KorpaActions({ userId, stavke, lang, t }: KorpaActionsPr
 
   const ukupno = stavke.reduce((acc, s) => acc + (s.proizvod ? s.proizvod.cena * s.kolicina : 0), 0);
 
+  const { refreshKorpa } = useCart();
   const isprazniKorpu = async () => {
     startTransition(async () => {
       try {
@@ -62,8 +64,7 @@ export default function KorpaActions({ userId, stavke, lang, t }: KorpaActionsPr
           return;
         }
 
-        localStorage.setItem('brojUKorpi', '0');
-        window.dispatchEvent(new Event('korpaChanged'));
+        await refreshKorpa();
         window.location.reload();
         console.log('Korpa je ispražnjena i stanje proizvoda smanjeno');
       } catch (error) {

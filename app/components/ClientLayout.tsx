@@ -1,31 +1,30 @@
 "use client";
 import React from "react";
-import "../i18n/config";
-import Navbar from "./components/Navbar";
-import Sidebar from "./components/Sidebar";
-import Footer from "./components/Footer";
+
+import Navbar from "./Navbar";
+
+import Sidebar from "./Sidebar";
+import Footer from "./Footer";
+import { CartProvider } from "./CartContext";
 
 
-export default function ClientLayout({ children, lang, isLoggedIn, korisnikIme, brojUKorpi }: {
+
+export default function ClientLayout({ children, lang, isLoggedIn, korisnikIme }: {
   children: React.ReactNode;
   lang: string;
   isLoggedIn?: boolean;
   korisnikIme?: string;
-  brojUKorpi?: number;
 }) {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   return (
-    <>
+    <CartProvider>
       <Navbar
         setSidebarOpen={setSidebarOpen}
         lang={lang}
-        isLoggedIn={isLoggedIn}
-        korisnikIme={korisnikIme}
-        brojUKorpi={brojUKorpi}
       />
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} lang={lang} />
       <main style={{ marginLeft: sidebarOpen ? 256 : 0, transition: 'margin-left 0.3s' }}>{children}</main>
       <Footer />
-    </>
+    </CartProvider>
   );
 }

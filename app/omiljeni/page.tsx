@@ -9,8 +9,8 @@ import { FaHeart, FaEye } from 'react-icons/fa';
 
 import sr from '@/i18n/locales/sr/omiljeni-page.json';
 import en from '@/i18n/locales/en/omiljeni-page.json';
-import ClientLayout from '../ClientLayout';
-
+import ClientLayout from '../components/ClientLayout';
+import { getKorpa } from '@/lib/actions/korpa';
 export default async function OmiljeniPage({ searchParams }: { searchParams?: Promise<{ lang?: string }> }) {
   const params = searchParams ? await searchParams : {};
   const lang = params?.lang === 'en' ? 'en' : 'sr';
@@ -19,10 +19,15 @@ export default async function OmiljeniPage({ searchParams }: { searchParams?: Pr
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;
   let omiljeni: any[] = [];
+  let brojUKorpi = 0;
   if (userId) {
     const result = await getOmiljeni(userId);
     if (result.success && result.data) {
       omiljeni = Array.isArray(result.data) ? result.data : result.data.omiljeni || [];
+    }
+    const korpa = await getKorpa(userId);
+    if (korpa.success && korpa.data?.stavke) {
+      brojUKorpi = korpa.data.stavke.reduce((sum, s) => sum + (s.kolicina || 1), 0);
     }
   }
 

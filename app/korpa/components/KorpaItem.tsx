@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { FaTrashAlt, FaPlus, FaMinus } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import { updateStavkuKorpe, ukloniStavkuKorpe } from '@/lib/actions';
+import { useCart } from '../../components/CartContext';
 
 interface StavkaKorpe {
   id: string;
@@ -24,8 +25,10 @@ interface KorpaItemProps {
   lang: string;
   t: Record<string, string>;
 }
+
 export default function KorpaItem({ stavka, lang, t }: KorpaItemProps) {
   const [isPending, startTransition] = useTransition();
+  const { refreshKorpa } = useCart();
 
   const handleKolicina = async (kolicina: number) => {
     if (kolicina < 1) return;
@@ -39,6 +42,7 @@ export default function KorpaItem({ stavka, lang, t }: KorpaItemProps) {
           return;
         }
 
+        await refreshKorpa();
         window.location.reload();
       } catch (error) {
         console.error('Greška pri ažuriranju kolicine:', error);
@@ -57,6 +61,7 @@ export default function KorpaItem({ stavka, lang, t }: KorpaItemProps) {
           return;
         }
 
+        await refreshKorpa();
         window.location.reload();
         // toast.success(t('artikal_izbrisan') || 'Artikal je uklonjen iz korpe');
       } catch (error) {

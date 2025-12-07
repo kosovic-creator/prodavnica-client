@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/authOptions';
@@ -6,7 +7,8 @@ import { getPorudzbineKorisnika } from '@/lib/actions';
 
 import sr from '@/i18n/locales/sr/moje_porudzbine.json';
 import en from '@/i18n/locales/en/moje_porudzbine.json';
-import ClientLayout from '../ClientLayout';
+import ClientLayout from '../components/ClientLayout';
+import { getKorpa } from '@/lib/actions/korpa';
 import { FaClipboardList, FaBox, FaCalendarAlt, FaEuroSign, FaImage } from 'react-icons/fa';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -26,6 +28,13 @@ export default async function MojePorudzbinePage({ searchParams }: { searchParam
   const pageSize = parseInt(params.pageSize || '10');
   const lang = params.lang === 'en' ? 'en' : 'sr';
   const t = lang === 'en' ? en : sr;
+  let brojUKorpi = 0;
+  if (isLoggedIn && session.user.id) {
+    const korpa = await getKorpa(session.user.id);
+    if (korpa.success && korpa.data?.stavke) {
+      brojUKorpi = korpa.data.stavke.reduce((sum, s) => sum + (s.kolicina || 1), 0);
+    }
+  }
   const result = await getPorudzbineKorisnika(session.user.id, page, pageSize);
   if (!result.success) {
     return (
@@ -45,29 +54,31 @@ export default async function MojePorudzbinePage({ searchParams }: { searchParam
 
   if (!porudzbine.length) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-4xl mx-auto px-4">
-          <h1 className="text-2xl md:text-3xl font-bold mb-6 flex items-center gap-2 text-center justify-center">
-            <FaClipboardList className="text-blue-600" />
-            {t.moje_porudzbine || 'Moje porudžbine'}
-          </h1>
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <FaBox className="text-6xl text-gray-300 mb-4" />
-            <h2 className="text-2xl font-semibold text-gray-600 mb-2">
-              {t.nemate_porudzbina || 'Nemate porudžbina'}
-            </h2>
-            <p className="text-gray-500 mb-6">
-              {t.kada_napravite_porudzbinu || 'Kada napravite porudžbinu, pojaviće se ovde.'}
-            </p>
-            <Link
-              href="/proizvodi"
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              {t.pocni_kupovinu || 'Počni kupovinu'}
-            </Link>
+      <ClientLayout lang={lang} isLoggedIn={isLoggedIn} korisnikIme={korisnikIme}>
+        <div className="min-h-screen bg-gray-50 py-8">
+          <div className="max-w-4xl mx-auto px-4">
+            <h1 className="text-2xl md:text-3xl font-bold mb-6 flex items-center gap-2 text-center justify-center">
+              <FaClipboardList className="text-blue-600" />
+              {t.moje_porudzbine || 'Moje porudžbine'}
+            </h1>
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <FaBox className="text-6xl text-gray-300 mb-4" />
+              <h2 className="text-2xl font-semibold text-gray-600 mb-2">
+                {t.nemate_porudzbina || 'Nemate porudžbina'}
+              </h2>
+              <p className="text-gray-500 mb-6">
+                {t.kada_napravite_porudzbinu || 'Kada napravite porudžbinu, pojaviće se ovde.'}
+              </p>
+              <Link
+                href="/proizvodi"
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                {t.pocni_kupovinu || 'Počni kupovinu'}
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
+      </ClientLayout>
     );
   }
 

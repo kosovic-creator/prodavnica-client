@@ -20,7 +20,8 @@ import { useRouter } from 'next/navigation';
 import { FaCartPlus } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import { Proizvod } from '../../../types';
-import { dodajUKorpu, getKorpa } from './../../../lib/actions/korpa';
+import { dodajUKorpu } from './../../../lib/actions/korpa';
+import { useCart } from '../../components/CartContext';
 
 interface AddToCartButtonProps {
   proizvod: Proizvod;
@@ -32,6 +33,7 @@ export default function AddToCartButton({ proizvod }: AddToCartButtonProps) {
   const [isPending, startTransition] = useTransition();
   const [isAdding, setIsAdding] = useState(false);
 
+  const { refreshKorpa } = useCart();
   const handleDodajUKorpu = async () => {
     const korisnikId = session?.user?.id;
     if (!korisnikId) {
@@ -57,13 +59,8 @@ export default function AddToCartButton({ proizvod }: AddToCartButtonProps) {
           return;
         }
 
-        // Ažuriraj broj stavki u korpi
-        const korpaResult = await getKorpa(korisnikId);
-        if (korpaResult.success && korpaResult.data) {
-          const broj = korpaResult.data.stavke.reduce((acc: number, s: { kolicina: number }) => acc + s.kolicina, 0);
-          localStorage.setItem('brojUKorpi', broj.toString());
-          window.dispatchEvent(new Event('korpaChanged'));
-        }
+        // Ažuriraj broj stavki u korpi globalno
+        await refreshKorpa();
 
         toast.success('Proizvod dodat u korpu', { duration: 4000 });
       } catch (error) {

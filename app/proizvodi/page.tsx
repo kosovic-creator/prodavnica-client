@@ -1,4 +1,4 @@
-import ClientLayout from '../ClientLayout';
+import ClientLayout from '.././components/ClientLayout';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/authOptions';
 /* eslint-disable @typescript-eslint/no-explicit-any */
