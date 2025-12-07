@@ -13,15 +13,15 @@ import Link from 'next/link';
 
 
 
-export default async function MojePorudzbinePage({ searchParams }: { searchParams: Promise<{ page?: string; pageSize?: string; lang?: string }> }) {
+export default async function MojePorudzbinePage({ searchParams }: { searchParams: any }) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     redirect('/auth/prijava');
   }
-  const resolvedSearchParams = await searchParams;
-  const page = parseInt(resolvedSearchParams.page || '1');
-  const pageSize = parseInt(resolvedSearchParams.pageSize || '10');
-  const lang = resolvedSearchParams.lang || 'sr';
+  const params = await searchParams;
+  const page = parseInt(params.page || '1');
+  const pageSize = parseInt(params.pageSize || '10');
+  const lang = params.lang === 'en' ? 'en' : 'sr';
   const t = lang === 'en' ? en : sr;
   const result = await getPorudzbineKorisnika(session.user.id, page, pageSize);
   if (!result.success) {

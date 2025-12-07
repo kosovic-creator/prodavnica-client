@@ -1,8 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import sr from '@/i18n/locales/sr/navbar.json';
 import en from '@/i18n/locales/en/navbar.json';
 import Link from 'next/link';
 import { FaShoppingCart, FaHome, FaUser, FaSignInAlt, FaSignOutAlt, FaBars } from "react-icons/fa";
 import CartBadgeClient from '../components/CartBadgeClient';
+import ProfileDropdownClient from '../components/ProfileDropdownClient';
+import LanguageSwitcherClient from './LanguageSwitcherClient';
 
 interface NavbarProps {
   lang?: string;
@@ -29,7 +32,7 @@ export default function Navbar({ lang = 'sr', isAdmin = false, brojUKorpi = 0, s
             >
               <FaBars className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" />
             </button>
-            <a
+            <Link
               href={`/?lang=${lang}`}
               className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg hover:bg-red-50 transition touch-manipulation min-w-0"
             >
@@ -38,7 +41,7 @@ export default function Navbar({ lang = 'sr', isAdmin = false, brojUKorpi = 0, s
                 <span className="hidden xs:inline">{t.title}</span>
                 <span className="xs:hidden">Trgovina</span>
               </span>
-            </a>
+            </Link>
             {korisnikIme && (
               <span className="font-semibold text-blue-700 ml-2 truncate max-w-[120px] hidden sm:block" title={korisnikIme}>
                 {korisnikIme.trim() || 'Korisnik'}
@@ -61,50 +64,24 @@ export default function Navbar({ lang = 'sr', isAdmin = false, brojUKorpi = 0, s
           {/* Right Section - Links */}
           <div className="flex items-center gap-3">
 
-            {/* Profil dugme */}
-            <a href={`/profil?lang=${lang}`} className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
-              <FaUser />
-              <span>{t.profile || 'Profil'}</span>
-            </a>
-            <a href={`/korpa?lang=${lang}`} className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition relative">
+            {/* Profil dropdown za prijavljenog korisnika */}
+            {isLoggedIn ? (
+              <ProfileDropdownClient lang={lang} t={t} />
+            ) : null}
+            <Link href={`/korpa?lang=${lang}`} className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition relative">
               <FaShoppingCart />
               <span>{t.cart}</span>
               <CartBadgeClient initialCount={brojUKorpi} />
-            </a>
+            </Link>
             {!isLoggedIn && (
-              <a href={`/auth/prijava?lang=${lang}`} className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
+              <Link href={`/auth/prijava?lang=${lang}`} className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
                 <FaSignInAlt />
                 <span>{t.login || 'Prijava'}</span>
-              </a>
+              </Link>
             )}
 
-            {isLoggedIn && (
-              <a href={`/auth/odjava?lang=${lang}`} className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
-                <FaSignOutAlt className="text-blue-600" />
-                <span>{t.logout || 'Odjava'}</span>
-              </a>
-            )}
-
-            {/* Language Switcher Toggle - SSR link */}
-            {/* Language Switcher Toggle - SSR link */}
-            <Link
-              href="/?lang=en"
-              className={`flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition cursor-pointer${lang === 'en' ? ' font-bold underline' : ''}`}
-              title="Switch to English"
-              prefetch={false}
-            >
-              <span>🇬🇧</span>
-              <span>English</span>
-            </Link>
-            <Link
-              href="/?lang=sr"
-              className={`flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition cursor-pointer${lang === 'en' ? ' font-bold underline' : ''}`}
-              title="Switch to Montenegron"
-              prefetch={false}
-            >
-              <span>🇲🇪</span>
-              <span>Crnogorski</span>
-            </Link>
+            {/* Language Switcher - client component */}
+            <LanguageSwitcherClient />
 
           </div>
         </>
