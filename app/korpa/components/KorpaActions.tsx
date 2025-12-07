@@ -29,10 +29,9 @@ interface StavkaKorpe {
 interface KorpaActionsProps {
   userId: string;
   stavke: StavkaKorpe[];
-  onUpdate: () => void;
 }
 
-export default function KorpaActions({ userId, stavke, onUpdate }: KorpaActionsProps) {
+export default function KorpaActions({ userId, stavke }: KorpaActionsProps) {
   const { t } = useTranslation('korpa');
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -63,7 +62,7 @@ export default function KorpaActions({ userId, stavke, onUpdate }: KorpaActionsP
 
         localStorage.setItem('brojUKorpi', '0');
         window.dispatchEvent(new Event('korpaChanged'));
-        onUpdate();
+        window.location.reload();
         console.log('Korpa je ispražnjena i stanje proizvoda smanjeno');
       } catch (error) {
         console.error('Greška pri brisanju korpe ili ažuriranju stanja proizvoda:', error);

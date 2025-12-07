@@ -21,10 +21,9 @@ interface StavkaKorpe {
 
 interface KorpaItemProps {
   stavka: StavkaKorpe;
-  onUpdate: () => void;
 }
 
-export default function KorpaItem({ stavka, onUpdate }: KorpaItemProps) {
+export default function KorpaItem({ stavka }: KorpaItemProps) {
   const { t } = useTranslation('korpa');
   const [isPending, startTransition] = useTransition();
 
@@ -40,7 +39,7 @@ export default function KorpaItem({ stavka, onUpdate }: KorpaItemProps) {
           return;
         }
 
-        onUpdate();
+        window.location.reload();
       } catch (error) {
         console.error('Greška pri ažuriranju kolicine:', error);
         toast.error(t('error') || 'Greška pri ažuriranju količine');
@@ -58,7 +57,7 @@ export default function KorpaItem({ stavka, onUpdate }: KorpaItemProps) {
           return;
         }
 
-        onUpdate();
+        window.location.reload();
         // toast.success(t('artikal_izbrisan') || 'Artikal je uklonjen iz korpe');
       } catch (error) {
         console.error('Greška pri brisanju stavke:', error);

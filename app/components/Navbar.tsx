@@ -1,8 +1,8 @@
 import sr from '@/i18n/locales/sr/navbar.json';
 import en from '@/i18n/locales/en/navbar.json';
 import Link from 'next/link';
-// import ProfileDropdownClient from './ProfileDropdownClient';
 import { FaShoppingCart, FaHome, FaUser, FaSignInAlt, FaSignOutAlt, FaBars } from "react-icons/fa";
+import CartBadgeClient from '../components/CartBadgeClient';
 
 interface NavbarProps {
   lang?: string;
@@ -69,9 +69,7 @@ export default function Navbar({ lang = 'sr', isAdmin = false, brojUKorpi = 0, s
             <a href={`/korpa?lang=${lang}`} className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition relative">
               <FaShoppingCart />
               <span>{t.cart}</span>
-              {brojUKorpi > 0 && (
-                <span className="ml-1 bg-blue-600 text-white rounded-full px-2 py-0.5 text-xs font-bold">{brojUKorpi}</span>
-              )}
+              <CartBadgeClient initialCount={brojUKorpi} />
             </a>
             {!isLoggedIn && (
               <a href={`/auth/prijava?lang=${lang}`} className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition">

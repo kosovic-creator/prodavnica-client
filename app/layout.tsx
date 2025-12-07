@@ -6,6 +6,7 @@ import ClientLayout from "./ClientLayout";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import AuthProvider from "./AuthProvider";
+import { getKorpa } from '@/lib/actions/korpa';
 import type { ReactNode } from 'react';
 
 
@@ -35,6 +36,13 @@ export default async function RootLayout({
   const korisnikIme = session?.user?.name || session?.user?.email || "";
   const isLoggedIn = !!session?.user;
   const lang = searchParams?.lang === "en" ? "en" : "sr";
+  let brojUKorpi = 0;
+  if (isLoggedIn && session?.user?.id) {
+    const korpa = await getKorpa(session.user.id);
+    if (korpa.success && korpa.data?.stavke) {
+      brojUKorpi = korpa.data.stavke.reduce((sum, s) => sum + (s.kolicina || 1), 0);
+    }
+  }
   return (
     <html lang={lang}>
       <head>
@@ -43,7 +51,7 @@ export default async function RootLayout({
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}>
         <AuthProvider>
-          <ClientLayout lang={lang} korisnikIme={korisnikIme} isLoggedIn={isLoggedIn}>
+          <ClientLayout lang={lang} korisnikIme={korisnikIme} isLoggedIn={isLoggedIn} brojUKorpi={brojUKorpi}>
             {children}
           </ClientLayout>
         </AuthProvider>

@@ -1,9 +1,11 @@
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/authOptions';
 import { getKorpa } from '@/lib/actions/korpa';
 import Link from 'next/link';
-import Image from 'next/image';
+import KorpaItem from './components/KorpaItem';
+import KorpaActions from './components/KorpaActions';
 import sr from '@/i18n/locales/sr/korpa.json';
 import en from '@/i18n/locales/en/korpa.json';
 
@@ -59,46 +61,16 @@ export default async function KorpaPage({ searchParams }: { searchParams?: Promi
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 ml-4">
-          {stavke.map(stavka => (
-            <div
-              key={stavka.id}
-              className="bg-white border border-gray-200 rounded-lg flex flex-col shadow-sm hover:shadow-md transition-shadow cursor-pointer relative p-3 pl-4"
-            >
-              {/* Product image */}
-              {stavka.proizvod?.slika && (
-                <div className="mb-3 flex justify-center">
-                  <Image
-                    src={stavka.proizvod.slika}
-                    alt={lang === 'en' ? stavka.proizvod.naziv_en : stavka.proizvod.naziv_sr}
-                    width={100}
-                    height={100}
-                    className="object-cover rounded-md"
-                  />
-                </div>
-              )}
-              <div className="flex-1 space-y-2">
-                <h3 className="font-semibold text-lg text-gray-900 line-clamp-2">
-                  {lang === 'en' ? stavka.proizvod.naziv_en : stavka.proizvod.naziv_sr}
-                </h3>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-500">
-                    {t.cena}: {stavka.proizvod.cena} €
-                  </span>
-                  <span className="text-gray-500">
-                    {t.kolicina}: {stavka.kolicina}
-                  </span>
-                </div>
-                <Link
-                  href={`/proizvodi/${stavka.proizvod.id}?lang=${lang}`}
-                  className="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center gap-2 text-sm font-medium mt-2"
-                >
-                  {lang === 'en' ? 'Details' : 'Detalji'}
-                </Link>
-              </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 ml-4">
+              {stavke.map(stavka => (
+                <KorpaItem key={stavka.id} stavka={stavka} />
+              ))}
             </div>
-          ))}
-        </div>
+            <div className="mt-8">
+              <KorpaActions userId={userId} stavke={stavke} />
+            </div>
+          </>
       )}
     </>
   );
