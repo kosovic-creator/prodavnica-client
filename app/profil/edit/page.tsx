@@ -1,309 +1,248 @@
-'use client';
 
-import { useState, useTransition, useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { FaUser, FaSave, FaTimes } from 'react-icons/fa';
-import toast, { Toaster } from 'react-hot-toast';
-import Link from 'next/link';
-import { getKorisnikById, updateProfilKorisnika, updatePodaciPreuzimanja, createPodaciPreuzimanja } from '@/lib/actions';
+import { getServerSession } from 'next-auth';
+import { getKorisnikById } from '@/lib/actions';
+import { authOptions } from '@/lib/authOptions';
+import srProfil from '@/i18n/locales/sr/profil.json';
+import enProfil from '@/i18n/locales/en/profil.json';
+import srKorisnici from '@/i18n/locales/sr/korisnici.json';
+import enKorisnici from '@/i18n/locales/en/korisnici.json';
+
 import { korisnikSchema } from '@/zod';
-import { useTranslation } from 'react-i18next';
+import { updateProfilKorisnika, updatePodaciPreuzimanja, createPodaciPreuzimanja } from '@/lib/actions';
+import { redirect } from 'next/navigation';
+import { FaUser, FaSave, FaTimes } from 'react-icons/fa';
+import React from 'react';
+import { revalidatePath } from 'next/cache';
 
-interface Korisnik {
-  id: string;
-  ime: string;
-  prezime: string;
-  email: string;
-  uloga: string;
-  podaciPreuzimanja?: {
-    id: string;
-    adresa: string;
-    drzava: string;
-    grad: string;
-    postanskiBroj: number;
-    telefon: string;
-  } | null;
-}
 
-export default function EditProfilPage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-  const { t: tProfil } = useTranslation('profil');
-  const { t: tKorisnici } = useTranslation('korisnici');
-  const t = useCallback((key: string) => tKorisnici(key) !== key ? tKorisnici(key) : tProfil(key), [tKorisnici, tProfil]);
-
-  const [, setKorisnik] = useState<Korisnik | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isPending, startTransition] = useTransition();
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-  const [form, setForm] = useState({
-    ime: '',
-    prezime: '',
-    email: '',
-    telefon: '',
-    drzava: '',
-    grad: '',
-    postanskiBroj: '',
-    adresa: '',
-    uloga: 'korisnik',
-    podaciId: '',
-  });
-
-  useEffect(() => {
-    if (status === 'loading') return;
-
-    if (!session?.user?.id) {
-      router.push('/auth/prijava');
-      return;
+export default async function EditProfilPage({ searchParams }: { searchParams?: { [key: string]: string } | Promise<{ [key: string]: string }> }) {
+  let params: { [key: string]: string } = {};
+  if (searchParams) {
+    if (typeof (searchParams as Promise<any>).then === 'function') {
+      params = await (searchParams as Promise<any>);
+    } else {
+      params = searchParams as { [key: string]: string };
     }
+  }
+  const lang = params?.lang === 'en' ? 'en' : 'sr';
+  const tProfil = lang === 'en' ? enProfil : srProfil;
+  const tKorisnici = lang === 'en' ? enKorisnici : srKorisnici;
+  const t = (key: string) => (tKorisnici as Record<string, string>)[key] ?? (tProfil as Record<string, string>)[key] ?? key;
 
-    const loadKorisnik = async () => {
-      try {
-        const result = await getKorisnikById(session.user.id);
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    redirect('/auth/prijava');
+  }
 
-        if (!result.success || !result.data) {
-          toast.error('Greška pri učitavanju profila');
-          router.push('/profil');
-          return;
-        }
-
-        const userData = result.data;
-        setKorisnik(userData);
-        setForm({
-          ime: userData.ime || '',
-          prezime: userData.prezime || '',
-          email: userData.email || '',
-          telefon: userData.podaciPreuzimanja?.telefon || '',
-          drzava: userData.podaciPreuzimanja?.drzava || '',
-          grad: userData.podaciPreuzimanja?.grad || '',
-          postanskiBroj: userData.podaciPreuzimanja?.postanskiBroj ? userData.podaciPreuzimanja.postanskiBroj.toString() : '',
-          adresa: userData.podaciPreuzimanja?.adresa || '',
-          uloga: userData.uloga || 'korisnik',
-          podaciId: userData.podaciPreuzimanja?.id || '',
-        });
-      } catch (error) {
-        console.error('Error loading user:', error);
-        toast.error('Greška pri učitavanju profila');
-        router.push('/profil');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadKorisnik();
-  }, [session, status, router]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!session?.user?.id) return;
-
-    setFormErrors({});
-
-    const schema = korisnikSchema(t).omit({ lozinka: true, slika: true });
-    const result = schema.safeParse(form);
-
-    if (!result.success) {
-      const errors: Record<string, string> = {};
-      result.error.issues.forEach(err => {
-        if (err.path[0]) errors[String(err.path[0])] = err.message;
-      });
-      setFormErrors(errors);
-      return;
-    }
-
-    startTransition(async () => {
-      try {
-        const korisnikResult = await updateProfilKorisnika(session.user.id, {
-          ime: form.ime,
-          prezime: form.prezime,
-          email: form.email,
-          uloga: form.uloga,
-        });
-
-        if (!korisnikResult.success) {
-          toast.error(korisnikResult.error || t('greska_pri_cuvanju'));
-          return;
-        }
-
-        let podaciResult;
-        if (form.podaciId) {
-          podaciResult = await updatePodaciPreuzimanja(session.user.id, {
-            adresa: form.adresa,
-            drzava: form.drzava,
-            grad: form.grad,
-            postanskiBroj: Number(form.postanskiBroj),
-            telefon: form.telefon,
-          });
-        } else {
-          podaciResult = await createPodaciPreuzimanja(session.user.id, {
-            adresa: form.adresa,
-            drzava: form.drzava,
-            grad: form.grad,
-            postanskiBroj: Number(form.postanskiBroj),
-            telefon: form.telefon,
-          });
-        }
-
-        if (!podaciResult.success) {
-          toast.error(podaciResult.error || t('greska_pri_cuvanju'));
-          return;
-        }
-
-        toast.success(t('korisnik_izmjenjen'));
-        router.push('/profil');
-      } catch (error) {
-        console.error('Error updating profile:', error);
-        toast.error(t('greska_pri_cuvanju'));
-      }
-    });
-  };
-
-  if (status === 'loading' || loading) {
+  const result = await getKorisnikById(session.user.id);
+  if (!result.success || !result.data) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full" />
+      <div className="min-h-screen flex items-center justify-center text-red-600">
+        {tProfil.error_fetch_korisnik || 'Greška pri učitavanju profila'}
       </div>
     );
   }
 
-  if (!session) {
-    return null;
+  const korisnik = result.data;
+  const initialForm = {
+    ime: korisnik.ime || '',
+    prezime: korisnik.prezime || '',
+    email: korisnik.email || '',
+    telefon: korisnik.podaciPreuzimanja?.telefon || '',
+    drzava: korisnik.podaciPreuzimanja?.drzava || '',
+    grad: korisnik.podaciPreuzimanja?.grad || '',
+    postanskiBroj: korisnik.podaciPreuzimanja?.postanskiBroj ? korisnik.podaciPreuzimanja.postanskiBroj.toString() : '',
+    adresa: korisnik.podaciPreuzimanja?.adresa || '',
+    uloga: korisnik.uloga || 'korisnik',
+    podaciId: korisnik.podaciPreuzimanja?.id || '',
+  };
+
+  async function handleEditProfil(formData: FormData) {
+    'use server';
+    // rekonstruiši t unutar actiona
+    const t = (key: string) => (tKorisnici as Record<string, string>)[key] ?? (tProfil as Record<string, string>)[key] ?? key;
+    const form = {
+      ime: formData.get('ime') as string,
+      prezime: formData.get('prezime') as string,
+      email: formData.get('email') as string,
+      telefon: formData.get('telefon') as string,
+      drzava: formData.get('drzava') as string,
+      grad: formData.get('grad') as string,
+      postanskiBroj: formData.get('postanskiBroj') as string,
+      adresa: formData.get('adresa') as string,
+      uloga: formData.get('uloga') as string,
+      podaciId: formData.get('podaciId') as string,
+    };
+    const schema = korisnikSchema(t).omit({ lozinka: true, slika: true });
+    const result = schema.safeParse(form);
+    if (!result.success) {
+      const params = new URLSearchParams();
+      result.error.issues.forEach((err) => {
+        if (err.path[0]) params.append(`err_${String(err.path[0])}`, err.message);
+      });
+      // preserve values
+      Object.entries(form).forEach(([k, v]) => params.append(`val_${k}`, v ?? ''));
+      redirect(`/profil/edit?${params.toString()}`);
+    }
+    const userId = session!.user.id;
+    const korisnikResult = await updateProfilKorisnika(userId, {
+      ime: form.ime,
+      prezime: form.prezime,
+      email: form.email,
+      uloga: form.uloga,
+    });
+    if (!korisnikResult.success) {
+      const params = new URLSearchParams();
+      params.append('err_global', korisnikResult.error || t('greska_pri_cuvanju'));
+      Object.entries(form).forEach(([k, v]) => params.append(`val_${k}`, v ?? ''));
+      redirect(`/profil/edit?${params.toString()}`);
+    }
+    let podaciResult;
+    if (form.podaciId) {
+      podaciResult = await updatePodaciPreuzimanja(userId, {
+        adresa: form.adresa,
+        drzava: form.drzava,
+        grad: form.grad,
+        postanskiBroj: Number(form.postanskiBroj),
+        telefon: form.telefon,
+      });
+    } else {
+      podaciResult = await createPodaciPreuzimanja(userId, {
+        adresa: form.adresa,
+        drzava: form.drzava,
+        grad: form.grad,
+        postanskiBroj: Number(form.postanskiBroj),
+        telefon: form.telefon,
+      });
+    }
+    if (!podaciResult.success) {
+      const params = new URLSearchParams();
+      params.append('err_global', podaciResult.error || t('greska_pri_cuvanju'));
+      Object.entries(form).forEach(([k, v]) => params.append(`val_${k}`, v ?? ''));
+      redirect(`/profil/edit?${params.toString()}`);
+    }
+    revalidatePath('/profil');
+    redirect('/profil');
+  }
+
+  // Prikupi greške i vrednosti iz params
+  const errorMap: Record<string, string> = {};
+  const valueMap: Record<string, string> = {};
+  if (typeof params === 'object' && params) {
+    Object.entries(params).forEach(([k, v]) => {
+      if (k.startsWith('err_')) errorMap[k.replace('err_', '')] = v as string;
+      if (k.startsWith('val_')) valueMap[k.replace('val_', '')] = v as string;
+    });
   }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
-      <Toaster position="top-right" />
       <div className="max-w-2xl mx-auto px-4">
         <h1 className="text-2xl md:text-3xl font-bold mb-6 flex items-center gap-2 text-center justify-center">
           <FaUser className="text-blue-600" />
-          {t('title')} 
+          {t('title')}
         </h1>
-
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <form onSubmit={handleUpdate} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <input
-                  name="ime"
-                  value={form.ime}
-                  onChange={handleChange}
-                  placeholder={t('name')}
-                  className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-base"
-                  disabled={isPending}
-                />
-                {formErrors.ime && <div className="text-red-500 text-sm mt-1">{formErrors.ime}</div>}
-              </div>
-              <div>
-                <input
-                  name="prezime"
-                  value={form.prezime}
-                  onChange={handleChange}
-                  placeholder={t('surname')}
-                  className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-base"
-                  disabled={isPending}
-                />
-                {formErrors.prezime && <div className="text-red-500 text-sm mt-1">{formErrors.prezime}</div>}
-              </div>
+        {errorMap.global && (
+          <div className="mb-4 text-red-600 text-center font-medium">{errorMap.global}</div>
+        )}
+        <form action={handleEditProfil} className="space-y-4 bg-white rounded-lg shadow-md p-6">
+          <input type="hidden" name="podaciId" defaultValue={valueMap.podaciId || initialForm.podaciId} />
+          <input type="hidden" name="uloga" value={valueMap.uloga || initialForm.uloga || 'korisnik'} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <input
+                name="ime"
+                defaultValue={valueMap.ime || initialForm.ime}
+                placeholder={t('name')}
+                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-base"
+              />
+              {errorMap.ime && <div className="text-red-500 text-sm mt-1">{errorMap.ime}</div>}
             </div>
             <div>
               <input
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                placeholder={t('email')}
+                name="prezime"
+                defaultValue={valueMap.prezime || initialForm.prezime}
+                placeholder={t('surname')}
                 className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-base"
-                disabled={isPending}
               />
-              {formErrors.email && <div className="text-red-500 text-sm mt-1">{formErrors.email}</div>}
+              {errorMap.prezime && <div className="text-red-500 text-sm mt-1">{errorMap.prezime}</div>}
+            </div>
+          </div>
+          <div>
+            <input
+              name="email"
+              defaultValue={valueMap.email || initialForm.email}
+              placeholder={t('email')}
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-base"
+            />
+            {errorMap.email && <div className="text-red-500 text-sm mt-1">{errorMap.email}</div>}
+          </div>
+          <div>
+            <input
+              name="telefon"
+              defaultValue={valueMap.telefon || initialForm.telefon}
+              placeholder={t('phone')}
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-base"
+            />
+            {errorMap.telefon && <div className="text-red-500 text-sm mt-1">{errorMap.telefon}</div>}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <input
+                name="drzava"
+                defaultValue={valueMap.drzava || initialForm.drzava}
+                placeholder={t('country')}
+                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-base"
+              />
+              {errorMap.drzava && <div className="text-red-500 text-sm mt-1">{errorMap.drzava}</div>}
             </div>
             <div>
               <input
-                name="telefon"
-                value={form.telefon}
-                onChange={handleChange}
-                placeholder={t('phone')}
+                name="grad"
+                defaultValue={valueMap.grad || initialForm.grad}
+                placeholder={t('city')}
                 className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-base"
-                disabled={isPending}
               />
-              {formErrors.telefon && <div className="text-red-500 text-sm mt-1">{formErrors.telefon}</div>}
+              {errorMap.grad && <div className="text-red-500 text-sm mt-1">{errorMap.grad}</div>}
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <input
-                  name="drzava"
-                  value={form.drzava}
-                  onChange={handleChange}
-                  placeholder={t('country')}
-                  className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-base"
-                  disabled={isPending}
-                />
-                {formErrors.drzava && <div className="text-red-500 text-sm mt-1">{formErrors.drzava}</div>}
-              </div>
-              <div>
-                <input
-                  name="grad"
-                  value={form.grad}
-                  onChange={handleChange}
-                  placeholder={t('city')}
-                  className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-base"
-                  disabled={isPending}
-                />
-                {formErrors.grad && <div className="text-red-500 text-sm mt-1">{formErrors.grad}</div>}
-              </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <input
+                name="postanskiBroj"
+                defaultValue={valueMap.postanskiBroj || initialForm.postanskiBroj}
+                placeholder={t('postal_code')}
+                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-base"
+              />
+              {errorMap.postanskiBroj && <div className="text-red-500 text-sm mt-1">{errorMap.postanskiBroj}</div>}
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <input
-                  name="postanskiBroj"
-                  value={form.postanskiBroj}
-                  onChange={handleChange}
-                  placeholder={t('postal_code')}
-                  className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-base"
-                  disabled={isPending}
-                />
-                {formErrors.postanskiBroj && <div className="text-red-500 text-sm mt-1">{formErrors.postanskiBroj}</div>}
-              </div>
-              <div>
-                <input
-                  name="adresa"
-                  value={form.adresa}
-                  onChange={handleChange}
-                  placeholder={t('address')}
-                  className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-base"
-                  disabled={isPending}
-                />
-                {formErrors.adresa && <div className="text-red-500 text-sm mt-1">{formErrors.adresa}</div>}
-              </div>
+            <div>
+              <input
+                name="adresa"
+                defaultValue={valueMap.adresa || initialForm.adresa}
+                placeholder={t('address')}
+                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-base"
+              />
+              {errorMap.adresa && <div className="text-red-500 text-sm mt-1">{errorMap.adresa}</div>}
             </div>
-
-            <div className="flex flex-col sm:flex-row gap-3 mt-6">
-              <button
-                type="submit"
-                className="flex-1 bg-blue-600 text-white px-4 py-3 rounded-lg shadow-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={isPending}
-              >
-                {isPending ? (
-                  <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
-                ) : (
-                  <FaSave />
-                )}
-                {isPending ? 'Čuva se...' : t('sacuvaj_izmjene')}
-              </button>
-              <Link
-                href="/profil"
-                className="flex-1 bg-gray-300 text-gray-700 px-4 py-3 rounded-lg hover:bg-gray-400 transition-colors flex items-center justify-center gap-2 text-base font-medium"
-              >
-                <FaTimes />
-                {t('odkazivanje')}
-              </Link>
-            </div>
-          </form>
-        </div>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 mt-6">
+            <button
+              type="submit"
+              className="flex-1 bg-blue-600 text-white px-4 py-3 rounded-lg shadow-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-base font-medium"
+            >
+              <FaSave />
+              {t('sacuvaj_izmjene')}
+            </button>
+            <a
+              href="/profil"
+              className="flex-1 bg-gray-300 text-gray-700 px-4 py-3 rounded-lg hover:bg-gray-400 transition-colors flex items-center justify-center gap-2 text-base font-medium"
+            >
+              <FaTimes />
+              {t('odkazivanje')}
+            </a>
+          </div>
+        </form>
       </div>
     </div>
   );

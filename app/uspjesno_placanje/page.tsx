@@ -2,9 +2,10 @@
 
 import sr from '@/i18n/locales/sr/uspjesno_placanje.json';
 import en from '@/i18n/locales/en/uspjesno_placanje.json';
-import ClientLayout from '../ClientLayout';
+import ClientLayout from '../components/ClientLayout';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/authOptions';
+import Link from 'next/link';
 
 export default async function UspjesnoPlacanjePage({ searchParams }: { searchParams?: Promise<{ lang?: string }> }) {
   const params = searchParams ? await searchParams : {};
@@ -29,13 +30,12 @@ export default async function UspjesnoPlacanjePage({ searchParams }: { searchPar
             <h1 className="text-3xl font-extrabold text-green-700 mb-2 tracking-tight">{t.naslov}</h1>
             <p className="text-base text-gray-700 mb-4">{t.poruka}</p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
-            <a
+            <Link
               href="/"
               className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition font-medium"
             >
               {t.povratak}
-            </a>
+            </Link>
             <a
               href="/moje-porudzbine"
               className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition font-medium"
@@ -44,7 +44,6 @@ export default async function UspjesnoPlacanjePage({ searchParams }: { searchPar
             </a>
           </div>
         </div>
-      </div>
-    </ClientLayout>
+      </ClientLayout>
   );
 }

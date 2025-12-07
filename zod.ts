@@ -53,7 +53,7 @@ export const korisnikSchema = (t: TranslateFn) => z.object({
     ime: z.string().min(2, { message: t('ime_error') }),
     prezime: z.string().min(2, { message: t('prezime_error') }),
     email: z.string().email({ message: t('email_error') }),
-    telefon: z.string().min(5, { message: t('telefon_error') }).max(15).regex(/^+?[0-9\s]*$/, { message: t('telefon_error') }).optional(),
+    telefon: z.string().min(5, { message: t('telefon_error') }).max(20).regex(/^\+?[0-9\s]*$/, { message: t('telefon_error') }).optional(),
     drzava: z.string().min(2, { message: t('drzava_error') }),
     grad: z.string().min(2, { message: t('grad_error') }).optional(),
     postanskiBroj: z.string().min(2, { message: t('postanskiBroj_error') }).optional(),

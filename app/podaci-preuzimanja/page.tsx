@@ -6,7 +6,7 @@ import { getPodaciPreuzimanja } from '@/lib/actions';
 
 import sr from '@/i18n/locales/sr/podaci-preuzimanja.json';
 import en from '@/i18n/locales/en/podaci-preuzimanja.json';
-import ClientLayout from '../ClientLayout';
+import ClientLayout from '../components/ClientLayout';
 
 export default async function PodaciPreuzimanjaPage({ searchParams }: { searchParams?: Promise<{ lang?: string }> }) {
   const params = searchParams ? await searchParams : {};
@@ -50,18 +50,5 @@ export default async function PodaciPreuzimanjaPage({ searchParams }: { searchPa
         </form>
       </div>
     </ClientLayout>
-  );
-          <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">Poštanski broj</label>
-            <input className="w-full border rounded px-3 py-2" value={podaci?.postanskiBroj || ''} disabled />
-          </div>
-        </div>
-        <div className="pt-4">
-          <a href="/profil" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-            {lang === 'en' ? 'Back to profile' : 'Nazad na profil'}
-          </a>
-        </div>
-      </form>
-    </div>
   );
 }

@@ -69,7 +69,7 @@ export default function KorpaActions({ userId, stavke, lang, t }: KorpaActionsPr
         console.log('Korpa je ispražnjena i stanje proizvoda smanjeno');
       } catch (error) {
         console.error('Greška pri brisanju korpe ili ažuriranju stanja proizvoda:', error);
-        toast.error(t('error') || 'Greška pri brisanju korpe');
+        toast.error(t.error || 'Greška pri brisanju korpe');
       }
     });
   };
@@ -110,7 +110,7 @@ export default function KorpaActions({ userId, stavke, lang, t }: KorpaActionsPr
           resolve(true);
         } catch (error) {
           console.error('Error creating order:', error);
-          toast.error(t('error') || 'Greška pri kreiranju porudžbine');
+          toast.error(t.error || 'Greška pri kreiranju porudžbine');
           resolve(false);
         }
       });
