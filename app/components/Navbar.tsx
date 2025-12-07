@@ -1,124 +1,82 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-'use client';
-import { useSession, signOut } from "next-auth/react";
-import React, { useEffect, useState, Suspense } from "react";
-
-import { FaShoppingCart, FaHome, FaUser, FaSignInAlt, FaSignOutAlt, FaUserShield, FaChevronDown, FaSearch, FaTimes, FaBars, FaUsers, FaBox, FaHistory, FaHeart } from "react-icons/fa";
-
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
-
-import Link from "next/link";
+import sr from '@/i18n/locales/sr/navbar.json';
+import en from '@/i18n/locales/en/navbar.json';
 
 interface NavbarProps {
+  lang?: string;
+  isAdmin?: boolean;
+  brojUKorpi?: number;
   setSidebarOpen?: (open: boolean) => void;
 }
 
-// Komponenta koja koristi useSearchParams - mora biti u Suspense
-function NavbarContent({ setSidebarOpen }: NavbarProps) {
-  const [languageDropdownOpen, setLanguageDropdownOpen] = useState(false);
-  const { data: session } = useSession();
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  // Derive language from searchParams or default to 'sr'
-  const currentLanguage = searchParams.get('lang') || 'sr';
-
-  // Ispravljen changeLanguage bez setCurrentLanguage i duplikata
-  const changeLanguage = (lang: string) => {
-    setLanguageDropdownOpen(false);
-    try {
-      const urlSearchParams = new URLSearchParams(window.location.search);
-      urlSearchParams.set('lang', lang);
-      router.push(`${pathname}?${urlSearchParams.toString()}`);
-    } catch (error) {
-      router.push(`${pathname}?lang=${lang}`);
-    }
-  };
-
-  const getLanguageFlag = (lang: string) => {
-    return lang === 'en' ? '🇬🇧' : '🇲🇪';
-  };
-
-  const getLanguageName = (lang: string) => {
-    return lang === 'en' ? 'English' : 'Crnogorski';
-  };
+export default function Navbar({ lang = 'sr', isAdmin = false, brojUKorpi = 0, setSidebarOpen }: NavbarProps) {
+  const t = lang === 'en' ? en : sr;
 
   return (
-    <nav className="sticky top-0 z-50 flex items-center justify-between p-3 sm:p-4 border-b border-gray-200 bg-white shadow-sm">
-      {/* Hamburger ikona */}
-      <button
-        className="p-2 sm:p-3 focus:outline-none rounded-lg hover:bg-gray-100 touch-manipulation"
-        onClick={() => setSidebarOpen && setSidebarOpen(true)}
-        aria-label="Otvori meni"
-      >
-        <FaBars className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" />
-      </button>
-      <div className="flex items-center gap-2">
-        {/* Prijava/Odjava */}
-        {!session?.user ? (
-          <button
-            onClick={() => router.push(`/auth/prijava?lang=${currentLanguage}`)}
-            className="flex items-center justify-center p-2 sm:p-3 rounded-lg hover:bg-blue-50 transition touch-manipulation min-w-11 min-h-11"
-          >
-            <FaSignInAlt className="text-blue-600 w-4 h-4 sm:w-5 sm:h-5" />
-          </button>
-        ) : (
-            <div className="flex items-center gap-2">
-              <span
-                className="text-sm font-medium text-gray-700 max-w-[120px] truncate"
-                title={session.user.name ? session.user.name : (session.user.email ? session.user.email : undefined)}
-              >
-                {session.user.name || session.user.email}
+    <nav className="sticky top-0 z-50 flex items-center justify-between gap-2 sm:gap-4 p-3 sm:p-4 border-b border-gray-200 bg-white shadow-sm">
+      {!isAdmin && (
+        <>
+          {/* Left Section - Hamburger + Logo */}
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <button
+              className="p-2 sm:p-3 focus:outline-none rounded-lg hover:bg-gray-100 touch-manipulation"
+              onClick={() => setSidebarOpen?.(true)}
+              aria-label="Open sidebar"
+            >
+              <span className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700">☰</span>
+            </button>
+            <a
+              href={`/?lang=${lang}`}
+              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg hover:bg-red-50 transition touch-manipulation min-w-0"
+            >
+              <span className="text-xl sm:text-2xl">🛒</span>
+              <span className="font-bold text-blue-700 text-sm sm:text-base truncate">
+                <span className="hidden xs:inline">{t.title}</span>
+                <span className="xs:hidden">Trgovina</span>
               </span>
-              <button
-                onClick={() => signOut({ callbackUrl: "/auth/prijava" })}
-                className="flex items-center justify-center p-2 sm:p-3 rounded-lg hover:bg-blue-50 transition touch-manipulation min-w-11 min-h-11"
-              >
-                <FaSignOutAlt className="text-blue-600 w-4 h-4 sm:w-5 sm:h-5" />
-              </button>
-            </div>
-        )}
-        {/* Izbor jezika */}
-        <div className="relative language-dropdown ml-2">
-          <button
-            onClick={() => setLanguageDropdownOpen(!languageDropdownOpen)}
-            className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none touch-manipulation min-w-11 min-h-11"
-          >
-            <span className="text-lg sm:text-xl">{getLanguageFlag(currentLanguage)}</span>
-            <span className="hidden md:inline text-xs sm:text-sm font-medium">{getLanguageName(currentLanguage)}</span>
-            <FaChevronDown className={`text-gray-500 text-xs transition-transform ${languageDropdownOpen ? 'rotate-180' : ''}`} />
-          </button>
-          {languageDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-36 sm:w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-              <button
-                onClick={() => changeLanguage('sr')}
-                className={`w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 text-left hover:bg-gray-50 transition-colors touch-manipulation ${currentLanguage === 'sr' ? 'bg-blue-50 text-blue-700' : 'text-gray-700'}`}
-              >
-                <span className="text-lg sm:text-xl">🇲🇪</span>
-                <span className="text-xs sm:text-sm">Crnogorski</span>
-              </button>
-              <button
-                onClick={() => changeLanguage('en')}
-                className={`w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 text-left hover:bg-gray-50 transition-colors touch-manipulation ${currentLanguage === 'en' ? 'bg-blue-50 text-blue-700' : 'text-gray-700'}`}
-              >
-                <span className="text-lg sm:text-xl">🇬🇧</span>
-                <span className="text-xs sm:text-sm">English</span>
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
+            </a>
+          </div>
+          {/* Center Section - Desktop Search */}
+          <div className="hidden lg:flex flex-1 max-w-md mx-4">
+            <form action="/proizvodi" method="get" className="flex items-center gap-2 w-full">
+              <input
+                type="text"
+                name="search"
+                className="flex-1 border rounded px-3 py-2"
+                placeholder={t.search}
+              />
+              <input type="hidden" name="lang" value={lang} />
+              <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">{t.search}</button>
+            </form>
+          </div>
+          {/* Right Section - Links */}
+          <div className="flex items-center gap-3">
+            <a href={`/?lang=${lang}`} className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
+              <span>🏠</span>
+              <span>{t.home}</span>
+            </a>
+            <a href={`/profil?lang=${lang}`} className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
+              <span>👤</span>
+              <span>{t.profile}</span>
+            </a>
+            <a href={`/omiljeni?lang=${lang}`} className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
+              <span>❤️</span>
+              <span>{t.favorites}</span>
+            </a>
+            <a href={`/moje-porudzbine?lang=${lang}`} className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
+              <span>📦</span>
+              <span>{t.my_orders}</span>
+            </a>
+            <a href={`/korpa?lang=${lang}`} className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition relative">
+              <span>🛒</span>
+              <span>{t.cart}</span>
+              {brojUKorpi > 0 && (
+                <span className="ml-1 bg-blue-600 text-white rounded-full px-2 py-0.5 text-xs font-bold">{brojUKorpi}</span>
+              )}
+            </a>
+          </div>
+        </>
+      )}
     </nav>
-  );
-}
-
-// Glavna Navbar komponenta sa Suspense
-export default function Navbar({ setSidebarOpen }: NavbarProps) {
-  return (
-    <Suspense fallback={<div className="p-4 text-center">Loading...</div>}>
-      <NavbarContent setSidebarOpen={setSidebarOpen} />
-    </Suspense>
   );
 }
 
