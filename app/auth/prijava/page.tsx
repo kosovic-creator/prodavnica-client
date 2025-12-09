@@ -57,7 +57,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ [
         <div className="mt-4">
           <LoginForm />
         </div>
-        <div className="mt-6 space-y-4">
+        {/* <div className="mt-6 space-y-4">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300" />
@@ -65,17 +65,17 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ [
             <div className="relative flex justify-center text-sm">
               <span className="px-2 bg-white text-gray-500">{i18nInstance.t('login.orContinueWith')}</span>
             </div>
-          </div>
-          <form method="post" action="/api/auth/signin/google">
-            <button
+          </div> */}
+          {/* <form method="post" action="/api/auth/signin/google"> */}
+            {/* <button
               type="submit"
               className="w-full flex items-center justify-center gap-3 bg-blue-500 text-white px-4 py-3 rounded-lg shadow-md hover:bg-blue-900 transition-colors text-base font-medium cursor-pointer"
             >
               <FaGoogle className="google-icon text-red-400" />
               {i18nInstance.t('login.continueWithGoogle')}
-            </button>
-          </form>
-        </div>
+            </button> */}
+          {/* </form> */}
+        {/* </div> */}
         <div className="mt-6 text-center border-t pt-4">
           <p className="text-gray-600 text-sm">
             {i18nInstance.t('login.noAccount')}{' '}
