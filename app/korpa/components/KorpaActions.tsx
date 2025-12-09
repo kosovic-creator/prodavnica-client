@@ -147,7 +147,7 @@ export default function KorpaActions({ userId, stavke, lang, t }: KorpaActionsPr
         if (!podaciResult.success || !podaciResult.data) {
           toast.error(t.no_data_redirect || "Nemate unete podatke za preuzimanje. Bićete preusmereni na stranicu za unos podataka.", { duration: 5000 });
           setTimeout(() => {
-            router.push('/');
+            router.push('/podaci-preuzimanja');
           }, 2000);
           return;
         }
