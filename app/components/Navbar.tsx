@@ -58,7 +58,7 @@ const Navbar: React.FC<NavbarProps> = ({ lang, isAdmin, setSidebarOpen }) => {
             </Link>
           </div>
           {/* Center Section - Desktop Search */}
-          <div className="hidden lg:flex flex-1 max-w-md mx-4">
+          <div className="flex w-full max-w-md mx-2 sm:mx-4">
             <form action="/proizvodi" method="get" className="flex items-center gap-2 w-full">
               <input
                 type="text"
