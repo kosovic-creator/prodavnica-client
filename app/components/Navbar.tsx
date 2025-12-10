@@ -25,6 +25,7 @@ const Navbar: React.FC<NavbarProps> = ({ lang, isAdmin, setSidebarOpen }) => {
   const { brojUKorpi } = useCart();
   const badgeCount = brojUKorpi;
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
 
   const handleLangSwitch = () => {
     const newLang = currentLang === 'sr' ? 'en' : 'sr';
@@ -34,42 +35,54 @@ const Navbar: React.FC<NavbarProps> = ({ lang, isAdmin, setSidebarOpen }) => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 flex items-center justify-between gap-2 sm:gap-4 p-3 sm:p-4 border-b border-gray-200 bg-white shadow-sm">
-      {!isAdmin && (
-        <>
-          {/* Left Section - Hamburger + Logo */}
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+    <>
+      <nav className="sticky top-0 z-50 flex items-center justify-between gap-2 sm:gap-4 p-3 sm:p-4 border-b border-gray-200 bg-white shadow-sm">
+        {!isAdmin && (
+          <>
+            {/* Left Section - Hamburger + Logo */}
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <button
+                className="p-2 sm:p-3 focus:outline-none rounded-lg hover:bg-gray-100 touch-manipulation"
+                onClick={() => setSidebarOpen?.(true)}
+                aria-label="Open sidebar"
+              >
+                <FaBars className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" />
+              </button>
+              <Link
+                href={`/?lang=${currentLang}`}
+                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg hover:bg-red-50 transition touch-manipulation min-w-0"
+              >
+                <FaHome className="text-xl sm:text-2xl text-blue-700" />
+                <span className="font-bold text-blue-700 text-sm sm:text-base truncate">
+                  <span className="hidden xs:inline">{t.title}</span>
+                  <span className="xs:hidden">Trgovina</span>
+                </span>
+              </Link>
+            </div>
+            {/* Center Section - Desktop Search */}
+            <div className="hidden lg:flex w-full max-w-md mx-2 sm:mx-4">
+              <form action="/proizvodi" method="get" className="flex items-center gap-2 w-full">
+                <input
+                  type="text"
+                  name="search"
+                  className="flex-1 border rounded px-3 py-2"
+                  placeholder={t.search}
+                />
+                <input type="hidden" name="lang" value={currentLang} />
+                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">{t.search}</button>
+              </form>
+            </div>
+            {/* Mobile search button */}
             <button
-              className="p-2 sm:p-3 focus:outline-none rounded-lg hover:bg-gray-100 touch-manipulation"
-              onClick={() => setSidebarOpen?.(true)}
-              aria-label="Open sidebar"
+              className="lg:hidden p-2 rounded-lg hover:bg-gray-100"
+              aria-label="Search"
+              onClick={() => setShowMobileSearch(v => !v)}
             >
-              <FaBars className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" />
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-gray-700">
+                <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2" fill="none" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" strokeWidth="2" />
+              </svg>
             </button>
-            <Link
-              href={`/?lang=${currentLang}`}
-              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg hover:bg-red-50 transition touch-manipulation min-w-0"
-            >
-              <FaHome className="text-xl sm:text-2xl text-blue-700" />
-              <span className="font-bold text-blue-700 text-sm sm:text-base truncate">
-                <span className="hidden xs:inline">{t.title}</span>
-                <span className="xs:hidden">Trgovina</span>
-              </span>
-            </Link>
-          </div>
-          {/* Center Section - Desktop Search */}
-          <div className="flex w-full max-w-md mx-2 sm:mx-4">
-            <form action="/proizvodi" method="get" className="flex items-center gap-2 w-full">
-              <input
-                type="text"
-                name="search"
-                className="flex-1 border rounded px-3 py-2"
-                placeholder={t.search}
-              />
-              <input type="hidden" name="lang" value={currentLang} />
-              <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">{t.search}</button>
-            </form>
-          </div>
           {/* Right Section - Profile, Cart, Language Switcher */}
           <div className="flex items-center gap-3">
             {/* Profile dropdown for logged-in user */}
@@ -142,7 +155,23 @@ const Navbar: React.FC<NavbarProps> = ({ lang, isAdmin, setSidebarOpen }) => {
           </div>
         </>
       )}
-    </nav>
+      </nav>
+      {/* Mobile search dropdown */}
+      {showMobileSearch && (
+        <div className="lg:hidden w-full px-3 py-2 bg-white border-b border-gray-200 shadow-sm flex justify-center">
+          <form action="/proizvodi" method="get" className="flex items-center gap-2 w-full max-w-md">
+            <input
+              type="text"
+              name="search"
+              className="flex-1 border rounded px-3 py-2"
+              placeholder={t.search}
+            />
+            <input type="hidden" name="lang" value={currentLang} />
+            <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">{t.search}</button>
+          </form>
+        </div>
+      )}
+    </>
   );
 };
 
