@@ -9,7 +9,7 @@ import { CartProvider } from "./CartContext";
 
 
 
-export default function ClientLayout({ children, lang, isLoggedIn, korisnikIme }: {
+export default function ClientLayout({ children, lang}: {
   children: React.ReactNode;
   lang: string;
   isLoggedIn?: boolean;

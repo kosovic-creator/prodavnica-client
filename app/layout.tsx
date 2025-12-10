@@ -39,9 +39,14 @@ export default async function RootLayout({
   const lang = searchParams?.lang === "en" ? "en" : "sr";
   let brojUKorpi = 0;
   if (isLoggedIn && session?.user?.id) {
-    const korpa = await getKorpa(session.user.id);
-    if (korpa.success && korpa.data?.stavke) {
-      brojUKorpi = korpa.data.stavke.reduce((sum, s) => sum + (s.kolicina || 1), 0);
+    try {
+      const korpa = await getKorpa(session.user.id);
+      if (korpa.success && korpa.data?.stavke) {
+        brojUKorpi = korpa.data.stavke.reduce((sum, s) => sum + (s.kolicina || 1), 0);
+      }
+    } catch (e) {
+      // Ignoriši grešku za goste ili ako baza nije dostupna
+      brojUKorpi = 0;
     }
   }
   return (

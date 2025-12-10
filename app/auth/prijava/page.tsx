@@ -2,8 +2,6 @@
 
 import LoginForm from '../../components/LoginForm';
 import i18next from 'i18next';
-import { korisnikSchema } from '../../../zod';
-import { redirect } from 'next/navigation';
 import en from '../../../public/locales/en/auth.json';
 import sr from '../../../public/locales/sr/auth.json';
 import { FaSignInAlt, FaEnvelope, FaLock, FaGoogle } from "react-icons/fa";
@@ -12,9 +10,6 @@ const resources = {
   en: { auth: en },
   sr: { auth: sr }
 };
-
-
-
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
   const params = await searchParams;
@@ -39,8 +34,6 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ [
     lozinka: ''
   };
 
-  // Uklanjam server action, prikazujem klijentsku LoginForm komponentu
-
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-8 bg-gray-50">
       <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
@@ -57,25 +50,6 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ [
         <div className="mt-4">
           <LoginForm />
         </div>
-        {/* <div className="mt-6 space-y-4">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">{i18nInstance.t('login.orContinueWith')}</span>
-            </div>
-          </div> */}
-          {/* <form method="post" action="/api/auth/signin/google"> */}
-            {/* <button
-              type="submit"
-              className="w-full flex items-center justify-center gap-3 bg-blue-500 text-white px-4 py-3 rounded-lg shadow-md hover:bg-blue-900 transition-colors text-base font-medium cursor-pointer"
-            >
-              <FaGoogle className="google-icon text-red-400" />
-              {i18nInstance.t('login.continueWithGoogle')}
-            </button> */}
-          {/* </form> */}
-        {/* </div> */}
         <div className="mt-6 text-center border-t pt-4">
           <p className="text-gray-600 text-sm">
             {i18nInstance.t('login.noAccount')}{' '}
