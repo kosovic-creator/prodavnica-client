@@ -1,4 +1,5 @@
 import ClientLayout from '.././components/ClientLayout';
+import ProizvodiSkeleton from './ProizvodiSkeleton';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/authOptions';
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -34,9 +35,7 @@ export default async function ProizvodiPage({ searchParams }: { searchParams: Pr
       <ClientLayout lang={lang} isLoggedIn={isLoggedIn} korisnikIme={korisnikIme} >
         <div className="min-h-screen bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 py-8">
-            <div className="text-center text-red-500 py-12">
-              <p className="text-lg">{t['greska_ucitavanje_proizvoda'] || 'Greška pri učitavanju proizvoda'}: {result.error}</p>
-            </div>
+            <ProizvodiSkeleton />
           </div>
         </div>
       </ClientLayout>
