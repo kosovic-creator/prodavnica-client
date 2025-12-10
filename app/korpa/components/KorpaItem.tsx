@@ -78,13 +78,14 @@ export default function KorpaItem({ stavka, lang, t }: KorpaItemProps) {
     : '/placeholder.png';
   const naziv = lang === 'en' ? stavka.proizvod.naziv_en : stavka.proizvod.naziv_sr;
   return (
-    <div className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm border">
-      <div className="w-16 h-16 relative shrink-0">
+    <div className="flex flex-row items-center gap-4 p-4 bg-white rounded-lg shadow-sm border min-h-24">
+      {/* Slika */}
+      <div className="w-20 h-20 relative shrink-0 flex items-center justify-center">
         <Image
           src={imageUrl}
           alt={naziv}
           fill
-          sizes="(max-width: 768px) 100vw, 64px"
+          sizes="(max-width: 768px) 100vw, 80px"
           className="object-contain rounded-lg"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
@@ -92,43 +93,38 @@ export default function KorpaItem({ stavka, lang, t }: KorpaItemProps) {
           }}
         />
       </div>
-
-      <div className="flex-1">
-        <h3 className="font-medium text-gray-900">{naziv}</h3>
-        <p className="text-sm text-gray-600">{stavka.proizvod.cena.toFixed(2)} €</p>
+      {/* Info i kontrole */}
+      <div className="flex-1 flex flex-col gap-2 min-w-0">
+        <h3 className="font-medium text-gray-900 truncate">{naziv}</h3>
+        <div className="flex items-center gap-2 mt-1">
+          <button
+            onClick={() => handleKolicina(stavka.kolicina - 1)}
+            disabled={isPending || stavka.kolicina <= 1}
+            className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <FaMinus className="w-3 h-3" />
+          </button>
+          <span className="w-8 text-center font-medium">{stavka.kolicina}</span>
+          <button
+            onClick={() => handleKolicina(stavka.kolicina + 1)}
+            disabled={isPending}
+            className="w-8 h-8 flex items-center justify-center bg-blue-100 hover:bg-blue-200 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <FaPlus className="w-3 h-3" />
+          </button>
+        </div>
       </div>
-
-      <div className="flex items-center gap-2">
+      {/* Cijena i delete */}
+      <div className="flex flex-col items-end gap-2 min-w-20">
+        <p className="font-medium text-lg">{(stavka.proizvod.cena * stavka.kolicina).toFixed(2)} €</p>
         <button
-          onClick={() => handleKolicina(stavka.kolicina - 1)}
-          disabled={isPending || stavka.kolicina <= 1}
-          className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <FaMinus className="w-3 h-3" />
-        </button>
-
-        <span className="w-8 text-center font-medium">{stavka.kolicina}</span>
-
-        <button
-          onClick={() => handleKolicina(stavka.kolicina + 1)}
+          onClick={handleDelete}
           disabled={isPending}
-          className="w-8 h-8 flex items-center justify-center bg-blue-100 hover:bg-blue-200 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <FaPlus className="w-3 h-3" />
+          <FaTrashAlt className="w-5 h-5" />
         </button>
       </div>
-
-      <div className="text-right">
-        <p className="font-medium">{(stavka.proizvod.cena * stavka.kolicina).toFixed(2)} €</p>
-      </div>
-
-      <button
-        onClick={handleDelete}
-        disabled={isPending}
-        className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <FaTrashAlt className="w-4 h-4" />
-      </button>
     </div>
   );
 }

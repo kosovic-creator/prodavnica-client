@@ -2,6 +2,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { getServerSession } from 'next-auth';
+import { Suspense } from 'react';
+// SuccessRedirect je client komponenta
+import SuccessRedirect from './SuccessRedirect';
 import { authOptions } from '@/lib/authOptions';
 import { redirect } from 'next/navigation';
 import { getPodaciPreuzimanja, createPodaciPreuzimanja, updatePodaciPreuzimanja } from '@/lib/actions/podaci-preuzimanja';
@@ -109,19 +112,19 @@ export default async function PodaciPreuzimanjaPage({ searchParams }: { searchPa
       redirect(`/podaci-preuzimanja?error=${error}`);
     }
     await ocistiKorpu(userId);
-    redirect('/');
+    redirect('/podaci-preuzimanja?success=1');
   }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
         <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
-          {podaci ? t('azuriraj_podatke') : t('naslov')}
+          { t('naslov')}
         </h2>
         {formState.success && (
-          <div className="mb-4 p-3 rounded bg-green-100 text-green-800 text-center">
-            {t('uspjeh') || 'Podaci su uspješno sačuvani!'}
-          </div>
+          <Suspense fallback={null}>
+            <SuccessRedirect message={t('uspjeh') || 'Podaci su uspješno sačuvani!'} />
+          </Suspense>
         )}
         {formState.error?.global && (
           <div className="mb-4 p-3 rounded bg-red-100 text-red-800 text-center">
