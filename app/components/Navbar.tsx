@@ -158,7 +158,7 @@ const Navbar: React.FC<NavbarProps> = ({ lang, isAdmin, setSidebarOpen }) => {
       </nav>
       {/* Mobile search dropdown */}
       {showMobileSearch && (
-        <div className="lg:hidden w-full px-3 py-2 bg-white border-b border-gray-200 shadow-sm flex justify-center">
+        <div className="lg:hidden w-full px-3 py-2 bg-white border-b border-gray-200 shadow-sm flex justify-center items-center">
           <form action="/proizvodi" method="get" className="flex items-center gap-2 w-full max-w-md">
             <input
               type="text"
@@ -169,6 +169,16 @@ const Navbar: React.FC<NavbarProps> = ({ lang, isAdmin, setSidebarOpen }) => {
             <input type="hidden" name="lang" value={currentLang} />
             <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">{t.search}</button>
           </form>
+          <button
+            className="ml-2 p-2 rounded-lg hover:bg-gray-100 text-gray-500"
+            aria-label="Zatvori pretragu"
+            onClick={() => setShowMobileSearch(false)}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+              <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" strokeWidth="2" />
+              <line x1="6" y1="18" x2="18" y2="6" stroke="currentColor" strokeWidth="2" />
+            </svg>
+          </button>
         </div>
       )}
     </>
