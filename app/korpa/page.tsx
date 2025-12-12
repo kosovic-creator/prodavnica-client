@@ -29,63 +29,64 @@ export default async function KorpaPage({ searchParams }: { searchParams?: Promi
     }
   }
 
-  if (!userId) {
-    return (
-      <ClientLayout lang={lang} isLoggedIn={false} korisnikIme={undefined}>
-        <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
-          <h2 className="text-xl font-semibold text-gray-600 mb-2">
-            {t.morate_biti_prijavljeni}
-          </h2>
-          <Link
-            href="/auth/prijava"
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            {t.prijava}
-          </Link>
-        </div>
-      </ClientLayout>
-    );
-  }
-
+  // Always use a light background for the whole page
   return (
-    <ClientLayout lang={lang} isLoggedIn={!!session?.user} korisnikIme={typeof session?.user?.name === 'string' ? session.user.name : undefined}>
-      <MonriPaySuccessEffect />
-      <>
-        <h1 className="text-2xl md:text-3xl font-bold mb-6 flex items-center justify-center gap-2 text-center">
-          {t.naslov}
-        </h1>
-        {stavke.length === 0 ? (
-          <div className="flex flex-col items-center justify-center min-h-[300px] text-center">
-            <h2 className="text-xl font-semibold text-gray-600 mb-2">
-              {t.prazna_korpa}
+    <div className="bg-gray-50 dark:bg-white min-h-screen">
+      {!userId ? (
+        <ClientLayout lang={lang} isLoggedIn={false} korisnikIme={undefined}>
+          <div className="flex flex-col items-center justify-center min-h-[400px] text-center bg-white text-gray-900 rounded-lg shadow">
+            <h2 className="text-xl font-semibold mb-2">
+              {t.morate_biti_prijavljeni}
             </h2>
-            <p className="text-gray-500 mb-4">
-              {t.nema_proizvoda}
-            </p>
             <Link
-              href="/proizvodi"
+              href="/auth/prijava"
               className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
             >
-              {t.nastavi_kupovinu}
+              {t.prijava}
             </Link>
           </div>
-        ) : (
+        </ClientLayout>
+      ) : (
+        <ClientLayout lang={lang} isLoggedIn={!!session?.user} korisnikIme={typeof session?.user?.name === 'string' ? session.user.name : undefined}>
+          <MonriPaySuccessEffect />
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 ml-4">
-                {stavke.map((stavka) => (
-                  <KorpaItem key={stavka.id} stavka={stavka} lang={lang} t={t} />
-              ))}
-            </div>
-            <div className="mt-8">
-              <KorpaActions userId={userId} stavke={stavke} lang={lang} t={t} />
-            </div>
-            <div className="mt-8">
-              {/* Prikaz MonriPay dugmeta za checkout */}
-              <PaymentSelector amount={stavke.reduce((sum, s) => sum + ((s.proizvod?.cena || 0) * s.kolicina), 0)} />
-            </div>
-          </>
-        )}
-      </>
-    </ClientLayout>
+              <h1 className="text-2xl md:text-3xl font-bold mb-6 flex items-center justify-center gap-2 text-center text-gray-900 dark:text-gray-900">
+                {t.naslov}
+              </h1>
+              {stavke.length === 0 ? (
+                <div className="flex flex-col items-center justify-center min-h-[300px] text-center bg-white text-gray-900 rounded-lg shadow">
+                  <h2 className="text-xl font-semibold mb-2">
+                    {t.prazna_korpa}
+                  </h2>
+                  <p className="mb-4">
+                    {t.nema_proizvoda}
+                  </p>
+                  <Link
+                    href="/proizvodi"
+                    className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    {t.nastavi_kupovinu}
+                  </Link>
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 ml-4 text-gray-900 dark:text-gray-900">
+                    {stavke.map((stavka) => (
+                      <KorpaItem key={stavka.id} stavka={stavka} lang={lang} t={t} />
+                    ))}
+                  </div>
+                  <div className="mt-8">
+                    <KorpaActions userId={userId} stavke={stavke} lang={lang} t={t} />
+                  </div>
+                  <div className="mt-8">
+                    {/* Prikaz MonriPay dugmeta za checkout */}
+                    <PaymentSelector amount={stavke.reduce((sum, s) => sum + ((s.proizvod?.cena || 0) * s.kolicina), 0)} />
+                  </div>
+                </>
+              )}
+            </>
+          </ClientLayout>
+      )}
+    </div>
   );
 }

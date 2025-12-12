@@ -36,7 +36,7 @@ const Navbar: React.FC<NavbarProps> = ({ lang, isAdmin, setSidebarOpen }) => {
 
   return (
     <>
-      <nav className="sticky top-0 z-50 flex items-center justify-between gap-2 sm:gap-4 p-3 sm:p-4 border-b border-gray-200 bg-white shadow-sm">
+      <nav className="sticky top-0 z-50 flex items-center justify-between gap-2 sm:gap-4 p-3 sm:p-4 border-b border-gray-200 bg-white shadow-sm text-gray-900 dark:text-gray-900">
         {!isAdmin && (
           <>
             {/* Left Section - Hamburger + Logo */}
@@ -46,14 +46,14 @@ const Navbar: React.FC<NavbarProps> = ({ lang, isAdmin, setSidebarOpen }) => {
                 onClick={() => setSidebarOpen?.(true)}
                 aria-label="Open sidebar"
               >
-                <FaBars className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" />
+                <FaBars className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 dark:text-gray-900" />
               </button>
               <Link
                 href={`/?lang=${currentLang}`}
                 className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg hover:bg-red-50 transition touch-manipulation min-w-0"
               >
-                <FaHome className="text-xl sm:text-2xl text-blue-700" />
-                <span className="font-bold text-blue-700 text-sm sm:text-base truncate">
+                <FaHome className="text-xl sm:text-2xl text-blue-700 dark:text-blue-700" />
+                <span className="font-bold text-blue-700 dark:text-blue-700 text-sm sm:text-base truncate">
                   <span className="hidden xs:inline">{t.title}</span>
                   <span className="xs:hidden">Trgovina</span>
                 </span>
@@ -69,12 +69,12 @@ const Navbar: React.FC<NavbarProps> = ({ lang, isAdmin, setSidebarOpen }) => {
                   placeholder={t.search}
                 />
                 <input type="hidden" name="lang" value={currentLang} />
-                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">{t.search}</button>
+                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition dark:text-white">{t.search}</button>
               </form>
             </div>
             {/* Mobile search button */}
             <button
-              className="lg:hidden p-2 rounded-lg hover:bg-gray-100"
+              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-200"
               aria-label="Search"
               onClick={() => setShowMobileSearch(v => !v)}
             >

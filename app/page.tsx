@@ -26,7 +26,7 @@ export default async function HomePage({ searchParams }: { searchParams?: { lang
   }
   return (
     <ClientLayout lang={lang}>
-      <main className="flex flex-col gap-8">
+      <main className="flex flex-col gap-8 bg-white">
         {/* Banner gore */}
         <BannerPage lang={lang} />
         {/* Grid proizvoda dolje */}

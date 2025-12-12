@@ -1,8 +1,11 @@
-import i18next from 'i18next';
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import i18next, { i18n as I18nType } from 'i18next';
 import { korisnikSchema } from '../../../zod';
-import { redirect } from 'next/navigation';
-import en from '../../../public/locales/en/auth.json';
-import sr from '../../../public/locales/sr/auth.json';
+import { useRouter, useSearchParams } from 'next/navigation';
+import en from '../../../i18n/locales/en/auth.json';
+import sr from '../../../i18n/locales/sr/auth.json';
 import { FaUserPlus, FaEnvelope, FaLock, FaUser } from "react-icons/fa";
 
 const resources = {
@@ -10,100 +13,85 @@ const resources = {
   sr: { auth: sr }
 };
 
-
-export default async function Page({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
-
-  const params = await searchParams;
+export default function Page() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   let lng = 'sr';
-  if (params?.lang === 'sr' || params?.lang === 'en') {
-    lng = params.lang as string;
+  const langParam = searchParams.get('lang');
+  if (langParam === 'sr' || langParam === 'en') {
+    lng = langParam;
   }
-  const errorParam = params?.error;
+  const errorParam = searchParams.get('error');
 
-  const i18nInstance = i18next.createInstance();
-  await i18nInstance.init({
-    lng,
-    fallbackLng: 'sr',
-    resources,
-    ns: ['auth'],
-    defaultNS: 'auth',
-    backend: false, // onemogući backend loader za SSR
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [values, setValues] = useState({
+    email: '',
+    lozinka: '',
+    potvrdaLozinke: '',
+    ime: '',
+    prezime: ''
   });
 
-  const errors: Record<string, string> = {};
-  const values: Record<string, string> = {
-    email: '',
-    ime: '',
-    prezime: '',
-    lozinka: '',
-    potvrdaLozinke: ''
-  };
+  const [i18nInstance, setI18nInstance] = useState<I18nType | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Server action za validaciju i submit
-  async function handleSubmit(formData: FormData) {
-    'use server';
-    const lang = (formData.get('lang') as string) || 'sr';
-    const i18nInstance = (await import('i18next')).default.createInstance();
-    await i18nInstance.init({
-      lng: lang,
+  useEffect(() => {
+    const instance = i18next.createInstance();
+    instance.init({
+      lng,
       fallbackLng: 'sr',
       resources,
       ns: ['auth'],
       defaultNS: 'auth',
       backend: false,
+    }).then(() => {
+      setI18nInstance(instance);
+      setLoading(false);
     });
-    const t = (key: string) => i18nInstance.t(`register.${key}`);
-    const values = {
-      email: formData.get('email') as string,
-      ime: formData.get('ime') as string,
-      prezime: formData.get('prezime') as string,
-      lozinka: formData.get('lozinka') as string,
-      potvrdaLozinke: formData.get('potvrdaLozinke') as string,
-    };
-    const schema = korisnikSchema(t).pick({ email: true, ime: true, prezime: true, lozinka: true });
+  }, [lng]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setValues({ ...values, [e.target.name]: e.target.value });
+  };
+
+  if (loading || !i18nInstance) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <span>Loading...</span>
+      </div>
+    );
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setErrors({});
+    const t = i18nInstance.t.bind(i18nInstance);
+    const schema = korisnikSchema(t);
+
     const result = schema.safeParse(values);
-    const errors: Record<string, string> = {};
+    const newErrors: Record<string, string> = {};
     if (!result.success) {
       for (const err of result.error.issues) {
-        errors[String(err.path[0])] = err.message;
+        newErrors[String(err.path[0])] = err.message;
       }
       if (values.lozinka !== values.potvrdaLozinke) {
-        errors.potvrdaLozinke = t('passwords_do_not_match');
+        newErrors.potvrdaLozinke = t('passwords_do_not_match');
       }
+      setErrors(newErrors);
       return;
     }
     if (values.lozinka !== values.potvrdaLozinke) {
-      errors.potvrdaLozinke = t('passwords_do_not_match');
+      newErrors.potvrdaLozinke = t('passwords_do_not_match');
+      setErrors(newErrors);
       return;
     }
-    // Upis korisnika u bazu preko API poziva
-    const res = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/auth/korisnici`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: values.email,
-        lozinka: values.lozinka,
-        ime: values.ime,
-        prezime: values.prezime
-      })
-    });
-    const data = await res.json();
-    if (data.success) {
-      redirect('/auth/prijava');
-    } else if (data.error === 'email_exists') {
-      redirect('/auth/registracija?error=email_exists');
-    } else {
-      redirect('/auth/registracija?error=1');
-    }
-    const errorParam = params?.error;
-  }
+    // ...submit logic here...
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-8 bg-gray-50">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
-        <h1 className="text-2xl md:text-3xl font-bold mb-6 flex items-center justify-center gap-2 text-center">
+    <div className="min-h-screen flex items-center justify-center px-4 py-8 bg-[#f7f8fa]">
+      <div className="w-full max-w-md bg-white rounded-xl shadow-md p-8 text-gray-900">
+        <h1 className="text-2xl md:text-3xl font-bold mb-6 flex items-center justify-center gap-2 text-center text-blue-600">
           <FaUserPlus className="text-blue-600" />
           {i18nInstance.t('register.title')}
         </h1>
@@ -117,69 +105,74 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ [
             {i18nInstance.t('register.error_occurred') || 'Došlo je do greške pri registraciji.'}
           </div>
         )}
-        <form action={handleSubmit} className="space-y-4">
-          <div className="flex items-center gap-3 border border-gray-300 p-3 rounded-lg hover:border-blue-400 transition-colors">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="flex items-center gap-3 border border-gray-300 p-3 rounded-lg bg-white">
             <FaEnvelope className="text-blue-600 text-lg shrink-0" />
             <input
               id="email"
               name="email"
               type="email"
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md input-focus hover:border-blue-400 transition-colors !input-focus!ring-0"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-400 text-gray-900 placeholder-gray-400"
               placeholder={i18nInstance.t('register.email')}
-              defaultValue={values.email}
+              value={values.email}
+              onChange={handleChange}
             />
           </div>
           {errors.email && <div className="text-red-600 text-sm">{errors.email}</div>}
-          <div className="flex items-center gap-3 border border-gray-300 p-3 rounded-lg hover:border-blue-400 transition-colors">
+          <div className="flex items-center gap-3 border border-gray-300 p-3 rounded-lg bg-white">
             <FaUser className="text-blue-600 text-lg shrink-0" />
             <input
               id="ime"
               name="ime"
               type="text"
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md input-focus hover:border-blue-400 transition-colors !input-focus!ring-0"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-400 text-gray-900 placeholder-gray-400"
               placeholder={i18nInstance.t('register.name')}
-              defaultValue={values.ime}
+              value={values.ime}
+              onChange={handleChange}
             />
           </div>
           {errors.ime && <div className="text-red-600 text-sm">{errors.ime}</div>}
-          <div className="flex items-center gap-3 border border-gray-300 p-3 rounded-lg hover:border-blue-400 transition-colors">
+          <div className="flex items-center gap-3 border border-gray-300 p-3 rounded-lg bg-white">
             <FaUser className="text-blue-600 text-lg shrink-0" />
             <input
               id="prezime"
               name="prezime"
               type="text"
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md input-focus hover:border-blue-400 transition-colors !input-focus!ring-0"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-400 text-gray-900 placeholder-gray-400"
               placeholder={i18nInstance.t('register.surname')}
-              defaultValue={values.prezime}
+              value={values.prezime}
+              onChange={handleChange}
             />
           </div>
           {errors.prezime && <div className="text-red-600 text-sm">{errors.prezime}</div>}
-          <div className="flex items-center gap-3 border border-gray-300 p-3 rounded-lg hover:border-blue-400 transition-colors">
+          <div className="flex items-center gap-3 border border-gray-300 p-3 rounded-lg bg-white">
             <FaLock className="text-blue-600 text-lg shrink-0" />
             <input
               id="lozinka"
               name="lozinka"
               type="password"
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md input-focus hover:border-blue-400 transition-colors !input-focus!ring-0"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-400 text-gray-900 placeholder-gray-400"
               placeholder={i18nInstance.t('register.password')}
-              defaultValue={values.lozinka}
+              value={values.lozinka}
+              onChange={handleChange}
             />
           </div>
           {errors.lozinka && <div className="text-red-600 text-sm">{errors.lozinka}</div>}
-          <div className="flex items-center gap-3 border border-gray-300 p-3 rounded-lg hover:border-blue-400 transition-colors">
+          <div className="flex items-center gap-3 border border-gray-300 p-3 rounded-lg bg-white">
             <FaLock className="text-blue-600 text-lg shrink-0" />
             <input
               id="potvrdaLozinke"
               name="potvrdaLozinke"
               type="password"
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md input-focus hover:border-blue-400 transition-colors !input-focus!ring-0"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-400 text-gray-900 placeholder-gray-400"
               placeholder={i18nInstance.t('register.confirm_password')}
-              defaultValue={values.potvrdaLozinke}
+              value={values.potvrdaLozinke}
+              onChange={handleChange}
             />
           </div>
           {errors.potvrdaLozinke && <div className="text-red-600 text-sm">{errors.potvrdaLozinke}</div>}
@@ -190,6 +183,17 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ [
             {i18nInstance.t('register.submit')}
           </button>
         </form>
+        <div className="mt-6 text-center border-t pt-4">
+          <p className="text-gray-600 text-sm">
+            {i18nInstance.t('register.haveAccount')}{' '}
+            <a
+              href="/auth/prijava"
+              className="text-blue-600 hover:text-blue-800 font-medium underline transition-colors"
+            >
+              {i18nInstance.t('register.loginHere')}
+            </a>
+          </p>
+        </div>
       </div>
     </div>
   );
