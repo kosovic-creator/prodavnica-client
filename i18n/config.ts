@@ -25,7 +25,7 @@ if (!i18n.isInitialized) {
     .init({
       fallbackLng: 'en',
       supportedLngs: ['en', 'sr'],
-      debug: process.env.NODE_ENV === 'development',
+      debug: false,
       ns: ['common', 'auth'],
       defaultNS: 'common',
       resources,

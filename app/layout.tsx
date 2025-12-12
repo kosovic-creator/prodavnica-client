@@ -8,7 +8,9 @@ import { authOptions } from "@/lib/authOptions";
 
 import { getKorpa } from '@/lib/actions/korpa';
 import type { ReactNode } from 'react';
+
 import AuthProvider from "./components/AuthProvider";
+import I18nProvider from './components/I18nProvider';
 
 
 const geistSans = Geist({
@@ -57,7 +59,9 @@ export default async function RootLayout({
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}>
         <AuthProvider>
-          {children}
+          <I18nProvider>
+            {children}
+          </I18nProvider>
         </AuthProvider>
       </body>
     </html>
