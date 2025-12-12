@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import i18next, { i18n as I18nType } from 'i18next';
 import { korisnikSchema } from '../../../zod';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import en from '../../../i18n/locales/en/auth.json';
 import sr from '../../../i18n/locales/sr/auth.json';
 import { FaUserPlus, FaEnvelope, FaLock, FaUser } from "react-icons/fa";
@@ -14,7 +14,7 @@ const resources = {
 };
 
 export default function Page() {
-  const router = useRouter();
+  // const router = useRouter(); // Removed unused variable
   const searchParams = useSearchParams();
   let lng = 'sr';
   const langParam = searchParams.get('lang');
@@ -180,20 +180,10 @@ export default function Page() {
             type="submit"
             className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
           >
-            {i18nInstance.t('register.submit')}
+            {i18nInstance.t('register.register')}
           </button>
         </form>
-        <div className="mt-6 text-center border-t pt-4">
-          <p className="text-gray-600 text-sm">
-            {i18nInstance.t('register.noAccount')}{' '}
-            <a
-              href="/auth/prijava"
-              className="text-blue-600 hover:text-blue-800 font-medium underline transition-colors"
-            >
-              {i18nInstance.t('register.registerHere')}
-            </a>
-          </p>
-        </div>
+
       </div>
     </div>
   );
