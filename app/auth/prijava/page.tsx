@@ -117,7 +117,7 @@ export default function Page() {
               name="lozinka"
               type="password"
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md input-focus hover:border-blue-400 transition-colors !input-focus!ring-0 text-gray-900 dark:text-black placeholder-gray-400 dark:placeholder-black"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md input-focus hover:border-blue-400 transition-colors !input-focus!ring-0 text-gray-900 dark:text-black placeholder-gray-400"
               placeholder={i18nInstance.t('login.password')}
               value={values.lozinka}
               onChange={handleChange}

@@ -185,12 +185,12 @@ export default function Page() {
         </form>
         <div className="mt-6 text-center border-t pt-4">
           <p className="text-gray-600 text-sm">
-            {i18nInstance.t('register.haveAccount')}{' '}
+            {i18nInstance.t('register.noAccount')}{' '}
             <a
               href="/auth/prijava"
               className="text-blue-600 hover:text-blue-800 font-medium underline transition-colors"
             >
-              {i18nInstance.t('register.loginHere')}
+              {i18nInstance.t('register.registerHere')}
             </a>
           </p>
         </div>
