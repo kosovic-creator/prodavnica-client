@@ -6,7 +6,8 @@ import { FaSignOutAlt } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import I18nProvider from "@/app/components/I18nProvider";
 
-const { t, i18n } = useTranslation('auth');
+export default function OdjavaPage() {
+  const { t } = useTranslation('auth');
   useEffect(() => {
     signOut({ callbackUrl: "/auth/prijava" });
   }, []);

@@ -130,5 +130,7 @@ export default async function OmiljeniPage({ searchParams }: { searchParams?: Pr
               </div>
             )}
           </ClientLayout>
+      )}
+    </div>
   );
 }
