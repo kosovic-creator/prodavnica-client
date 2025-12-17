@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useSession } from 'next-auth/react';
 
+
 // Extend the session user type to include 'id'
 import type { DefaultSession } from 'next-auth';
 
@@ -28,6 +29,7 @@ interface AddToCartButtonProps {
 }
 
 export default function AddToCartButton({ proizvod }: AddToCartButtonProps) {
+  // const t = useTranslations('AddToCartButton');
   const { data: session } = useSession();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -37,7 +39,7 @@ export default function AddToCartButton({ proizvod }: AddToCartButtonProps) {
   const handleDodajUKorpu = async () => {
     const korisnikId = session?.user?.id;
     if (!korisnikId) {
-      toast.error('Morate biti prijavljeni za korpu', { duration: 4000 });
+      toast.error('Morate biti prijavljeni da biste dodali proizvod u korpu', { duration: 4000 });
       router.push('/auth/prijava');
       return;
     }
@@ -55,17 +57,17 @@ export default function AddToCartButton({ proizvod }: AddToCartButtonProps) {
         });
 
         if (!result.success) {
-          toast.error(result.error || 'Greška pri dodavanju u korpu', { duration: 4000 });
+          toast.error(result.error || 'Greška prilikom dodavanja u korpu', { duration: 4000 });
           return;
         }
 
         // Ažuriraj broj stavki u korpi globalno
         await refreshKorpa();
 
-        toast.success('Proizvod dodat u korpu', { duration: 4000 });
+        toast.success('Proizvod je uspešno dodat u korpu', { duration: 4000 });
       } catch (error) {
         console.error('Greška:', error);
-        toast.error('Došlo je do greške pri dodavanju u korpu', { duration: 4000 });
+        toast.error('Došlo je do greške prilikom dodavanja proizvoda u korpu', { duration: 4000 });
       } finally {
         setIsAdding(false);
       }
@@ -84,9 +86,9 @@ export default function AddToCartButton({ proizvod }: AddToCartButtonProps) {
         <FaCartPlus />
       )}
       {isAdding
-        ? 'Dodaje se...'
+        ? 'dodavanje'
         : proizvod.kolicina === 0
-          ? 'Nema na zalihama'
+          ? 'Nema na stanju'
           : 'Dodaj u korpu'
       }
     </button>

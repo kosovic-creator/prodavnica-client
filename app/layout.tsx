@@ -11,6 +11,8 @@ import type { ReactNode } from 'react';
 import AuthProvider from "./components/AuthProvider";
 
 
+
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -49,6 +51,8 @@ export default async function RootLayout({
       brojUKorpi = 0;
     }
   }
+  const messages = (await import(`../i18n/locales/${lang}/common.json`)).default;
+
   return (
     <html lang={lang}>
       <head>
@@ -57,7 +61,9 @@ export default async function RootLayout({
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}>
         <AuthProvider>
-          {children}
+
+            {children}
+         
         </AuthProvider>
       </body>
     </html>

@@ -2,7 +2,7 @@
 import { getProizvodi } from '@/lib/actions';
 import Image from 'next/image';
 import Link from 'next/link';
-import AddToCartButton from '../proizvodi/components/AddToCartButton';
+// import AddToCartButton from '../proizvodi/components/AddToCartButton';
 import OmiljeniButton from '../proizvodi/components/OmiljeniButton';
 import sr from '@/i18n/locales/sr/proizvodi.json';
 import en from '@/i18n/locales/en/proizvodi.json';
@@ -104,7 +104,7 @@ export default async function GridPage({ lang = 'sr' }: { lang?: string }) {
                 </p>
               )}
               <div className="flex gap-2 mb-2">
-                <AddToCartButton
+                {/* <AddToCartButton
                   proizvod={{
                     ...proizvod,
                     naziv,
@@ -115,7 +115,7 @@ export default async function GridPage({ lang = 'sr' }: { lang?: string }) {
                     karakteristike_sr: proizvod.karakteristike_sr ?? undefined,
                     karakteristike_en: proizvod.karakteristike_en ?? undefined,
                   }}
-                />
+                /> */}
                 <Link
                   href={`/proizvodi/${proizvod.id}`}
                   className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-2"
