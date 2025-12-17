@@ -55,7 +55,7 @@ const Navbar: React.FC<NavbarProps> = ({ lang, isAdmin, setSidebarOpen }) => {
                 <FaHome className="text-xl sm:text-2xl text-blue-700" />
                 <span className="font-bold text-blue-700 text-sm sm:text-base truncate">
                   <span className="hidden xs:inline">{t.title}</span>
-                  <span className="xs:hidden">Trgovina</span>
+                  <span className="xs:hidden">{t.title}</span>
                 </span>
               </Link>
             </div>

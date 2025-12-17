@@ -9,7 +9,7 @@ import { authOptions } from "@/lib/authOptions";
 import { getKorpa } from '@/lib/actions/korpa';
 import type { ReactNode } from 'react';
 import AuthProvider from "./components/AuthProvider";
-
+import { cookies } from 'next/headers';
 
 
 
@@ -30,15 +30,15 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({
   children,
-  searchParams
 }: {
-  children: ReactNode;
-  searchParams?: { lang?: string };
+    children: ReactNode;
 }): Promise<React.ReactElement> {
   const session = await getServerSession(authOptions);
-  const korisnikIme = session?.user?.name || session?.user?.email || "";
   const isLoggedIn = !!session?.user;
-  const lang = searchParams?.lang === "en" ? "en" : "sr";
+
+  const cookieStore = await cookies();
+  const lang = cookieStore.get('lang')?.value || 'sr';
+
   let brojUKorpi = 0;
   if (isLoggedIn && session?.user?.id) {
     try {
@@ -47,11 +47,9 @@ export default async function RootLayout({
         brojUKorpi = korpa.data.stavke.reduce((sum, s) => sum + (s.kolicina || 1), 0);
       }
     } catch (e) {
-      // Ignoriši grešku za goste ili ako baza nije dostupna
       brojUKorpi = 0;
     }
   }
-  const messages = (await import(`../i18n/locales/${lang}/common.json`)).default;
 
   return (
     <html lang={lang}>
@@ -61,9 +59,7 @@ export default async function RootLayout({
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}>
         <AuthProvider>
-
-            {children}
-         
+          {children}
         </AuthProvider>
       </body>
     </html>
