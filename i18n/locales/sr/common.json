@@ -1,0 +1,12 @@
+{
+  "products": "Proizvodi",
+  "orders": "Porudžbine",
+  "users": "Korisnici",
+  "cart": "Korpa",
+  "login": "Prijava",
+  "logout": "Odjava",
+  "register": "Registracija",
+  "add_to_cart": "Dodaj u korpu",
+  "edit": "Uredi",
+  "delete": "Obriši"
+}

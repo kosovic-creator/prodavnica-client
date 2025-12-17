@@ -1,0 +1,14 @@
+{
+  "home": "Home",
+  "profile": "Profile",
+  "login": "Login",
+  "logout": "Logout",
+  "register": "Register",
+  "admin": "Admin",
+  "cart": "Cart",
+  "search": "Search",
+  "title": "WebShop",
+  "favorites": "Favorites",
+  "my_orders": "My Orders",
+  "about_us": "About Us"
+}

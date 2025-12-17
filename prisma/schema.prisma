@@ -1,0 +1,125 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+model Korisnik {
+  id          String              @id @default(uuid())
+  email       String              @unique
+  lozinka     String
+  ime         String
+  prezime     String
+  uloga       String              @default("korisnik")
+  kreiran     DateTime            @default(now())
+  azuriran    DateTime            @updatedAt
+  porudzbine  Porudzbina[]
+  stavkeKorpe StavkaKorpe[]
+  omiljeni    Omiljeni[]
+  podaciPreuzimanja PodaciPreuzimanja?
+}
+
+model PodaciPreuzimanja {
+  id             String    @id @default(uuid())
+  korisnikId     String    @unique
+  adresa         String
+  drzava         String
+  grad           String
+  postanskiBroj  Int
+  telefon        String
+  korisnik       Korisnik  @relation(fields: [korisnikId], references: [id], onDelete: Cascade)
+  kreiran        DateTime  @default(now())
+  azuriran       DateTime  @updatedAt
+}
+
+
+model StavkaKorpe {
+  id         String   @id @default(uuid())
+  korisnikId String
+  proizvodId String
+  kolicina   Int      @default(1)
+  kreiran    DateTime @default(now())
+  azuriran   DateTime @updatedAt
+  korisnik   Korisnik @relation(fields: [korisnikId], references: [id], onDelete: Cascade)
+  proizvod   Proizvod @relation(fields: [proizvodId], references: [id], onDelete: Cascade)
+
+  @@unique([korisnikId, proizvodId])
+  @@index([korisnikId])
+}
+
+model Porudzbina {
+  id               String             @id @default(uuid())
+  korisnikId       String
+  ukupno           Float
+  status           String
+  email            String?
+  kreiran          DateTime           @default(now())
+  azuriran         DateTime           @updatedAt
+  idPlacanja       String?            @unique
+  korisnik         Korisnik           @relation(fields: [korisnikId], references: [id], onDelete: Cascade)
+  stavkePorudzbine StavkaPorudzbine[]
+
+  @@index([korisnikId])
+}
+
+model StavkaPorudzbine {
+  id           String     @id @default(uuid())
+  porudzbinaId String
+  proizvodId   String
+  kolicina     Int
+  cena         Float
+  opis         String?
+  kreiran      DateTime   @default(now())
+  azuriran     DateTime   @updatedAt
+  slika        String?
+  porudzbina   Porudzbina @relation(fields: [porudzbinaId], references: [id], onDelete: Cascade)
+  proizvod     Proizvod   @relation(fields: [proizvodId], references: [id], onDelete: Cascade)
+
+  @@index([porudzbinaId])
+}
+
+model Omiljeni {
+  id         String   @id @default(uuid())
+  korisnikId String
+  proizvodId String
+  kreiran    DateTime @default(now())
+  korisnik   Korisnik @relation(fields: [korisnikId], references: [id], onDelete: Cascade)
+  proizvod   Proizvod @relation(fields: [proizvodId], references: [id], onDelete: Cascade)
+
+  @@unique([korisnikId, proizvodId])
+  @@index([korisnikId])
+  @@map("omiljeni")
+}
+
+model Proizvod {
+  id               String   @id @default(uuid())
+  cena             Float
+  slike            String[] // Polje za više slika
+  kolicina         Int      @default(1)
+  kreiran          DateTime @default(now())
+  azuriran         DateTime @updatedAt
+
+  // Srpski
+  naziv_sr         String
+  opis_sr          String?
+  karakteristike_sr String?
+  kategorija_sr    String
+
+  // Engleski
+  naziv_en         String
+  opis_en          String?
+  karakteristike_en String?
+  kategorija_en    String
+
+  stavkeKorpe      StavkaKorpe[]
+  stavkePorudzbine StavkaPorudzbine[]
+  omiljeni         Omiljeni[]
+}

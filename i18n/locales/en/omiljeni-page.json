@@ -1,0 +1,21 @@
+{
+  "omiljeni_proizvodi": "Favorite products",
+  "nema_omiljenih_proizvoda": "No favorite products",
+  "dodajte_u_omiljene_opis": "Add products to favorites to see them here.",
+  "pregled_proizvoda": "Browse products",
+  "ukloni_iz_omiljenih": "Remove from favorites",
+  "kategorija": "Category",
+  "kolicina": "Quantity",
+  "detalji": "Details",
+  "dodaj_u_korpu": "Add to cart",
+  "nema_na_zalihama": "Out of stock",
+  "dodato_u_korpu": "Item added to cart.",
+  "morate_biti_prijavljeni_za_omiljene": "You must be logged in to add to favorites.",
+  "morate_biti_prijavljeni_za_korpu": "You must be logged in to add to cart.",
+  "prijavi_se": "Log in",
+  "uklonjen_iz_omiljenih": "Removed from favorites.",
+  "greska": "Error",
+  "neuspesno_uklanjanje": "Failed to remove",
+  "greska_uklanjanje_omiljeni": "Error while removing from favorites.",
+  "dodaje": "Adding..."
+}

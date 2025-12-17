@@ -1,0 +1,12 @@
+{
+  "naslov": "Delivery data",
+  "ime": "First name",
+  "prezime": "Last name",
+  "adresa": "Address",
+  "grad": "City",
+  "telefon": "Phone",
+  "sacuvaj": "Save",
+  "uspjeh": "Data saved successfully!",
+  "greska": "An error occurred. Please try again.",
+  "sacuvaj_podatke": "Save data"
+}
