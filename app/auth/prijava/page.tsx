@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
-import LoginForm from '@/app/components/LoginForm';
+import LoginForm from './LoginForm';
 import Link from 'next/link';
+import getTranslations from '@/lib/i18n';
 
 interface PrijavaPageProps {
   searchParams: Promise<{ lang?: string }>;
@@ -10,12 +11,12 @@ export default async function PrijavaPage({ searchParams }: PrijavaPageProps) {
   const params = await searchParams;
   const langFromUrl = params.lang;
 
-// Don't try to set cookies directly in server components
-// The middleware will handle setting the cookie based on URL params
+  // Don't try to set cookies directly in server components
+  // The middleware will handle setting the cookie based on URL params
   const cookieStore = await cookies();
   const currentLang = langFromUrl || cookieStore.get('lang')?.value || 'sr';
 
-  const authMessages = (await import(`@/i18n/locales/${currentLang}/auth.json`)).default;
+  const authMessages = await getTranslations(currentLang, 'auth');
 
   return (
     <div key={currentLang} className="min-h-screen flex items-center justify-center bg-white px-4 py-8">
