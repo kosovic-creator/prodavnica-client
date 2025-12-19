@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import LoginForm from './LoginForm';
 import Link from 'next/link';
-import getTranslations from '@/lib/i18n';
+
 
 interface PrijavaPageProps {
   searchParams: Promise<{ lang?: string }>;
@@ -16,8 +16,7 @@ export default async function PrijavaPage({ searchParams }: PrijavaPageProps) {
   const cookieStore = await cookies();
   const currentLang = langFromUrl || cookieStore.get('lang')?.value || 'sr';
 
-  const authMessages = await getTranslations(currentLang, 'auth');
-
+  const authMessages = (await import(`@/i18n/locales/${currentLang}/auth.json`)).default;
   return (
     <div key={currentLang} className="min-h-screen flex items-center justify-center bg-white px-4 py-8">
       <div className="max-w-md w-full">

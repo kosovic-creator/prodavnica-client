@@ -1,5 +1,5 @@
 import i18next from 'i18next';
-import { korisnikSchema } from '../../../zod';
+import { korisnikSchema } from '../.././../schemas';
 import { redirect } from 'next/navigation';
 import en from '../../../public/locales/en/auth.json';
 import sr from '../../../public/locales/sr/auth.json';

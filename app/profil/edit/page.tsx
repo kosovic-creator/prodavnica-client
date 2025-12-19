@@ -8,7 +8,7 @@ import enProfil from '@/i18n/locales/en/profil.json';
 import srKorisnici from '@/i18n/locales/sr/korisnici.json';
 import enKorisnici from '@/i18n/locales/en/korisnici.json';
 
-import { korisnikSchema } from '@/zod';
+import { korisnikSchema } from '../.././../schemas';
 import { updateProfilKorisnika, updatePodaciPreuzimanja, createPodaciPreuzimanja } from '@/lib/actions';
 import { redirect } from 'next/navigation';
 import { FaUser, FaSave, FaTimes } from 'react-icons/fa';
