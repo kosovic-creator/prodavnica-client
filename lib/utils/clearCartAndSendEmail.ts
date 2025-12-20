@@ -31,12 +31,13 @@ export async function clearCartAndSendEmail(userId: string, email: string) {
   // Pošalji email
   let emailSent = false;
   if (success) {
-    emailSent = await posaljiEmailObavjestenje({
+    const emailResult = await posaljiEmailObavjestenje({
       email,
       ukupno,
       tip: 'placanje',
       stavke,
     });
+    emailSent = emailResult.success;
   }
 
   return { success, emailSent };

@@ -7,6 +7,7 @@ import { authOptions } from '@/lib/authOptions';
 
 import sr from '@/i18n/locales/sr/profil.json';
 import en from '@/i18n/locales/en/profil.json';
+import ClientLayout from '../components/ClientLayout';
 
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import { deleteKorisnik } from '@/lib/actions/korisnici';
@@ -49,12 +50,14 @@ export default async function ProfilPage({ searchParams }: { searchParams?: { la
   const result = await getKorisnikById(session.user.id);
   if (!result.success || !result.data) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-600 text-lg mb-4">{t.error_fetch_korisnik || 'Greška pri učitavanju profila'}</div>
-          <p className="text-gray-600">{result.error}</p>
+      <ClientLayout lang={lang}>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-red-600 text-lg mb-4">{t.error_fetch_korisnik || 'Greška pri učitavanju profila'}</div>
+            <p className="text-gray-600">{result.error}</p>
+          </div>
         </div>
-      </div>
+      </ClientLayout>
     );
   }
 
@@ -67,7 +70,8 @@ export default async function ProfilPage({ searchParams }: { searchParams?: { la
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <ClientLayout lang={lang}>
+      <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-2xl mx-auto px-4">
         <h1 className="text-2xl md:text-3xl font-bold mb-6 flex items-center gap-2 text-center justify-center">
           <span className="inline-block text-blue-600"><svg width="24" height="24" fill="currentColor"><circle cx="12" cy="8" r="4" /><path d="M4 20v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2" /></svg></span>
@@ -142,5 +146,6 @@ export default async function ProfilPage({ searchParams }: { searchParams?: { la
         </div>
       </div>
     </div>
+    </ClientLayout>
   );
 }

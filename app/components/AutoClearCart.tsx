@@ -33,13 +33,13 @@ export default function AutoClearCart({ lang, t }: { lang: string; t: Record<str
           setStatus('success');
           // Slanje email obavještenja
           setEmailStatus('pending');
-          const emailSent = await posaljiEmailObavjestenje({
+          const emailResult = await posaljiEmailObavjestenje({
             email: session.user.email,
             ukupno,
             tip: 'placanje',
             stavke: korpaRes.data ? korpaRes.data.stavke : []
           });
-          setEmailStatus(emailSent ? 'success' : 'error');
+          setEmailStatus(emailResult.success ? 'success' : 'error');
         } else {
           setStatus('error');
         }

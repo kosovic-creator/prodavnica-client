@@ -20,6 +20,7 @@ export async function POST(req: Request) {
     await posaljiEmailObavjestenje({
       email,
       ukupno: 0,
+      tip: 'reset-lozinke',
       subject: 'Reset lozinke - Prodavnica',
       text: `Vaša nova lozinka je: ${novaLozinka}`,
       html: `<div style="font-family:Arial,sans-serif;font-size:16px;"><h2>Reset lozinke</h2><p>Vaša nova lozinka je: <b>${novaLozinka}</b></p></div>`

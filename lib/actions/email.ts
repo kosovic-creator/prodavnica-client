@@ -5,7 +5,7 @@ import nodemailer from 'nodemailer';
 interface EmailData {
   email: string;
   ukupno: number;
-  tip: 'porudzbina' | 'kontakt';
+  tip: 'porudzbina' | 'kontakt' | 'reset-lozinke' | 'placanje';
   stavke?: Array<{
     proizvod?: {
       naziv_sr: string;
@@ -16,6 +16,9 @@ interface EmailData {
   }>;
   ime?: string;
   poruka?: string;
+  subject?: string;
+  text?: string;
+  html?: string;
 }
 
 export async function posaljiEmailObavjestenje(data: EmailData) {
@@ -45,6 +48,7 @@ export async function posaljiEmailObavjestenje(data: EmailData) {
 
     let htmlContent = '';
     let subject = '';
+    let recipientEmail = process.env.EMAIL_USER; // Default: admin
 
     if (data.tip === 'porudzbina') {
       subject = 'Nova porudžbina';
@@ -72,11 +76,33 @@ export async function posaljiEmailObavjestenje(data: EmailData) {
         <p><strong>Poruka:</strong></p>
         <p>${data.poruka}</p>
       `;
+    } else if (data.tip === 'reset-lozinke') {
+      subject = data.subject || 'Reset lozinke';
+      htmlContent = data.html || data.text || '';
+      recipientEmail = data.email; // Šalje korisniku
+    } else if (data.tip === 'placanje') {
+      subject = 'Potvrda plaćanja - Nova porudžbina';
+      htmlContent = `
+        <h2>Potvrda plaćanja</h2>
+        <p><strong>Email korisnika:</strong> ${data.email}</p>
+        <p><strong>Ukupno:</strong> ${data.ukupno.toFixed(2)} €</p>
+        <h3>Stavke:</h3>
+        <ul>
+          ${data.stavke?.map(s => `
+            <li>
+              ${s.proizvod?.naziv_sr || 'Nepoznat proizvod'} -
+              ${s.kolicina}x -
+              ${(s.proizvod?.cena || 0).toFixed(2)} €
+            </li>
+          `).join('') || '<li>Nema stavki</li>'}
+        </ul>
+        <p>Hvala vam na kupovini!</p>
+      `;
     }
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: process.env.EMAIL_USER, // Šalje email na istu adresu (admin)
+      to: recipientEmail,
       subject: subject,
       html: htmlContent,
     };
