@@ -27,6 +27,8 @@
   "isprazni_korpu": "Isprazni korpu",
   "order_success": "Potvrda porudžbine je poslata na email!",
   "cart_emptied": "Korpa je ispražnjena",
-  "dodajte_proizvode": "Dodajte proizvode u korpu da biste nastavili sa kupovinom."
+  "dodajte_proizvode": "Dodajte proizvode u korpu da biste nastavili sa kupovinom.",
+  "kupovina_uspesna": "Hvala vam na kupovini! Vaša porudžbina je uspešno obrađena.",
+  "montrypay_success": "Hvala vam na kupovini! Vaša porudžbina je uspešno obrađena putem MontryPay."
 
 }

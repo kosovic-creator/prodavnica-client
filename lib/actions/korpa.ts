@@ -179,7 +179,7 @@ export async function ocistiKorpu(korisnikId: string) {
       where: { korisnikId }
     });
 
-    revalidatePath('/korpa');
+    revalidatePath('/proizvodi');
 
     return {
       success: true,

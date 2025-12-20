@@ -27,5 +27,7 @@
   "isprazni_korpu": "Empty cart",
   "order_success": "Order confirmation has been sent to your email!",
   "cart_emptied": "Cart has been emptied",
-  "dodajte_proizvode": "Add products to the cart to continue shopping."
+  "dodajte_proizvode": "Add products to the cart to continue shopping.",
+  "kupovina_uspesna": "Thank you for your purchase! Your order has been successfully processed.",
+  "montrypay_success": "Thank you for your purchase! Your order has been successfully processed via MontryPay."
 }

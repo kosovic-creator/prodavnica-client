@@ -11,6 +11,7 @@ import { getPodaciPreuzimanja } from '@/lib/actions/podaci-preuzimanja';
 import { posaljiEmailObavjestenje } from '@/lib/actions/email';
 import { getProizvodById, updateProizvodStanje } from '@/lib/actions/proizvodi';
 import { useCart } from '../../components/CartContext';
+import SuccessMessage from '@/app/components/SuccessMessage';
 
 
 interface StavkaKorpe {
@@ -152,7 +153,7 @@ export default function KorpaActions({ userId, stavke, lang, t }: KorpaActionsPr
         console.log('[KorpaActions] Porudžbina uspešno kreirana.');
 
         // Prikaži success obaveštenje
-        setSuccessMessage(t.kupovina_uspesna || 'Kupovina je uspešno završena!');
+        setSuccessMessage(t.kupovina_uspesna);
         setShowSuccess(true);
 
         // Očisti korpu i redirect nakon 3 sekunde
@@ -181,7 +182,7 @@ export default function KorpaActions({ userId, stavke, lang, t }: KorpaActionsPr
         toast.error(t.no_data_redirect || "Nemate unete podatke za preuzimanje. Bićete preusmereni na stranicu za unos podataka.", { duration: 5000 });
         setTimeout(() => {
           router.push('/podaci-preuzimanja');
-        }, 2000);
+        }, 3000);
         return;
       }
 
@@ -249,22 +250,12 @@ export default function KorpaActions({ userId, stavke, lang, t }: KorpaActionsPr
 
   return (
     <>
-      {/* Success Overlay */}
+      {/* Success Message */}
       {showSuccess && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 animate-fade-in">
-            <div className="flex flex-col items-center text-center">
-              <div className="text-green-500 text-6xl mb-4">✓</div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">Uspešno!</h2>
-              <p className="text-gray-600 mb-4 whitespace-pre-line">{successMessage}</p>
-              <p className="text-sm text-gray-500">
-                Bićete preusmereni za 3 sekunde...
-              </p>
-            </div>
-          </div>
+        <div className="mb-6">
+          <SuccessMessage message={successMessage} />
         </div>
       )}
-
       <div className="space-y-4">
       {/* Ukupno */}
       <div className="bg-gray-50 p-4 rounded-lg">
