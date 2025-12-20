@@ -11,9 +11,10 @@ import enKorisnici from '@/i18n/locales/en/korisnici.json';
 import { korisnikSchema } from '../.././../schemas';
 import { updateProfilKorisnika, updatePodaciPreuzimanja, createPodaciPreuzimanja } from '@/lib/actions';
 import { redirect } from 'next/navigation';
-import { FaUser, FaSave, FaTimes } from 'react-icons/fa';
+import { FaUser } from 'react-icons/fa';
 import React from 'react';
 import { revalidatePath } from 'next/cache';
+import EditProfilForm from './EditProfilForm';
 
 
 export default async function EditProfilPage({ searchParams }: { searchParams?: { [key: string]: string } | Promise<{ [key: string]: string }> }) {
@@ -60,7 +61,6 @@ export default async function EditProfilPage({ searchParams }: { searchParams?: 
 
   async function handleEditProfil(formData: FormData) {
     'use server';
-    // rekonstruiši t unutar actiona
     const t = (key: string) => (tKorisnici as Record<string, string>)[key] ?? (tProfil as Record<string, string>)[key] ?? key;
     const form = {
       ime: formData.get('ime') as string,
@@ -81,9 +81,8 @@ export default async function EditProfilPage({ searchParams }: { searchParams?: 
       result.error.issues.forEach((err) => {
         if (err.path[0]) params.append(`err_${String(err.path[0])}`, err.message);
       });
-      // preserve values
       Object.entries(form).forEach(([k, v]) => params.append(`val_${k}`, v ?? ''));
-      redirect(`/profil/edit?${params.toString()}`);
+      redirect(`/profil/edit?lang=${lang}&${params.toString()}`);
     }
     const userId = session!.user.id;
     const korisnikResult = await updateProfilKorisnika(userId, {
@@ -96,7 +95,7 @@ export default async function EditProfilPage({ searchParams }: { searchParams?: 
       const params = new URLSearchParams();
       params.append('err_global', korisnikResult.error || t('greska_pri_cuvanju'));
       Object.entries(form).forEach(([k, v]) => params.append(`val_${k}`, v ?? ''));
-      redirect(`/profil/edit?${params.toString()}`);
+      redirect(`/profil/edit?lang=${lang}&${params.toString()}`);
     }
     let podaciResult;
     if (form.podaciId) {
@@ -120,13 +119,12 @@ export default async function EditProfilPage({ searchParams }: { searchParams?: 
       const params = new URLSearchParams();
       params.append('err_global', podaciResult.error || t('greska_pri_cuvanju'));
       Object.entries(form).forEach(([k, v]) => params.append(`val_${k}`, v ?? ''));
-      redirect(`/profil/edit?${params.toString()}`);
+      redirect(`/profil/edit?lang=${lang}&${params.toString()}`);
     }
     revalidatePath('/profil');
     redirect('/profil');
   }
 
-  // Prikupi greške i vrednosti iz params
   const errorMap: Record<string, string> = {};
   const valueMap: Record<string, string> = {};
   if (typeof params === 'object' && params) {
@@ -135,6 +133,8 @@ export default async function EditProfilPage({ searchParams }: { searchParams?: 
       if (k.startsWith('val_')) valueMap[k.replace('val_', '')] = v as string;
     });
   }
+
+  const translations = { ...tProfil, ...tKorisnici };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -146,104 +146,14 @@ export default async function EditProfilPage({ searchParams }: { searchParams?: 
         {errorMap.global && (
           <div className="mb-4 text-red-600 text-center font-medium">{errorMap.global}</div>
         )}
-        <form action={handleEditProfil} className="space-y-4 bg-white rounded-lg shadow-md p-6">
-          <input type="hidden" name="podaciId" defaultValue={valueMap.podaciId || initialForm.podaciId} />
-          <input type="hidden" name="uloga" value={valueMap.uloga || initialForm.uloga || 'korisnik'} />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <input
-                name="ime"
-                defaultValue={valueMap.ime || initialForm.ime}
-                placeholder={t('name')}
-                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-base"
-              />
-              {errorMap.ime && <div className="text-red-500 text-sm mt-1">{errorMap.ime}</div>}
-            </div>
-            <div>
-              <input
-                name="prezime"
-                defaultValue={valueMap.prezime || initialForm.prezime}
-                placeholder={t('surname')}
-                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-base"
-              />
-              {errorMap.prezime && <div className="text-red-500 text-sm mt-1">{errorMap.prezime}</div>}
-            </div>
-          </div>
-          <div>
-            <input
-              name="email"
-              defaultValue={valueMap.email || initialForm.email}
-              placeholder={t('email')}
-              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-base"
-            />
-            {errorMap.email && <div className="text-red-500 text-sm mt-1">{errorMap.email}</div>}
-          </div>
-          <div>
-            <input
-              name="telefon"
-              defaultValue={valueMap.telefon || initialForm.telefon}
-              placeholder={t('phone')}
-              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-base"
-            />
-            {errorMap.telefon && <div className="text-red-500 text-sm mt-1">{errorMap.telefon}</div>}
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <input
-                name="drzava"
-                defaultValue={valueMap.drzava || initialForm.drzava}
-                placeholder={t('country')}
-                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-base"
-              />
-              {errorMap.drzava && <div className="text-red-500 text-sm mt-1">{errorMap.drzava}</div>}
-            </div>
-            <div>
-              <input
-                name="grad"
-                defaultValue={valueMap.grad || initialForm.grad}
-                placeholder={t('city')}
-                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-base"
-              />
-              {errorMap.grad && <div className="text-red-500 text-sm mt-1">{errorMap.grad}</div>}
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <input
-                name="postanskiBroj"
-                defaultValue={valueMap.postanskiBroj || initialForm.postanskiBroj}
-                placeholder={t('postal_code')}
-                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-base"
-              />
-              {errorMap.postanskiBroj && <div className="text-red-500 text-sm mt-1">{errorMap.postanskiBroj}</div>}
-            </div>
-            <div>
-              <input
-                name="adresa"
-                defaultValue={valueMap.adresa || initialForm.adresa}
-                placeholder={t('address')}
-                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-base"
-              />
-              {errorMap.adresa && <div className="text-red-500 text-sm mt-1">{errorMap.adresa}</div>}
-            </div>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-3 mt-6">
-            <button
-              type="submit"
-              className="flex-1 bg-blue-600 text-white px-4 py-3 rounded-lg shadow-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-base font-medium"
-            >
-              <FaSave />
-              {t('sacuvaj_izmjene')}
-            </button>
-            <a
-              href="/profil"
-              className="flex-1 bg-gray-300 text-gray-700 px-4 py-3 rounded-lg hover:bg-gray-400 transition-colors flex items-center justify-center gap-2 text-base font-medium"
-            >
-              <FaTimes />
-              {t('odkazivanje')}
-            </a>
-          </div>
-        </form>
+        <EditProfilForm
+          handleEditProfil={handleEditProfil}
+          initialForm={initialForm}
+          errorMap={errorMap}
+          valueMap={valueMap}
+          translations={translations}
+          lang={lang}
+        />
       </div>
     </div>
   );
