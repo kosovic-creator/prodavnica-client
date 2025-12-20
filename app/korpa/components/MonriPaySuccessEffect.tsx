@@ -59,6 +59,16 @@ export default function MonriPaySuccessEffect() {
           "[MonriPaySuccess] Slanje email obavještenja sa iznosom:",
           ukupno
         );
+
+        // Email adminu o novoj porudžbini
+        await posaljiEmailObavjestenje({
+          email: session.user.email || "",
+          ukupno,
+          tip: "porudzbina",
+          stavke: stavke
+        });
+
+        // Email korisniku - potvrda plaćanja
         await posaljiEmailObavjestenje({
           email: session.user.email || "",
           ukupno,

@@ -31,6 +31,15 @@ export async function clearCartAndSendEmail(userId: string, email: string) {
   // Pošalji email
   let emailSent = false;
   if (success) {
+    // Email adminu o novoj porudžbini
+    await posaljiEmailObavjestenje({
+      email,
+      ukupno,
+      tip: 'porudzbina',
+      stavke,
+    });
+
+    // Email korisniku - potvrda plaćanja
     const emailResult = await posaljiEmailObavjestenje({
       email,
       ukupno,

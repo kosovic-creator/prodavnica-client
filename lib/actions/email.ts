@@ -81,12 +81,12 @@ export async function posaljiEmailObavjestenje(data: EmailData) {
       htmlContent = data.html || data.text || '';
       recipientEmail = data.email; // Šalje korisniku
     } else if (data.tip === 'placanje') {
-      subject = 'Potvrda plaćanja - Nova porudžbina';
+      subject = 'Potvrda plaćanja';
       htmlContent = `
         <h2>Potvrda plaćanja</h2>
-        <p><strong>Email korisnika:</strong> ${data.email}</p>
+        <p>Hvala vam na kupovini!</p>
         <p><strong>Ukupno:</strong> ${data.ukupno.toFixed(2)} €</p>
-        <h3>Stavke:</h3>
+        <h3>Vaša porudžbina:</h3>
         <ul>
           ${data.stavke?.map(s => `
             <li>
@@ -96,8 +96,9 @@ export async function posaljiEmailObavjestenje(data: EmailData) {
             </li>
           `).join('') || '<li>Nema stavki</li>'}
         </ul>
-        <p>Hvala vam na kupovini!</p>
+        <p>Vaša porudžbina će biti uskoro obrađena.</p>
       `;
+      recipientEmail = data.email; // Šalje korisniku
     }
 
     const mailOptions = {

@@ -143,10 +143,20 @@ export default function KorpaActions({ userId, stavke, lang, t }: KorpaActionsPr
 
         // Poziv za email obavještenje o porudžbini
         console.log('[KorpaActions] Slanje email obavještenja...');
-        const emailResult = await posaljiEmailObavjestenje({
+
+        // Email adminu o novoj porudžbini
+        await posaljiEmailObavjestenje({
           email: session?.user?.email || '',
           ukupno,
           tip: 'porudzbina',
+          stavke: stavke
+        });
+
+        // Email korisniku - potvrda plaćanja
+        const emailResult = await posaljiEmailObavjestenje({
+          email: session?.user?.email || '',
+          ukupno,
+          tip: 'placanje',
           stavke: stavke
         });
         console.log('[KorpaActions] Rezultat slanja email-a:', emailResult);
@@ -217,10 +227,20 @@ export default function KorpaActions({ userId, stavke, lang, t }: KorpaActionsPr
 
         // Pošalji email obaveštenje
         console.log('[KorpaActions] Slanje email obavještenja za Montrypay...');
-        const emailResult = await posaljiEmailObavjestenje({
+
+        // Email adminu o novoj porudžbini
+        await posaljiEmailObavjestenje({
           email: session?.user?.email || '',
           ukupno,
           tip: 'porudzbina',
+          stavke: stavke
+        });
+
+        // Email korisniku - potvrda plaćanja
+        const emailResult = await posaljiEmailObavjestenje({
+          email: session?.user?.email || '',
+          ukupno,
+          tip: 'placanje',
           stavke: stavke
         });
         console.log('[KorpaActions] Rezultat slanja email-a:', emailResult);
