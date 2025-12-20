@@ -7,7 +7,7 @@ import Link from 'next/link';
 
 import KorpaItem from './components/KorpaItem';
 import KorpaActions from './components/KorpaActions';
-import PaymentSelector from '../components/PaymentSelector';
+
 import MonriPaySuccessEffect from './components/MonriPaySuccessEffect';
 
 import sr from '@/i18n/locales/sr/korpa.json';
@@ -81,7 +81,7 @@ export default async function KorpaPage({ searchParams }: { searchParams?: Promi
             </div>
             <div className="mt-8">
               {/* Prikaz MonriPay dugmeta za checkout */}
-              <PaymentSelector amount={stavke.reduce((sum, s) => sum + ((s.proizvod?.cena || 0) * s.kolicina), 0)} />
+            
             </div>
           </>
         )}

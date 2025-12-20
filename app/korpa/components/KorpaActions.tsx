@@ -2,17 +2,16 @@
 
 import { useTransition } from 'react';
 import { useCart } from '../../components/CartContext';
-// SSR lokalizacija: primaj lang i t kao prop
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { FaTrashAlt, FaShoppingCart } from 'react-icons/fa';
+import { FaTrashAlt, FaShoppingCart, FaCreditCard } from 'react-icons/fa';
 import {
   ocistiKorpu,
   kreirajPorudzbinu,
   getPodaciPreuzimanja
 } from '../../../lib/actions';
+import { createMonriPayCheckout } from '../../../lib/actions/payment';
 import { posaljiEmailObavjestenje } from '../../../lib/actions/email';
-import { clearCartAndSendEmail } from '../../../lib/utils/clearCartAndSendEmail';
 import { getProizvodById, updateProizvodStanje } from '../../../lib/actions/proizvodi';
 import { useSession } from 'next-auth/react';
 
@@ -37,18 +36,6 @@ interface KorpaActionsProps {
 }
 
 export default function KorpaActions({ userId, stavke, lang, t }: KorpaActionsProps) {
-  // Primjer: pozovi clearCartAndSendEmail nakon MonriPay checkouta
-  const handleMonriPaySuccess = async () => {
-    if (!session?.user?.id || !session?.user?.email) return;
-    const result = await clearCartAndSendEmail(session.user.id, session.user.email);
-    if (result.success && result.emailSent) {
-      toast.success('Korpa je ispražnjena i email je poslat!');
-    } else {
-      toast.error('Greška pri čišćenju korpe ili slanju emaila!');
-    }
-    await refreshKorpa();
-    window.location.reload();
-  };
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const { data: session } = useSession();
@@ -56,8 +43,8 @@ export default function KorpaActions({ userId, stavke, lang, t }: KorpaActionsPr
   const ukupno = stavke.reduce((acc, s) => acc + (s.proizvod ? s.proizvod.cena * s.kolicina : 0), 0);
 
   const { refreshKorpa } = useCart();
+
   const isprazniKorpu = async () => {
-      // ...existing code...
     startTransition(async () => {
       try {
         // Smanji stanje proizvoda za svaku stavku u korpi
@@ -88,9 +75,9 @@ export default function KorpaActions({ userId, stavke, lang, t }: KorpaActionsPr
     });
   };
 
-  const potvrdiPorudzbinu = async (): Promise<boolean> => {
-      console.log('[KorpaActions] Email koji se šalje:', session?.user?.email);
-    return new Promise<boolean>((resolve) => {
+  const potvrdiPorudzbinu = async (): Promise<{ success: boolean; ukupno?: number }> => {
+    console.log('[KorpaActions] Email koji se šalje:', session?.user?.email);
+    return new Promise<{ success: boolean; ukupno?: number }>((resolve) => {
       startTransition(async () => {
         try {
           console.log('[KorpaActions] Kreiranje porudžbine...');
@@ -112,25 +99,15 @@ export default function KorpaActions({ userId, stavke, lang, t }: KorpaActionsPr
 
           if (!result.success) {
             toast.error(result.error || t.error || 'Greška pri kreiranju porudžbine');
-            resolve(false);
+            resolve({ success: false });
             return;
           }
 
-          await isprazniKorpu();
-          // Poziv za email obavještenje o porudžbini
-          console.log('[KorpaActions] Slanje email obavještenja...');
-          const emailResult = await posaljiEmailObavjestenje({
-            email: result.data?.email || '',
-            ukupno,
-            tip: 'porudzbina',
-            stavke: stavke
-          });
-          console.log('[KorpaActions] Rezultat slanja email-a:', emailResult);
-          resolve(true);
+          resolve({ success: true, ukupno });
         } catch (error) {
           console.error('[KorpaActions] Error creating order:', error);
           toast.error(t.error || 'Greška pri kreiranju porudžbine');
-          resolve(false);
+          resolve({ success: false });
         }
       });
     });
@@ -153,9 +130,19 @@ export default function KorpaActions({ userId, stavke, lang, t }: KorpaActionsPr
         }
 
         // Create order
-        const success = await potvrdiPorudzbinu();
-        console.log('[KorpaActions] Rezultat potvrde porudžbine:', success);
-        if (success) {
+        const result = await potvrdiPorudzbinu();
+        console.log('[KorpaActions] Rezultat potvrde porudžbine:', result);
+        if (result.success) {
+          await isprazniKorpu();
+          // Poziv za email obavještenje o porudžbini
+          console.log('[KorpaActions] Slanje email obavještenja...');
+          const emailResult = await posaljiEmailObavjestenje({
+            email: session?.user?.email || '',
+            ukupno,
+            tip: 'porudzbina',
+            stavke: stavke
+          });
+          console.log('[KorpaActions] Rezultat slanja email-a:', emailResult);
           console.log('[KorpaActions] Porudžbina uspešno kreirana i korpa ispražnjena.');
           router.push('/');
         }
@@ -164,6 +151,56 @@ export default function KorpaActions({ userId, stavke, lang, t }: KorpaActionsPr
         toast.error(t.error || 'Greška pri završavanju kupovine');
       }
     });
+  };
+
+  const handleMontrypayCheckout = async () => {
+    try {
+      console.log('[KorpaActions] Pokrenut Montrypay checkout');
+      const podaciResult = await getPodaciPreuzimanja(userId);
+      console.log('[KorpaActions] Podaci za preuzimanje:', podaciResult);
+
+      if (!podaciResult.success || !podaciResult.data) {
+        toast.error(t.no_data_redirect || "Nemate unete podatke za preuzimanje. Bićete preusmereni na stranicu za unos podataka.", { duration: 5000 });
+        setTimeout(() => {
+          router.push('/podaci-preuzimanja');
+        }, 2000);
+        return;
+      }
+
+      console.log('[KorpaActions] Kreiranje porudžbine za Montrypay...');
+      const porudzbinaData = {
+        korisnikId: userId,
+        ukupno,
+        status: 'Na čekanju',
+        email: session?.user?.email || '',
+        stavke: stavke.map(s => ({
+          proizvodId: s.proizvod?.id || '',
+          kolicina: s.kolicina,
+          cena: s.proizvod?.cena || 0,
+          slika: s.proizvod?.slika || undefined
+        })),
+      };
+
+      const result = await kreirajPorudzbinu(porudzbinaData);
+      console.log('[KorpaActions] Rezultat kreiranja porudžbine za Montrypay:', result);
+
+      if (result.success) {
+        // Kreiraj MonriPay checkout sesiju
+        const paymentResult = await createMonriPayCheckout(ukupno);
+        console.log('[KorpaActions] MonriPay checkout rezultat:', paymentResult);
+
+        if (paymentResult.success && paymentResult.redirectUrl) {
+          router.push(paymentResult.redirectUrl);
+        } else {
+          toast.error(paymentResult.error || 'Greška pri kreiranju MonriPay sesije');
+        }
+      } else {
+        toast.error(result.error || 'Greška pri kreiranju porudžbine');
+      }
+    } catch (error) {
+      console.error('[KorpaActions] Error during Montrypay checkout:', error);
+      toast.error(t.error || 'Greška pri Montrypay plaćanju');
+    }
   };
 
   if (!stavke.length) return null;
@@ -191,6 +228,19 @@ export default function KorpaActions({ userId, stavke, lang, t }: KorpaActionsPr
             <FaTrashAlt />
           )}
           {t.isprazni_korpu || 'Isprazni korpu'}
+        </button>
+
+        <button
+          onClick={handleMontrypayCheckout}
+          disabled={isPending}
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isPending ? (
+            <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
+          ) : (
+            <FaCreditCard />
+          )}
+          {t.montrypay || 'Montrypay'}
         </button>
 
         <button
