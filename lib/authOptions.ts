@@ -53,39 +53,6 @@ export const authOptions: NextAuthOptions = {
       // Prima credentials objekat koji sadrži email i lozinka polja iz forme
       // Vraća user objekat ako je autentifikacija uspješna, ili null ako nije
       async authorize(credentials) {
-        // Definišemo TypeScript interfejs za strukturu zahteva koji šaljemo API-ju za logovanje
-        interface LogToApiRequest {
-          msg: string;  // poruka koju želimo da zabeležimo
-          ts: string;   // timestamp (vremenski pečat) kada je poruka kreirana
-        }
-
-        // Pomoćna funkcija za slanje debug poruka na /api/debug-log endpoint
-        // Ovo nam pomaže da pratimo tok autentifikacije i debugujemo probleme
-        async function logToApi(msg: string): Promise<void> {
-          try {
-            // Kreiramo request body sa porukom i trenutnim vremenom
-            const requestBody: LogToApiRequest = { msg, ts: new Date().toISOString() };
-            // Šaljemo POST zahtev na debug-log endpoint
-            // Koristimo NEXTAUTH_URL iz environment varijabli ili localhost:3000 kao fallback
-            const res: Response = await fetch(`${process.env.NEXTAUTH_URL}/api/debug-log`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(requestBody)
-            });
-            // Logujemo status HTTP odgovora (200, 404, 500, itd.)
-            console.log('logToApi status:', res.status);
-            // Konvertujemo odgovor u tekst i logujemo ga
-            const text: string = await res.text();
-            console.log('logToApi response:', text);
-          } catch (err: unknown) {
-            // Ako dođe do greške pri slanju log poruke, samo je beležimo u console
-            // Ne želimo da pad logging sistema zaustavi proces autentifikacije
-            console.error('logToApi error:', err);
-          }
-        }
-
-        // Logujemo credentials koje smo primili (za debugging)
-        await logToApi('Authorize credentials: ' + JSON.stringify(credentials));
 
         // KORAK 1: VALIDACIJA INPUTA
         // Validiramo credentials koristeći Zod schema (backend validacija - kritična za sigurnost!)
@@ -93,7 +60,6 @@ export const authOptions: NextAuthOptions = {
         const result = loginSchema.safeParse(credentials);
         if (!result.success) {
           // Ako validacija ne uspe (npr. email nije validan ili lozinka je prekratka)
-          await logToApi('Login schema validation failed: ' + JSON.stringify(result.error));
           // Vraćamo null što signalizira NextAuth-u da autentifikacija nije uspela
           return null;
         }
@@ -109,30 +75,23 @@ export const authOptions: NextAuthOptions = {
 
         // Ako korisnik ne postoji u bazi ili nema lozinku (OAuth korisnici nemaju lozinku)
         if (!korisnik || !korisnik.lozinka) {
-          await logToApi('Korisnik nije pronađen ili nema lozinku: ' + JSON.stringify(korisnik));
           // Vraćamo null - autentifikacija neuspešna
           return null;
         }
-
-        // Logujemo podatke korisnika (bez stvarne lozinke - koristimo *** za sigurnost)
-        await logToApi('Korisnik iz baze: ' + JSON.stringify({ ...korisnik, lozinka: '***' }));
 
         // KORAK 3: VERIFIKACIJA LOZINKE
         // Poređimo lozinku koju je korisnik uneo sa heširanom lozinkom iz baze
         // bcrypt.compare automatski primenjuje isti salt i hashing algoritam
         const valid = await bcrypt.compare(lozinka, korisnik.lozinka);
-        await logToApi('Rezultat bcrypt.compare: ' + valid);
 
         // Ako lozinka nije validna
         if (!valid) {
-          await logToApi('Lozinka nije validna');
           // Vraćamo null - autentifikacija neuspešna
           return null;
         }
 
         // KORAK 4: USPEŠNA AUTENTIFIKACIJA
         // Ako smo došli do ovde, korisnik postoji i lozinka je tačna
-        await logToApi('Prijava uspješna za: ' + email);
 
         // Vraćamo user objekat sa podacima koje želimo da čuvamo u sesiji
         // Ovi podaci će biti dostupni kroz JWT token i session objekat
