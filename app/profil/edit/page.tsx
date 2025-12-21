@@ -7,7 +7,6 @@ import srProfil from '@/i18n/locales/sr/profil.json';
 import enProfil from '@/i18n/locales/en/profil.json';
 import srKorisnici from '@/i18n/locales/sr/korisnici.json';
 import enKorisnici from '@/i18n/locales/en/korisnici.json';
-
 import { korisnikSchema } from '../.././../schemas';
 import { updateProfilKorisnika, updatePodaciPreuzimanja, createPodaciPreuzimanja } from '@/lib/actions';
 import { redirect } from 'next/navigation';
@@ -15,6 +14,8 @@ import { FaUser } from 'react-icons/fa';
 import React from 'react';
 import { revalidatePath } from 'next/cache';
 import EditProfilForm from './EditProfilForm';
+import SuccessMessage from '@/app/components/SuccessMessage';
+import ClientLayout from '@/app/components/ClientLayout';
 
 
 export default async function EditProfilPage({ searchParams }: { searchParams?: { [key: string]: string } | Promise<{ [key: string]: string }> }) {
@@ -122,7 +123,9 @@ export default async function EditProfilPage({ searchParams }: { searchParams?: 
       redirect(`/profil/edit?lang=${lang}&${params.toString()}`);
     }
     revalidatePath('/profil');
-    redirect('/profil');
+    const params = new URLSearchParams();
+    params.append('success', 'true');
+    redirect(`/profil/edit?lang=${lang}&${params.toString()}`);
   }
 
   const errorMap: Record<string, string> = {};
@@ -137,7 +140,9 @@ export default async function EditProfilPage({ searchParams }: { searchParams?: 
   const translations = { ...tProfil, ...tKorisnici };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <ClientLayout lang={lang}>
+
+      <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-2xl mx-auto px-4">
         <h1 className="text-2xl md:text-3xl font-bold mb-6 flex items-center gap-2 text-center justify-center">
           <FaUser className="text-blue-600" />
@@ -146,6 +151,13 @@ export default async function EditProfilPage({ searchParams }: { searchParams?: 
         {errorMap.global && (
           <div className="mb-4 text-red-600 text-center font-medium">{errorMap.global}</div>
         )}
+          {params.success === 'true' && (
+            <SuccessMessage
+              message={t('profil_azuriran') || 'Profil uspješno ažuriran'}
+              redirectTo="/profil"
+              redirectDelay={3000}
+            />
+          )}
         <EditProfilForm
           handleEditProfil={handleEditProfil}
           initialForm={initialForm}
@@ -156,5 +168,8 @@ export default async function EditProfilPage({ searchParams }: { searchParams?: 
         />
       </div>
     </div>
+
+    </ClientLayout>
+
   );
 }

@@ -46,5 +46,6 @@
   "cancel": "Cancel",
   "Ne možete obrisati korisnika koji ima porudžbine. Prvo obrišite sve porudžbine korisnika.": "You cannot delete a user who has orders. Please delete all orders of the user first.",
   "korisnik_obrisan": "User has been successfully deleted.",
-  "greska_pri_ocitavanju": "An error occurred while fetching data."
+  "greska_pri_ocitavanju": "An error occurred while fetching data.",
+  "profil_azuriran": "Profile successfully updated"
 }

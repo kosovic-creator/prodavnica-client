@@ -1,17 +1,34 @@
 "use client";
 import React from "react";
+import { useRouter } from "next/navigation";
 
+interface SuccessMessageProps {
+  message: string;
+  redirectTo?: string;
+  redirectDelay?: number;
+}
 
-export default function SuccessMessage({ message }: { message: string }) {
+export default function SuccessMessage({
+  message,
+  redirectTo,
+  redirectDelay = 3000
+}: SuccessMessageProps) {
   const [show, setShow] = React.useState(true);
+  const router = useRouter();
+
   React.useEffect(() => {
     if (!message) return;
     setShow(true);
+
     const timer = setTimeout(() => {
       setShow(false);
-    }, 3000);
+      if (redirectTo) {
+        router.push(redirectTo);
+      }
+    }, redirectDelay);
+
     return () => clearTimeout(timer);
-  }, [message]);
+  }, [message, redirectTo, redirectDelay, router]);
 
   if (!show || !message) return null;
   return (

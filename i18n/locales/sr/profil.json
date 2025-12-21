@@ -46,7 +46,8 @@
   "cancel": "Otkaži",
   "Ne možete obrisati korisnika koji ima porudžbine. Prvo obrišite sve porudžbine korisnika.": "Ne možete obrisati korisnika koji ima porudžbine. Prvo obrišite sve porudžbine korisnika.",
   "korisnik_obrisan": "Korisnik je uspešno obrisan.",
-  "greska_pri_ocitavanju": "Došlo je do greške prilikom učitavanja podataka."
+  "greska_pri_ocitavanju": "Došlo je do greške prilikom učitavanja podataka.",
+  "profil_azuriran": "Profil uspješno ažuriran"
 
 
 }
