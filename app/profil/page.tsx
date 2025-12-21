@@ -9,9 +9,10 @@ import sr from '@/i18n/locales/sr/profil.json';
 import en from '@/i18n/locales/en/profil.json';
 import ClientLayout from '../components/ClientLayout';
 
-import { FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEdit } from 'react-icons/fa';
 import { deleteKorisnik } from '@/lib/actions/korisnici';
 import { revalidatePath } from 'next/cache';
+import DeleteProfilButton from './components/DeleteProfilButton';
 
 
 export default async function ProfilPage({ searchParams }: { searchParams?: { lang?: string, err?: string } | Promise<{ lang?: string, err?: string }> }) {
@@ -44,7 +45,7 @@ export default async function ProfilPage({ searchParams }: { searchParams?: { la
       redirect(`/profil?${params.toString()}`);
     }
     revalidatePath('/');
-    redirect('/');
+    redirect('/auth/odjava');
   }
 
   const result = await getKorisnikById(session.user.id);
@@ -130,15 +131,12 @@ export default async function ProfilPage({ searchParams }: { searchParams?: { la
                     <FaEdit />
                     {t['edit_profile'] || 'Izmeni profil'}
                   </a>
-                  <form action={handleDeleteKorisnik} className="flex-1">
-                    <button
-                      type="submit"
-                      className="w-full bg-red-600 text-white px-4 py-3 rounded-lg shadow-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2 text-base font-medium"
-                    >
-                      <FaTrash />
-                      {t['obrisi_korisnika'] || 'Obriši korisnika'}
-                    </button>
-                  </form>
+                    <div className="flex-1">
+                      <DeleteProfilButton
+                        handleDeleteKorisnik={handleDeleteKorisnik}
+                        translations={t}
+                      />
+                    </div>
                 </div>
               </div>
             </div>
