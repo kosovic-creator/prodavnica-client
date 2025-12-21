@@ -33,7 +33,7 @@ export const noviProizvodSchemaStatic = z.object({
 export type TranslateFn = (key: string) => string;
 
 // Static versions without i18n (for admin pages)
-
+//Ovo dolje je sa prevodom
 export const korisnikSchemaStatic = z.object({
     ime: z.string().min(2, { message: 'Ime mora imati najmanje 2 karaktera' }),
     prezime: z.string().min(2, { message: 'Prezime mora imati najmanje 2 karaktera' }),
