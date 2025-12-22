@@ -47,7 +47,11 @@
   "Ne možete obrisati korisnika koji ima porudžbine. Prvo obrišite sve porudžbine korisnika.": "Ne možete obrisati korisnika koji ima porudžbine. Prvo obrišite sve porudžbine korisnika.",
   "korisnik_obrisan": "Korisnik je uspešno obrisan.",
   "greska_pri_ocitavanju": "Došlo je do greške prilikom učitavanja podataka.",
-  "profil_azuriran": "Profil uspješno ažuriran"
+  "profil_azuriran": "Profil uspješno ažuriran",
+  "deleting": "Brisanje...",
+  "confirm_delete_account_message": "Da li ste sigurni da želite da obrišete svoj nalog? Ova akcija je nepovratna.",
+  "delete": "Obriši",
+  "confirm_delete_account": "Potvrdi brisanje naloga"
 
 
 }
