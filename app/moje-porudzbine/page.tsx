@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/authOptions';
 import { redirect } from 'next/navigation';
@@ -13,10 +11,27 @@ import { FaClipboardList, FaBox, FaCalendarAlt, FaEuroSign, FaImage } from 'reac
 import Image from 'next/image';
 import Link from 'next/link';
 
+type Porudzbina = {
+  id: string;
+  kreiran: Date;
+  ukupno: number;
+  status: string;
+  stavkePorudzbine?: Array<{
+    id: string;
+    kolicina: number;
+    cena: number;
+    slika?: string | null;
+    proizvod?: {
+      naziv_sr: string;
+      naziv_en: string;
+    };
+  }>;
+};
 
 
 
-export default async function MojePorudzbinePage({ searchParams }: { searchParams: any }) {
+
+export default async function MojePorudzbinePage({ searchParams }: { searchParams: Promise<{ page?: string; pageSize?: string; lang?: string }> }) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     redirect('/auth/prijava');
@@ -92,7 +107,7 @@ export default async function MojePorudzbinePage({ searchParams }: { searchParam
         </h1>
 
         <div className="space-y-6">
-          {porudzbine.map((porudzbina: any) => (
+            {porudzbine.map((porudzbina: Porudzbina) => (
             <div key={porudzbina.id} className="bg-white rounded-lg shadow-md overflow-hidden">
               <div className="p-6">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
@@ -134,7 +149,7 @@ export default async function MojePorudzbinePage({ searchParams }: { searchParam
                   <div className="border-t pt-4">
                     <h4 className="text-sm font-medium text-gray-700 mb-3">{t.stavke}:</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {porudzbina.stavkePorudzbine.map((stavka: any) => (
+                      {porudzbina.stavkePorudzbine.map((stavka) => (
                         <div key={stavka.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                           <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
                             {stavka.slika ? (

@@ -8,6 +8,7 @@ import srKorisnici from '@/i18n/locales/sr/korisnici.json';
 import enKorisnici from '@/i18n/locales/en/korisnici.json';
 import srProfil from '@/i18n/locales/sr/profil.json';
 import enProfil from '@/i18n/locales/en/profil.json';
+import { korisnikSchema } from '@/schemas';
 
 interface EditProfilFormProps {
   handleEditProfil: (formData: FormData) => Promise<void>;
@@ -46,16 +47,8 @@ export default function EditProfilForm({
     return (tKorisnici as Record<string, string>)[key] ?? (tProfil as Record<string, string>)[key] ?? key;
   };
 
-  const validationSchema = z.object({
-    ime: z.string().min(1, "Ime je obavezno").min(2, "Ime mora imati najmanje 2 karaktera"),
-    prezime: z.string().min(1, "Prezime je obavezno").min(2, "Prezime mora imati najmanje 2 karaktera"),
-    email: z.string().min(1, "Email je obavezan").email("Neispravan email format"),
-    telefon: z.string().min(1, "Telefon je obavezan").min(5, "Telefon mora imati najmanje 5 karaktera"),
-    drzava: z.string().min(1, "Država je obavezna").min(2, "Država mora imati najmanje 2 karaktera"),
-    grad: z.string().min(1, "Grad je obavezan").min(2, "Grad mora imati najmanje 2 karaktera"),
-    postanskiBroj: z.string().min(1, "Poštanski broj je obavezan"),
-    adresa: z.string().min(1, "Adresa je obavezna").min(3, "Adresa mora imati najmanje 3 karaktera"),
-  });
+  // Koristi postojeću korisnikSchema, ali bez lozinka i slika polja
+  const validationSchema = korisnikSchema(t).omit({ lozinka: true, slika: true, uloga: true });
 
   const validateField = (name: string, value: string) => {
     try {

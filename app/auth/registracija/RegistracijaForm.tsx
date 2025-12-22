@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -72,7 +71,7 @@ export default function RegistracijaForm({
         delete newErrors[name];
         return newErrors;
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error instanceof z.ZodError) {
         const firstError = error.issues[0];
         if (firstError?.message) {

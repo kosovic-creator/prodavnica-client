@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-
 import { useState, useEffect, useTransition } from 'react';
 import { Heart } from 'lucide-react';
 import { useSession } from 'next-auth/react';
@@ -38,7 +36,7 @@ export default function OmiljeniButton({ proizvodId }: OmiljeniButtonProps) {
         const result = await getOmiljeni(session.user.id);
         if (result.success && result.data) {
           setOmiljeni(
-            (result.data.omiljeni || []).map((om: any) => ({
+            (result.data.omiljeni || []).map((om:Omiljeni) => ({
               id: String(om.id),
               proizvodId: String(om.proizvodId),
               korisnikId: String(om.korisnikId),
@@ -91,7 +89,7 @@ export default function OmiljeniButton({ proizvodId }: OmiljeniButtonProps) {
             const reloadResult = await getOmiljeni(session.user.id as string);
             if (reloadResult.success && reloadResult.data) {
               setOmiljeni(
-                (reloadResult.data.omiljeni || []).map((om: any) => ({
+                (reloadResult.data.omiljeni || []).map((om:Omiljeni) => ({
                   id: String(om.id),
                   proizvodId: String(om.proizvodId),
                   korisnikId: String(om.korisnikId),

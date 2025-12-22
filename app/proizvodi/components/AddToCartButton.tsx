@@ -3,9 +3,6 @@
 import { useState, useTransition } from 'react';
 import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
-
-
-// Extend the session user type to include 'id'
 import type { DefaultSession } from 'next-auth';
 
 declare module 'next-auth' {
@@ -21,12 +18,12 @@ declare module 'next-auth' {
 import { useRouter } from 'next/navigation';
 import { FaCartPlus } from 'react-icons/fa';
 import toast from 'react-hot-toast';
-import { Proizvod } from '../../../types';
+import { Proizvodi } from '../../../types';
 import { dodajUKorpu } from './../../../lib/actions/korpa';
 import { useCart } from '../../components/CartContext';
 
 interface AddToCartButtonProps {
-  proizvod: Proizvod;
+  proizvod: Proizvodi;
 }
 
 export default function AddToCartButton({ proizvod }: AddToCartButtonProps) {

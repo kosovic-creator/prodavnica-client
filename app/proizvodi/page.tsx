@@ -1,10 +1,8 @@
 import ClientLayout from '.././components/ClientLayout';
-import ProizvodiSkeleton from './ProizvodiSkeleton';
+import ProizvodiSkeleton from './components/ProizvodiSkeleton';
 import { Suspense } from 'react';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/authOptions';
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { getProizvodi } from './../../lib/actions/proizvodi';
 import Image from 'next/image';
 import AddToCartButton from './components/AddToCartButton';
@@ -12,6 +10,7 @@ import OmiljeniButton from './components/OmiljeniButton';
 import PaginationControls from './components/PaginationControls';
 import fs from 'fs';
 import path from 'path';
+import type { Proizvodi } from '@/types';
 
 function getLocaleMessages(lang: string) {
   const filePath = path.join(process.cwd(), 'i18n/locales', lang, 'proizvodi.json');
@@ -58,7 +57,7 @@ export default async function ProizvodiPage({ searchParams }: { searchParams: Pr
                   <p className="text-lg">{search ? t['nema_za_pretragu']?.replace('{search}', search) : t['nema_proizvoda'] || 'Nema proizvoda'}</p>
                 </div>
               ) : (
-                proizvodi.map((proizvod: any) => {
+                  proizvodi.map((proizvod: Proizvodi) => {
                   const naziv = lang === 'en' ? proizvod.naziv_en : proizvod.naziv_sr;
                   const opis = lang === 'en' ? proizvod.opis_en : proizvod.opis_sr;
                   const karakteristike = lang === 'en' ? proizvod.karakteristike_en : proizvod.karakteristike_sr;
