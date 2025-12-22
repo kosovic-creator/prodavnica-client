@@ -63,7 +63,7 @@ export default async function KorpaPage({ searchParams }: { searchParams?: Promi
               {t.nema_proizvoda}
             </p>
             <Link
-              href="/proizvodi"
+              href={`/proizvodi?lang=${lang}`}
               className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
             >
               {t.nastavi_kupovinu}
@@ -77,7 +77,7 @@ export default async function KorpaPage({ searchParams }: { searchParams?: Promi
               ))}
             </div>
             <div className="mt-8">
-              <KorpaActions userId={userId} stavke={stavke} lang={lang} t={t} />
+              <KorpaActions userId={userId} stavke={stavke}  t={t} />
             </div>
             <div className="mt-8">
               {/* Prikaz MonriPay dugmeta za checkout */}

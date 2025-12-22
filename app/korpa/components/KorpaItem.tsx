@@ -8,20 +8,18 @@ import toast from 'react-hot-toast';
 import { updateStavkuKorpe, ukloniStavkuKorpe } from '@/lib/actions';
 import { useCart } from '../../components/CartContext';
 
-interface StavkaKorpe {
-  id: string;
-  kolicina: number;
-  proizvod?: {
-    id: string;
-    naziv_sr: string;
-    naziv_en: string;
-    cena: number;
-    slike?: string | null;
-  } | null;
-}
-
 interface KorpaItemProps {
-  stavka: StavkaKorpe;
+  stavka: {
+    id: string;
+    kolicina: number;
+    proizvod?: {
+      id: string;
+      naziv_sr: string;
+      naziv_en: string;
+      cena: number;
+      slike?: string[]; // Change from 'string | null' to 'string[]'
+    } | null;
+  };
   lang: string;
   t: Record<string, string>;
 }

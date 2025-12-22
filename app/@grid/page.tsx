@@ -2,7 +2,6 @@
 import { getProizvodi } from '@/lib/actions';
 import Image from 'next/image';
 import Link from 'next/link';
-// import AddToCartButton from '../proizvodi/components/AddToCartButton';
 import OmiljeniButton from '../proizvodi/components/OmiljeniButton';
 import sr from '@/i18n/locales/sr/proizvodi.json';
 import en from '@/i18n/locales/en/proizvodi.json';
@@ -106,16 +105,7 @@ export default async function GridPage({ lang = 'sr' }: { lang?: string }) {
               )}
               <div className="flex gap-2 mb-2">
                 <AddToCartButton
-                  proizvod={{
-                    ...proizvod,
-                    naziv,
-                    opis: opis ?? '',
-                    kategorija,
-                    opis_sr: proizvod.opis_sr ?? undefined,
-                    opis_en: proizvod.opis_en ?? undefined,
-                    karakteristike_sr: proizvod.karakteristike_sr ?? undefined,
-                    karakteristike_en: proizvod.karakteristike_en ?? undefined,
-                  }}
+                  proizvod={proizvod}
                 />
                 <Link
                   href={`/proizvodi/${proizvod.id}`}

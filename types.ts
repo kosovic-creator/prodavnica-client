@@ -36,7 +36,24 @@ export interface Korisnik {
   azuriran: Date;
 };
 
+export interface StavkaPorudzbine {
+  id: string;
+  kolicina: number;
+  cena: number;
+  slika?: string | null;
+  proizvod?: {
+    naziv_sr: string;
+    naziv_en: string;
+  };
+}
 
+export interface Porudzbina {
+  id: string;
+  kreiran: Date;
+  ukupno: number;
+  status: string;
+  stavkePorudzbine?: StavkaPorudzbine[];
+}
 // export type ProizvodPrevod = {
 //   id: string;
 //   // API polja

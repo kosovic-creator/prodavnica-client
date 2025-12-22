@@ -6,30 +6,11 @@ import { getPorudzbineKorisnika } from '@/lib/actions';
 import sr from '@/i18n/locales/sr/moje_porudzbine.json';
 import en from '@/i18n/locales/en/moje_porudzbine.json';
 import ClientLayout from '../components/ClientLayout';
-import { getKorpa } from '@/lib/actions/korpa';
+// import { getKorpa } from '@/lib/actions/korpa';
 import { FaClipboardList, FaBox, FaCalendarAlt, FaEuroSign, FaImage } from 'react-icons/fa';
 import Image from 'next/image';
 import Link from 'next/link';
-
-type Porudzbina = {
-  id: string;
-  kreiran: Date;
-  ukupno: number;
-  status: string;
-  stavkePorudzbine?: Array<{
-    id: string;
-    kolicina: number;
-    cena: number;
-    slika?: string | null;
-    proizvod?: {
-      naziv_sr: string;
-      naziv_en: string;
-    };
-  }>;
-};
-
-
-
+import type { Porudzbina } from '@/types';
 
 export default async function MojePorudzbinePage({ searchParams }: { searchParams: Promise<{ page?: string; pageSize?: string; lang?: string }> }) {
   const session = await getServerSession(authOptions);
@@ -43,13 +24,13 @@ export default async function MojePorudzbinePage({ searchParams }: { searchParam
   const pageSize = parseInt(params.pageSize || '10');
   const lang = params.lang === 'en' ? 'en' : 'sr';
   const t = lang === 'en' ? en : sr;
-  let brojUKorpi = 0;
-  if (isLoggedIn && session.user.id) {
-    const korpa = await getKorpa(session.user.id);
-    if (korpa.success && korpa.data?.stavke) {
-      brojUKorpi = korpa.data.stavke.reduce((sum, s) => sum + (s.kolicina || 1), 0);
-    }
-  }
+  // let brojUKorpi = 0;
+  // if (isLoggedIn && session.user.id) {
+  //   const korpa = await getKorpa(session.user.id);
+  //   if (korpa.success && korpa.data?.stavke) {
+  //     brojUKorpi = korpa.data.stavke.reduce((sum, s) => sum + (s.kolicina || 1), 0);
+  //   }
+  // }
   const result = await getPorudzbineKorisnika(session.user.id, page, pageSize);
   if (!result.success) {
     return (

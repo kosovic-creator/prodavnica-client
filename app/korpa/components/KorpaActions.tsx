@@ -29,11 +29,11 @@ interface StavkaKorpe {
 interface KorpaActionsProps {
   userId: string;
   stavke: StavkaKorpe[];
-  lang: string;
+ 
   t: Record<string, string>;
 }
 
-export default function KorpaActions({ userId, stavke, lang, t }: KorpaActionsProps) {
+export default function KorpaActions({ userId, stavke, t }: KorpaActionsProps) {
   const [isPending, setIsPending] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
