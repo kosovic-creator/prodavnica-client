@@ -99,7 +99,7 @@ export default function AddToCartButton({ proizvod }: AddToCartButtonProps) {
 
   return (
     <button
-      className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+      className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
       onClick={handleDodajUKorpu}
       disabled={proizvod.kolicina === 0 || isAdding || isPending}
     >

@@ -31,7 +31,7 @@ export default function DeleteProfilButton({
       <button
         type="button"
         onClick={() => setIsModalOpen(true)}
-        className="w-full bg-red-600 text-white px-4 py-3 rounded-lg shadow-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2 text-base font-medium"
+        className="w-full bg-red-600 text-white px-4 py-3 rounded-lg shadow-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2 text-base font-medium cursor-pointer"
       >
         <FaTrash />
         {t.obrisi_korisnika || 'Obriši nalog'}

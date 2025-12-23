@@ -209,7 +209,7 @@ export default function EditProfilForm({
       <div className="flex flex-col sm:flex-row gap-3 mt-6">
         <button
           type="submit"
-          className="flex-1 bg-blue-600 text-white px-4 py-3 rounded-lg shadow-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-base font-medium"
+          className="flex-1 bg-blue-600 text-white px-4 py-3 rounded-lg shadow-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-base font-medium cursor-pointer"
         >
           <FaSave />
           {translations.sacuvaj_izmjene || t('sacuvaj_izmjene')}

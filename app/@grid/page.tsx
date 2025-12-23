@@ -103,13 +103,13 @@ export default async function GridPage({ lang = 'sr' }: { lang?: string }) {
                   </span>
                 </p>
               )}
-              <div className="flex gap-2 mb-2">
+              <div className="flex gap-2 mb-2 cursor-pointer">
                 <AddToCartButton
                   proizvod={proizvod}
                 />
                 <Link
                   href={`/proizvodi/${proizvod.id}`}
-                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-2"
+                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {t.detalji || (lang === 'en' ? 'Details' : 'Detalji')}
                 </Link>

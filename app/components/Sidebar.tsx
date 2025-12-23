@@ -51,8 +51,8 @@ function SidebarContent({ open, onClose, lang = 'sr' }: SidebarContentProps) {
       // { path: '/omiljeni', icon: FaHeart, label: t('omiljeni') },
       //  { path: '/profil', icon: FaUser, label: t('profile') },
     ] : []),
-    { path: '/o-nama', icon: FaInfoCircle, label: t('o_nama') },
-    { path: '/kontakt', icon: FaPhone, label: t('kontakt') },
+    // { path: '/o-nama', icon: FaInfoCircle, label: t('o_nama') },
+    // { path: '/kontakt', icon: FaPhone, label: t('kontakt') },
   ], [t, session?.user]);
 
   const menuItems =  userMenuItems;
@@ -117,13 +117,13 @@ function SidebarContent({ open, onClose, lang = 'sr' }: SidebarContentProps) {
                     className={`
                       w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200
                       ${active
-                        ? 'bg-blue-100 text-blue-700 border-r-4 border-blue-600'
-                        : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'
+                        ? 'bg-blue-100 text-blue-700 border-r-4 border-blue-600 '
+                        : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600 cursor-pointer'
                       }
                     `}
                   >
                     {item.path === '/proizvodi' ? (
-                      <span className={`flex items-center justify-center ${active ? 'bg-blue-600 text-white' : 'bg-gray-100 text-blue-600'} rounded-full w-8 h-8`}>
+                      <span className={`flex items-center justify-center ${active ? 'bg-blue-600 text-white ' : 'bg-gray-100 text-blue-600'} rounded-full w-8 h-8`}>
                         <Icon className={`w-5 h-5`} />
                       </span>
                     ) : (

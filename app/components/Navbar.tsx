@@ -91,7 +91,7 @@ const Navbar: React.FC<NavbarProps> = ({ lang, isAdmin, setSidebarOpen }) => {
                 <div className="relative">
                   <button
                     onClick={() => setDropdownOpen(v => !v)}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition"
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition cursor-pointer"
                     aria-haspopup="true"
                     aria-expanded={dropdownOpen}
                   >
@@ -100,14 +100,14 @@ const Navbar: React.FC<NavbarProps> = ({ lang, isAdmin, setSidebarOpen }) => {
                     <span className="ml-1">▼</span>
                   </button>
                   {dropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                    <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50 ">
                       <Link href={`/profil?lang=${currentLang}`} className="block px-4 py-3 hover:bg-gray-50 text-gray-700">{t.profile}</Link>
                       <Link href={`/moje-porudzbine?lang=${currentLang}`} className="block px-4 py-3 hover:bg-gray-50 text-gray-700">{t.my_orders}</Link>
                       <Link href={`/omiljeni?lang=${currentLang}`} className="block px-4 py-3 hover:bg-gray-50 text-gray-700">{t.favorites}</Link>
                       <hr className="my-1 border-gray-200" />
                       <button
                         onClick={() => signOut({ callbackUrl: `/?lang=${currentLang}` })}
-                        className="w-full flex items-center gap-2 px-4 py-3 hover:bg-gray-50 text-gray-700"
+                        className="w-full flex items-center gap-2 px-4 py-3 hover:bg-gray-50 text-gray-700 "
                       >
                         <FaSignOutAlt />
                         <span>{t.logout}</span>
@@ -118,7 +118,7 @@ const Navbar: React.FC<NavbarProps> = ({ lang, isAdmin, setSidebarOpen }) => {
                 {/* Odjava ikona direktno u navbaru */}
                 <button
                   onClick={() => signOut({ callbackUrl: `/?lang=${currentLang}` })}
-                  className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition"
+                  className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition cursor-pointer"
                   title={t.logout}
                 >
                   <FaSignOutAlt />
@@ -148,7 +148,7 @@ const Navbar: React.FC<NavbarProps> = ({ lang, isAdmin, setSidebarOpen }) => {
             {/* Language Switcher inline */}
             <button
               onClick={handleLangSwitch}
-              className="px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm font-medium"
+              className="px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm font-medium cursor-pointer"
             >
               {currentLang === 'sr' ? 'EN' : 'SR'}
             </button>
