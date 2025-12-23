@@ -8,7 +8,7 @@ import { FaTrashAlt, FaCreditCard, FaShoppingCart } from 'react-icons/fa';
 import { ocistiKorpu } from '@/lib/actions/korpa';
 import { kreirajPorudzbinu } from '@/lib/actions/porudzbine';
 import { getPodaciPreuzimanja } from '@/lib/actions/podaci-preuzimanja';
-import { posaljiEmailObavjestenje } from '@/lib/actions/email';
+import { posaljiObavestenjePorudzbina } from '@/lib/actions/email';
 import { getProizvodById, updateProizvodStanje } from '@/lib/actions/proizvodi';
 import { useCart } from '../../components/CartContext';
 import SuccessMessage from '@/app/components/SuccessMessage';
@@ -29,7 +29,7 @@ interface StavkaKorpe {
 interface KorpaActionsProps {
   userId: string;
   stavke: StavkaKorpe[];
- 
+
   t: Record<string, string>;
 }
 
@@ -141,26 +141,20 @@ export default function KorpaActions({ userId, stavke, t }: KorpaActionsProps) {
           }
         }
 
-        // Poziv za email obavještenje o porudžbini
-        console.log('[KorpaActions] Slanje email obavještenja...');
-
-        // Email adminu o novoj porudžbini
-        await posaljiEmailObavjestenje({
-          email: session?.user?.email || '',
-          ukupno,
+        // Poziv za email obavještenje korisniku i adminu
+        await posaljiObavestenjePorudzbina({
+          korisnikEmail: session?.user?.email || '',
+          adminEmail: process.env.EMAIL_USER || '',
+          subjectKorisnik: 'Nova porudžbina',
+          subjectAdmin: 'Nova porudžbina Adminu',
           tip: 'porudzbina',
-          stavke: stavke
-        });
-
-        // Email korisniku - potvrda plaćanja
-        const emailResult = await posaljiEmailObavjestenje({
-          email: session?.user?.email || '',
           ukupno,
-          tip: 'placanje',
-          stavke: stavke
+          stavke: stavke.map(s => ({
+            naziv: s.proizvod?.naziv_sr || 'Nepoznat proizvod',
+            kolicina: s.kolicina,
+            cena: s.proizvod?.cena || 0,
+          })),
         });
-        console.log('[KorpaActions] Rezultat slanja email-a:', emailResult);
-        console.log('[KorpaActions] Porudžbina uspešno kreirana.');
 
         // Prikaži success obaveštenje
         setSuccessMessage(t.kupovina_uspesna);
@@ -181,7 +175,7 @@ export default function KorpaActions({ userId, stavke, t }: KorpaActionsProps) {
     }
   };
 
-  const handleMontrypayCheckout = async () => {
+  const handleMontrypayPlaćanje = async () => {
     setIsPending(true);
     try {
       console.log('[KorpaActions] Pokrenut Montrypay checkout');
@@ -193,71 +187,47 @@ export default function KorpaActions({ userId, stavke, t }: KorpaActionsProps) {
         setTimeout(() => {
           router.push('/podaci-preuzimanja');
         }, 3000);
+
         return;
       }
 
-      console.log('[KorpaActions] Kreiranje porudžbine za Montrypay...');
-      const porudzbinaData = {
-        korisnikId: userId,
+      await posaljiObavestenjePorudzbina({
+        korisnikEmail: session?.user?.email || '',
+        adminEmail: process.env.EMAIL_USER || '',
+        subjectKorisnik: 'Nova porudžbina plaćena putem Montrypay-a',
+        subjectAdmin: 'Porudžbina uspešno plaćena putem Montrypay-a', // <-- ispravljeno
+        tip: 'placanje',
         ukupno,
-        status: 'Na čekanju',
-        email: session?.user?.email || '',
         stavke: stavke.map(s => ({
-          proizvodId: s.proizvod?.id || '',
+          naziv: s.proizvod?.naziv_sr || 'Nepoznat proizvod',
           kolicina: s.kolicina,
           cena: s.proizvod?.cena || 0,
-          slika: s.proizvod?.slika || undefined
         })),
-      };
+      });
 
-      const result = await kreirajPorudzbinu(porudzbinaData);
-      console.log('[KorpaActions] Rezultat kreiranja porudžbine za Montrypay:', result);
-
-      if (result.success) {
-        // Smanji stanje proizvoda
-        for (const item of stavke) {
-          if (item.proizvod?.id && item.kolicina) {
-            const proizvodRes = await getProizvodById(item.proizvod.id);
-            if (proizvodRes.success && proizvodRes.data) {
-              const novaKolicina = (proizvodRes.data.kolicina ?? 0) - item.kolicina;
-              await updateProizvodStanje(item.proizvod.id, novaKolicina);
-            }
+      // DODAJ OVO: Smanji stanje proizvoda
+      for (const item of stavke) {
+        if (item.proizvod?.id && item.kolicina) {
+          const proizvodRes = await getProizvodById(item.proizvod.id);
+          if (proizvodRes.success && proizvodRes.data) {
+            const novaKolicina = (proizvodRes.data.kolicina ?? 0) - item.kolicina;
+            await updateProizvodStanje(item.proizvod.id, novaKolicina);
           }
         }
-
-        // Pošalji email obaveštenje
-        console.log('[KorpaActions] Slanje email obavještenja za Montrypay...');
-
-        // Email adminu o novoj porudžbini
-        await posaljiEmailObavjestenje({
-          email: session?.user?.email || '',
-          ukupno,
-          tip: 'porudzbina',
-          stavke: stavke
-        });
-
-        // Email korisniku - potvrda plaćanja
-        const emailResult = await posaljiEmailObavjestenje({
-          email: session?.user?.email || '',
-          ukupno,
-          tip: 'placanje',
-          stavke: stavke
-        });
-        console.log('[KorpaActions] Rezultat slanja email-a:', emailResult);
-
-        // Prikaži success obaveštenje
-        setSuccessMessage(t.montrypay_success || 'Porudžbina je kreirana!');
-        setShowSuccess(true);
-
-        // Očisti korpu i redirect nakon 3 sekunde
-        setTimeout(async () => {
-          await ocistiKorpu(userId);
-          refreshKorpa();
-          router.push('/proizvodi');
-        }, 3000);
-      } else {
-        toast.error(result.error || 'Greška pri kreiranju porudžbine');
       }
+      // Prikaži success obaveštenje
+      setSuccessMessage(t.montrypay_success || 'Porudžbina je kreirana!');
+      setShowSuccess(true);
+
+      // Očisti korpu i redirect nakon 3 sekunde
+      setTimeout(async () => {
+        await ocistiKorpu(userId);
+        refreshKorpa();
+        router.push('/proizvodi');
+      }, 3000);
+      // } else {
+      //   toast.error(result.error || 'Greška pri kreiranju porudžbine');
+      // }
     } catch (error) {
       console.error('[KorpaActions] Error during Montrypay checkout:', error);
       toast.error(t.error || 'Greška pri Montrypay plaćanju');
@@ -266,7 +236,7 @@ export default function KorpaActions({ userId, stavke, t }: KorpaActionsProps) {
     }
   };
 
-  if (!stavke.length && !showSuccess) return null;
+  // if (!stavke.length && !showSuccess) return null;
 
   return (
     <>
@@ -277,56 +247,56 @@ export default function KorpaActions({ userId, stavke, t }: KorpaActionsProps) {
         </div>
       )}
       <div className="space-y-4">
-      {/* Ukupno */}
-      <div className="bg-gray-50 p-4 rounded-lg">
-        <div className="flex justify-between items-center text-lg font-semibold">
-          <span>{t.ukupno || 'Ukupno'}:</span>
-          <span>{ukupno.toFixed(2)} €</span>
+        {/* Ukupno */}
+        <div className="bg-gray-50 p-4 rounded-lg">
+          <div className="flex justify-between items-center text-lg font-semibold">
+            <span>{t.ukupno || 'Ukupno'}:</span>
+            <span>{ukupno.toFixed(2)} €</span>
+          </div>
+        </div>
+
+        {/* Akcije */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            onClick={isprazniKorpu}
+            disabled={isPending}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isPending ? (
+              <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
+            ) : (
+              <FaTrashAlt />
+            )}
+            {t.isprazni_korpu || 'Isprazni korpu'}
+          </button>
+
+          <button
+            onClick={handleMontrypayPlaćanje}
+            disabled={isPending}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isPending ? (
+              <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
+            ) : (
+              <FaCreditCard />
+            )}
+            {t.montrypay || 'Montrypay'}
+          </button>
+
+          <button
+            onClick={handleZavrsiKupovinu}
+            disabled={isPending}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isPending ? (
+              <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
+            ) : (
+              <FaShoppingCart />
+            )}
+            {t.zavrsi_kupovinu || 'Završi kupovinu'}
+          </button>
         </div>
       </div>
-
-      {/* Akcije */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <button
-          onClick={isprazniKorpu}
-          disabled={isPending}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isPending ? (
-            <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
-          ) : (
-            <FaTrashAlt />
-          )}
-          {t.isprazni_korpu || 'Isprazni korpu'}
-        </button>
-
-        <button
-          onClick={handleMontrypayCheckout}
-          disabled={isPending}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isPending ? (
-            <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
-          ) : (
-            <FaCreditCard />
-          )}
-          {t.montrypay || 'Montrypay'}
-        </button>
-
-        <button
-          onClick={handleZavrsiKupovinu}
-          disabled={isPending}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isPending ? (
-            <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
-          ) : (
-            <FaShoppingCart />
-          )}
-          {t.zavrsi_kupovinu || 'Završi kupovinu'}
-        </button>
-      </div>
-    </div>
     </>
   );
 }
