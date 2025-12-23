@@ -1,25 +1,22 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { getServerSession } from 'next-auth';
 import { getKorisnikById } from '@/lib/actions';
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/authOptions';
-
 import sr from '@/i18n/locales/sr/profil.json';
 import en from '@/i18n/locales/en/profil.json';
 import ClientLayout from '../components/ClientLayout';
-
 import { FaEdit } from 'react-icons/fa';
 import { deleteKorisnik } from '@/lib/actions/korisnici';
 import { revalidatePath } from 'next/cache';
 import DeleteProfilButton from './components/DeleteProfilButton';
+import ProfilSkeleton from './components/ProfilSkeleton';
 
 
 export default async function ProfilPage({ searchParams }: { searchParams?: { lang?: string, err?: string } | Promise<{ lang?: string, err?: string }> }) {
   let params: { lang?: string, err?: string } = {};
   if (searchParams) {
-    if (typeof (searchParams as Promise<any>).then === 'function') {
-      params = await (searchParams as Promise<any>);
+    if (typeof (searchParams as Promise<{ lang?: string; err?: string }>).then === 'function') {
+      params = await (searchParams as Promise<{ lang?: string; err?: string }>);
     } else {
       params = searchParams as { lang?: string, err?: string };
     }
@@ -69,6 +66,16 @@ export default async function ProfilPage({ searchParams }: { searchParams?: { la
     postanskiBroj: Number(result.data.podaciPreuzimanja?.postanskiBroj) || 0,
     adresa: result.data.podaciPreuzimanja?.adresa ?? '',
   };
+
+  const isPending = false; // ili true za test
+
+  if (isPending) {
+    return (
+      <ClientLayout lang={lang}>
+        <ProfilSkeleton />
+      </ClientLayout>
+    );
+  }
 
   return (
     <ClientLayout lang={lang}>
