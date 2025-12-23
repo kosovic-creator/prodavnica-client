@@ -6,6 +6,7 @@ import ClientLayout from '@/app/components/ClientLayout';
 import RegistracijaForm from './RegistracijaForm';
 
 
+
 export default async function RegistracijaPage({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
 
   const params = await searchParams;
@@ -99,6 +100,7 @@ export default async function RegistracijaPage({ searchParams }: { searchParams:
   }
 
   const translations = tAuth.register as Record<string, string>;
+
 
   return (
     <ClientLayout lang={lng}>

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { z } from 'zod';
 import SuccessMessage from '@/app/components/SuccessMessage';
 import { korisnikSchema } from '@/schemas';
+import RegistracijaFormSkeleton from './RegistracijaFormSkeleton';
 
 interface RegistracijaFormProps {
   handleSubmit: (formData: FormData) => Promise<void>;
@@ -37,6 +38,7 @@ export default function RegistracijaForm({
 }: RegistracijaFormProps) {
   const [errors, setErrors] = useState<Record<string, string>>(serverErrorMap);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [isPending, setIsPending] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -131,6 +133,11 @@ export default function RegistracijaForm({
       }
     }
   };
+
+  // Prikaži skeleton dok traje neka akcija
+  if (isPending) {
+    return <RegistracijaFormSkeleton />;
+  }
 
   return (
     <div className="flex items-center justify-center px-4 py-8">

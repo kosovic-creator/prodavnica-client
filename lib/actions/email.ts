@@ -81,11 +81,13 @@ export async function posaljiObavestenjePorudzbina({
 }) {
   const stavkeHtml = stavke.length
     ? stavke.map(s => `
-      <li>
-        ${s.naziv} - ${s.kolicina}x - ${s.cena.toFixed(2)} €
+      <li style="margin-bottom:6px;">
+        <span style="font-weight:500;">${s.naziv}</span>
+        <span style="color:#64748b;"> – ${s.kolicina}x</span>
+        <span style="color:#2563eb;font-weight:500;"> – ${s.cena.toFixed(2)} €</span>
       </li>
     `).join('')
-    : '<li>Nema stavki</li>';
+    : '<li style="color:#ef4444;">Nema stavki</li>';
 
   // Automatski naslov ako nije prosleđen
   const naslovKorisnik =
@@ -106,11 +108,15 @@ export async function posaljiObavestenjePorudzbina({
     subject: naslovKorisnik,
     tip,
     html: `
-      <h2>${naslovKorisnik}</h2>
-      <p><strong>Email korisnika:</strong> ${korisnikEmail}</p>
-      <p><strong>Ukupno:</strong> ${ukupno.toFixed(2)} €</p>
-      <h3>Stavke:</h3>
-      <ul>${stavkeHtml}</ul>
+      <div style="background-color:#f9fafb;padding:24px;border-radius:12px;font-family:sans-serif;max-width:480px;margin:auto;">
+        <h2 style="color:#2563eb;font-size:22px;font-weight:700;margin-bottom:16px;">${naslovKorisnik}</h2>
+        <p style="margin-bottom:8px;"><strong>Email korisnika:</strong> ${korisnikEmail}</p>
+        <p style="margin-bottom:16px;"><strong>Ukupno:</strong> <span style="color:#16a34a;">${ukupno.toFixed(2)} €</span></p>
+        <h3 style="font-size:18px;font-weight:600;margin-bottom:8px;">Stavke:</h3>
+        <ul style="padding-left:18px;margin-bottom:0;">
+          ${stavkeHtml}
+        </ul>
+      </div>
     `
   });
 
