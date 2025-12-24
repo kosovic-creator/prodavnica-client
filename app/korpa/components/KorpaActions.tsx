@@ -41,11 +41,14 @@ export default function KorpaActions({ userId, stavke, t }: KorpaActionsProps) {
   const { data: session } = useSession();
 
   const ukupno = stavke.reduce((acc, s) => acc + (s.proizvod ? s.proizvod.cena * s.kolicina : 0), 0);
-
   const { refreshKorpa } = useCart();
 
+  const [pendingKorpa, setPendingKorpa] = useState(false);
+  const [pendingMontrypay, setPendingMontrypay] = useState(false);
+  const [pendingKupovina, setPendingKupovina] = useState(false);
+
   const isprazniKorpu = async () => {
-    setIsPending(true);
+    setPendingKorpa(true);
     try {
       for (const item of stavke) {
         if (item.proizvod?.id && item.kolicina) {
@@ -73,7 +76,7 @@ export default function KorpaActions({ userId, stavke, t }: KorpaActionsProps) {
       console.error('Greška pri brisanju korpe ili ažuriranju stanja proizvoda:', error);
       toast.error(t.error || 'Greška pri brisanju korpe');
     } finally {
-      setIsPending(false);
+      setPendingKorpa(false);
     }
   };
 
@@ -111,7 +114,7 @@ export default function KorpaActions({ userId, stavke, t }: KorpaActionsProps) {
   };
 
   const handleZavrsiKupovinu = async () => {
-    setIsPending(true);
+    setPendingKupovina(true);
     try {
       console.log('[KorpaActions] Pokrenut završetak kupovine');
       // Check delivery data
@@ -171,12 +174,12 @@ export default function KorpaActions({ userId, stavke, t }: KorpaActionsProps) {
       console.error('[KorpaActions] Error completing purchase:', error);
       toast.error(t.error || 'Greška pri završavanju kupovine');
     } finally {
-      setIsPending(false);
+      setPendingKupovina(false);
     }
   };
 
   const handleMontrypayPlaćanje = async () => {
-    setIsPending(true);
+    setPendingMontrypay(true);
     try {
       console.log('[KorpaActions] Pokrenut Montrypay checkout');
       const podaciResult = await getPodaciPreuzimanja(userId);
@@ -232,7 +235,7 @@ export default function KorpaActions({ userId, stavke, t }: KorpaActionsProps) {
       console.error('[KorpaActions] Error during Montrypay checkout:', error);
       toast.error(t.error || 'Greška pri Montrypay plaćanju');
     } finally {
-      setIsPending(false);
+      setPendingMontrypay(false);
     }
   };
 
@@ -259,10 +262,10 @@ export default function KorpaActions({ userId, stavke, t }: KorpaActionsProps) {
         <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={isprazniKorpu}
-            disabled={isPending}
+            disabled={pendingKorpa || isPending}
             className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isPending ? (
+            {pendingKorpa ? (
               <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
             ) : (
               <FaTrashAlt />
@@ -272,10 +275,10 @@ export default function KorpaActions({ userId, stavke, t }: KorpaActionsProps) {
 
           <button
             onClick={handleMontrypayPlaćanje}
-            disabled={isPending}
+            disabled={pendingMontrypay || isPending}
             className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isPending ? (
+            {pendingMontrypay ? (
               <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
             ) : (
               <FaCreditCard />
@@ -285,10 +288,10 @@ export default function KorpaActions({ userId, stavke, t }: KorpaActionsProps) {
 
           <button
             onClick={handleZavrsiKupovinu}
-            disabled={isPending}
+            disabled={pendingKupovina || isPending}
             className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isPending ? (
+            {pendingKupovina ? (
               <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
             ) : (
               <FaShoppingCart />
