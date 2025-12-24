@@ -1,34 +1,14 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use server';
 
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import bcrypt from 'bcryptjs';
+import { Korisnik,RegistracijaData } from "@/types";
 
-export type KorisnikData = {
-  email: string;
-  lozinka: string;
-  ime: string;
-  prezime: string;
-  uloga?: string;
-  adresa: string;
-  drzava: string;
-  grad: string;
-  telefon: string;
-  postanskiBroj: number;
-};
 
-export type UpdateKorisnikData = KorisnikData & {
+export type UpdateKorisnikData = Korisnik & {
   id: string;
   podaciPreuzimanjaId?: string;
-};
-
-export type RegistracijaData = {
-  email: string;
-  lozinka: string;
-  ime: string;
-  prezime: string;
-  uloga?: string;
 };
 
 export async function getKorisnici(page: number = 1, pageSize: number = 10) {
@@ -84,7 +64,7 @@ export async function getKorisnikById(id: string) {
   }
 }
 
-export async function createKorisnik(data: Partial<KorisnikData>) {
+export async function createKorisnik(data: Partial<Korisnik>) {
   try {
     const { email, lozinka, ime, prezime, uloga = 'korisnik', adresa, drzava, grad, telefon, postanskiBroj } = data;
 
@@ -116,7 +96,7 @@ export async function createKorisnik(data: Partial<KorisnikData>) {
           podaciPreuzimanja: {
             create: {
               adresa,
-              drzava,
+              drzava: drzava ?? undefined,
               grad,
               telefon,
               postanskiBroj
@@ -146,7 +126,7 @@ export async function createKorisnik(data: Partial<KorisnikData>) {
   } catch (error) {
     console.error('Error creating korisnik:', error);
     // Specifična poruka za unique constraint
-    if (error instanceof Error && (error as any).code === 'P2002') {
+    if (error instanceof Error && typeof (error as { code?: string }).code === 'string' && (error as { code?: string }).code === 'P2002') {
       return {
         success: false,
         error: 'email_exists'
@@ -197,7 +177,7 @@ export async function updateKorisnik(data: UpdateKorisnikData) {
       data: {
         email,
         lozinka,
-        ime,
+        ime: ime ?? undefined,
         prezime,
         uloga,
         podaciPreuzimanja: {
@@ -205,7 +185,7 @@ export async function updateKorisnik(data: UpdateKorisnikData) {
             where: { id: podaciPreuzimanjaId },
             data: {
               adresa,
-              drzava,
+              drzava: drzava ?? undefined,
               grad,
               telefon,
               postanskiBroj
@@ -297,50 +277,3 @@ export async function deleteKorisnik(id: string) {
   }
 }
 
-export async function registrujKorisnika(data: RegistracijaData) {
-  try {
-    const { email, lozinka, ime, prezime, uloga = 'korisnik' } = data;
-
-    // Check if user already exists
-    const existing = await prisma.korisnik.findUnique({
-      where: { email }
-    });
-
-    if (existing) {
-      return {
-        success: false,
-        error: 'Korisnik sa ovom email adresom već postoji'
-      };
-    }
-
-    // Hash password pre upisa u bazu
-    const hash = await bcrypt.hash(lozinka, 10);
-    const korisnik = await prisma.korisnik.create({
-      data: {
-        email,
-        lozinka: hash,
-        ime,
-        prezime,
-        uloga
-      }
-    });
-
-    return {
-      success: true,
-      data: {
-        id: korisnik.id,
-        email: korisnik.email,
-        ime: korisnik.ime,
-        prezime: korisnik.prezime,
-        uloga: korisnik.uloga
-      },
-      message: 'Korisnik je uspešno registrovan'
-    };
-  } catch (error) {
-    console.error('Error registering korisnik:', error);
-    return {
-      success: false,
-      error: 'Greška pri registraciji korisnika'
-    };
-  }
-}

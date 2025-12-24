@@ -35,6 +35,7 @@ export default async function RegistracijaPage({ searchParams }: { searchParams:
     const tAuth = lang === 'en' ? en : sr;
     const t = (key: string) => (tAuth.register as Record<string, string>)[key] ?? key;
 
+    // prihvaća vrijednosti pola iz FomData i vrši validaciju radi slanja na server
     const values = {
       email: formData.get('email') as string,
       ime: formData.get('ime') as string,
@@ -42,7 +43,7 @@ export default async function RegistracijaPage({ searchParams }: { searchParams:
       lozinka: formData.get('lozinka') as string,
       potvrdaLozinke: formData.get('potvrdaLozinke') as string,
     };
-
+// provjerava podatke koristeći zod šemu
     const schema = korisnikSchema(t).pick({ email: true, ime: true, prezime: true, lozinka: true });
     const result = schema.safeParse(values);
 
@@ -65,11 +66,12 @@ export default async function RegistracijaPage({ searchParams }: { searchParams:
     }
 
     // Upis korisnika u bazu preko API poziva
-    const res = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/auth/korisnici`, {
+    const res = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/auth/registracija`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
+      // slanje validiranih podataka kao JSON u tijelu zahtjeva
       body: JSON.stringify({
         email: values.email,
         lozinka: values.lozinka,
@@ -77,9 +79,10 @@ export default async function RegistracijaPage({ searchParams }: { searchParams:
         prezime: values.prezime
       })
     });
-
+// dohvaćanje odgovora iz API-ja
     const data = await res.json();
 
+    // preusmjeravanje na osnovu rezultata registracije
     if (data.success) {
       redirect(`/auth/registracija?lang=${lang}&success=true&email=${encodeURIComponent(values.email)}`);
     } else if (data.error === 'email_exists') {

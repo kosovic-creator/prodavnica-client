@@ -54,6 +54,14 @@ export interface Porudzbina {
   status: string;
   stavkePorudzbine?: StavkaPorudzbine[];
 }
+
+export type RegistracijaData = {
+  email: string;
+  lozinka: string;
+  ime: string;
+  prezime: string;
+  uloga?: string;
+};
 // export type ProizvodPrevod = {
 //   id: string;
 //   // API polja
