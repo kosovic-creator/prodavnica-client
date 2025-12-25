@@ -1,37 +1,31 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { getServerSession } from 'next-auth';
 import { getKorisnikById } from '@/lib/actions';
 import { authOptions } from '@/lib/authOptions';
-import srProfil from '@/i18n/locales/sr/profil.json';
-import enProfil from '@/i18n/locales/en/profil.json';
-import srKorisnici from '@/i18n/locales/sr/korisnici.json';
-import enKorisnici from '@/i18n/locales/en/korisnici.json';
 import { korisnikSchema } from '../.././../schemas';
 import { updateProfilKorisnika, updatePodaciPreuzimanja, createPodaciPreuzimanja } from '@/lib/actions';
 import { redirect } from 'next/navigation';
 import { FaUser } from 'react-icons/fa';
-import React from 'react';
 import { revalidatePath } from 'next/cache';
 import EditProfilForm from './EditProfilForm';
 import SuccessMessage from '@/app/components/SuccessMessage';
 import ClientLayout from '@/app/components/ClientLayout';
+import { getLocaleMessages } from '@/lib/i18n';
 
 
 export default async function EditProfilPage({ searchParams }: { searchParams?: { [key: string]: string } | Promise<{ [key: string]: string }> }) {
   let params: { [key: string]: string } = {};
   if (searchParams) {
-    if (typeof (searchParams as Promise<any>).then === 'function') {
-      params = await (searchParams as Promise<any>);
+    if (typeof (searchParams as Promise<unknown>).then === 'function') {
+      params = await (searchParams as Promise<{ [key: string]: string }>);
     } else {
       params = searchParams as { [key: string]: string };
     }
   }
   const lang = params?.lang === 'en' ? 'en' : 'sr';
-  const tProfil = lang === 'en' ? enProfil : srProfil;
-  const tKorisnici = lang === 'en' ? enKorisnici : srKorisnici;
+  const tProfil = getLocaleMessages(lang, 'profil');
+  const tKorisnici = getLocaleMessages(lang, 'korisnici');
   const t = (key: string) => (tKorisnici as Record<string, string>)[key] ?? (tProfil as Record<string, string>)[key] ?? key;
-
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     redirect('/auth/prijava');

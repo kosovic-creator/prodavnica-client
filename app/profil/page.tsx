@@ -2,14 +2,13 @@ import { getServerSession } from 'next-auth';
 import { getKorisnikById } from '@/lib/actions';
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/authOptions';
-import sr from '@/i18n/locales/sr/profil.json';
-import en from '@/i18n/locales/en/profil.json';
 import ClientLayout from '../components/ClientLayout';
 import { FaEdit } from 'react-icons/fa';
 import { deleteKorisnik } from '@/lib/actions/korisnici';
 import { revalidatePath } from 'next/cache';
 import DeleteProfilButton from './components/DeleteProfilButton';
 import ProfilSkeleton from './components/ProfilSkeleton';
+import { getLocaleMessages } from '@/lib/i18n';
 
 
 export default async function ProfilPage({ searchParams }: { searchParams?: { lang?: string, err?: string } | Promise<{ lang?: string, err?: string }> }) {
@@ -22,7 +21,8 @@ export default async function ProfilPage({ searchParams }: { searchParams?: { la
     }
   }
   const lang = params?.lang === 'en' ? 'en' : 'sr';
-  const t = lang === 'en' ? en : sr;
+
+  const t = getLocaleMessages(lang, 'profil');
 
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {

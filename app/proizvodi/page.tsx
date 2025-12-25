@@ -8,15 +8,10 @@ import Image from 'next/image';
 import AddToCartButton from './components/AddToCartButton';
 import OmiljeniButton from './components/OmiljeniButton';
 import PaginationControls from './components/PaginationControls';
-import fs from 'fs';
-import path from 'path';
 import type { Proizvodi } from '@/types';
+import { getLocaleMessages } from '@/lib/i18n';
 
-function getLocaleMessages(lang: string) {
-  const filePath = path.join(process.cwd(), 'i18n/locales', lang, 'proizvodi.json');
-  const raw = fs.readFileSync(filePath, 'utf-8');
-  return JSON.parse(raw);
-}
+
 
 export default async function ProizvodiPage({ searchParams }: { searchParams: Promise<{ page?: string; pageSize?: string; lang?: string; search?: string }> }) {
   const session = await getServerSession(authOptions);
@@ -28,7 +23,7 @@ export default async function ProizvodiPage({ searchParams }: { searchParams: Pr
   const lang = params.lang || 'sr';
   const search = params.search || '';
 
-  const t = getLocaleMessages(lang);
+  const t = getLocaleMessages(lang, 'proizvodi');
   const result = await getProizvodi(page, pageSize, search);
   if (!result.success || !result.data) {
     return (

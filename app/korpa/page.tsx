@@ -4,21 +4,15 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/authOptions';
 import { getKorpa } from '@/lib/actions/korpa';
 import Link from 'next/link';
-
 import KorpaItem from './components/KorpaItem';
 import KorpaActions from './components/KorpaActions';
-
-
-
-import sr from '@/i18n/locales/sr/korpa.json';
-import en from '@/i18n/locales/en/korpa.json';
 import ClientLayout from '../components/ClientLayout';
+import { getLocaleMessages } from '@/lib/i18n';
 
 export default async function KorpaPage({ searchParams }: { searchParams?: Promise<{ lang?: string }> }) {
   const params = searchParams ? await searchParams : {};
   const lang = params?.lang === 'en' ? 'en' : 'sr';
-  const t = lang === 'en' ? en : sr;
-
+  const t = getLocaleMessages(lang, 'korpa');
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;
   let stavke: any[] = [];
@@ -49,7 +43,7 @@ export default async function KorpaPage({ searchParams }: { searchParams?: Promi
 
   return (
     <ClientLayout lang={lang} isLoggedIn={!!session?.user} korisnikIme={typeof session?.user?.name === 'string' ? session.user.name : undefined}>
-     
+
       <>
         <h1 className="text-2xl md:text-3xl font-bold mb-6 flex items-center justify-center gap-2 text-center">
           {t.naslov}
@@ -72,12 +66,12 @@ export default async function KorpaPage({ searchParams }: { searchParams?: Promi
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 ml-4">
-                {stavke.map((stavka) => (
-                  <KorpaItem key={stavka.id} stavka={stavka} lang={lang} t={t} />
+              {stavke.map((stavka) => (
+                <KorpaItem key={stavka.id} stavka={stavka} lang={lang} t={t} />
               ))}
             </div>
             <div className="mt-8">
-              <KorpaActions userId={userId} stavke={stavke}  t={t} />
+              <KorpaActions userId={userId} stavke={stavke} t={t} />
             </div>
             <div className="mt-8">
               {/* Prikaz MonriPay dugmeta za checkout */}

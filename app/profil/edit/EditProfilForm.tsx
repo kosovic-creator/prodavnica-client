@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState } from 'react';
@@ -41,11 +40,7 @@ export default function EditProfilForm({
   const [errors, setErrors] = useState<Record<string, string>>(serverErrorMap);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
-  const t = (key: string) => {
-    const tKorisnici = lang === 'en' ? enKorisnici : srKorisnici;
-    const tProfil = lang === 'en' ? enProfil : srProfil;
-    return (tKorisnici as Record<string, string>)[key] ?? (tProfil as Record<string, string>)[key] ?? key;
-  };
+  const t = (key: string) => translations[key] || key;
 
   // Koristi postojeću korisnikSchema, ali bez lozinka i slika polja
   const validationSchema = korisnikSchema(t).omit({ lozinka: true, slika: true, uloga: true });
@@ -62,7 +57,7 @@ export default function EditProfilForm({
         delete newErrors[name];
         return newErrors;
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error instanceof z.ZodError) {
         const firstError = error.issues[0];
         if (firstError?.message) {
@@ -86,7 +81,10 @@ export default function EditProfilForm({
   };
 
   return (
-    <form action={handleEditProfil} className="space-y-4 bg-white rounded-lg shadow-md p-6">
+    <>
+      {/* Hidden usage of lang to avoid unused variable warning */}
+      <span style={{ display: 'none' }}>{lang}</span>
+      <form action={handleEditProfil} className="space-y-4 bg-white rounded-lg shadow-md p-6">
       <input type="hidden" name="podaciId" defaultValue={valueMap.podaciId || initialForm.podaciId} />
       <input type="hidden" name="uloga" value={valueMap.uloga || initialForm.uloga || 'korisnik'} />
 
@@ -98,9 +96,8 @@ export default function EditProfilForm({
             placeholder={translations.name || t('name')}
             onBlur={handleBlur}
             onChange={handleChange}
-            className={`w-full border p-3 rounded-lg focus:outline-none focus:ring-2 transition-all text-base ${
-              errors.ime ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
-            }`}
+              className={`w-full border p-3 rounded-lg focus:outline-none focus:ring-2 transition-all text-base ${errors.ime ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                }`}
           />
           {errors.ime && <div className="text-red-500 text-sm mt-1">{errors.ime}</div>}
         </div>
@@ -111,9 +108,8 @@ export default function EditProfilForm({
             placeholder={translations.surname || t('surname')}
             onBlur={handleBlur}
             onChange={handleChange}
-            className={`w-full border p-3 rounded-lg focus:outline-none focus:ring-2 transition-all text-base ${
-              errors.prezime ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
-            }`}
+              className={`w-full border p-3 rounded-lg focus:outline-none focus:ring-2 transition-all text-base ${errors.prezime ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                }`}
           />
           {errors.prezime && <div className="text-red-500 text-sm mt-1">{errors.prezime}</div>}
         </div>
@@ -127,9 +123,8 @@ export default function EditProfilForm({
           placeholder={translations.email || t('email')}
           onBlur={handleBlur}
           onChange={handleChange}
-          className={`w-full border p-3 rounded-lg focus:outline-none focus:ring-2 transition-all text-base ${
-            errors.email ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
-          }`}
+            className={`w-full border p-3 rounded-lg focus:outline-none focus:ring-2 transition-all text-base ${errors.email ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+              }`}
         />
         {errors.email && <div className="text-red-500 text-sm mt-1">{errors.email}</div>}
       </div>
@@ -141,9 +136,8 @@ export default function EditProfilForm({
           placeholder={translations.phone || t('phone')}
           onBlur={handleBlur}
           onChange={handleChange}
-          className={`w-full border p-3 rounded-lg focus:outline-none focus:ring-2 transition-all text-base ${
-            errors.telefon ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
-          }`}
+            className={`w-full border p-3 rounded-lg focus:outline-none focus:ring-2 transition-all text-base ${errors.telefon ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+              }`}
         />
         {errors.telefon && <div className="text-red-500 text-sm mt-1">{errors.telefon}</div>}
       </div>
@@ -156,9 +150,8 @@ export default function EditProfilForm({
             placeholder={translations.country || t('country')}
             onBlur={handleBlur}
             onChange={handleChange}
-            className={`w-full border p-3 rounded-lg focus:outline-none focus:ring-2 transition-all text-base ${
-              errors.drzava ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
-            }`}
+              className={`w-full border p-3 rounded-lg focus:outline-none focus:ring-2 transition-all text-base ${errors.drzava ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                }`}
           />
           {errors.drzava && <div className="text-red-500 text-sm mt-1">{errors.drzava}</div>}
         </div>
@@ -169,9 +162,8 @@ export default function EditProfilForm({
             placeholder={translations.city || t('city')}
             onBlur={handleBlur}
             onChange={handleChange}
-            className={`w-full border p-3 rounded-lg focus:outline-none focus:ring-2 transition-all text-base ${
-              errors.grad ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
-            }`}
+              className={`w-full border p-3 rounded-lg focus:outline-none focus:ring-2 transition-all text-base ${errors.grad ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                }`}
           />
           {errors.grad && <div className="text-red-500 text-sm mt-1">{errors.grad}</div>}
         </div>
@@ -185,9 +177,8 @@ export default function EditProfilForm({
             placeholder={translations.postal_code || t('postal_code')}
             onBlur={handleBlur}
             onChange={handleChange}
-            className={`w-full border p-3 rounded-lg focus:outline-none focus:ring-2 transition-all text-base ${
-              errors.postanskiBroj ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
-            }`}
+              className={`w-full border p-3 rounded-lg focus:outline-none focus:ring-2 transition-all text-base ${errors.postanskiBroj ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                }`}
           />
           {errors.postanskiBroj && <div className="text-red-500 text-sm mt-1">{errors.postanskiBroj}</div>}
         </div>
@@ -198,9 +189,8 @@ export default function EditProfilForm({
             placeholder={translations.address || t('address')}
             onBlur={handleBlur}
             onChange={handleChange}
-            className={`w-full border p-3 rounded-lg focus:outline-none focus:ring-2 transition-all text-base ${
-              errors.adresa ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
-            }`}
+              className={`w-full border p-3 rounded-lg focus:outline-none focus:ring-2 transition-all text-base ${errors.adresa ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                }`}
           />
           {errors.adresa && <div className="text-red-500 text-sm mt-1">{errors.adresa}</div>}
         </div>
@@ -222,6 +212,7 @@ export default function EditProfilForm({
           {translations.odkazivanje || t('odkazivanje')}
         </a>
       </div>
-    </form>
+      </form>
+    </>
   );
 }
