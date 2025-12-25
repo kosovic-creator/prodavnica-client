@@ -35,7 +35,7 @@ export default async function RegistracijaPage({ searchParams }: { searchParams:
     const tAuth = lang === 'en' ? en : sr;
     const t = (key: string) => (tAuth.register as Record<string, string>)[key] ?? key;
 
-    // prihvaća vrijednosti pola iz FomData i vrši validaciju radi slanja na server
+    // prihvaća vrijednosti pola iz FomData koji su učitani u klientu i vrši validaciju radi slanja na server
     const values = {
       email: formData.get('email') as string,
       ime: formData.get('ime') as string,
@@ -45,14 +45,18 @@ export default async function RegistracijaPage({ searchParams }: { searchParams:
     };
 // provjerava podatke koristeći zod šemu
     const schema = korisnikSchema(t).pick({ email: true, ime: true, prezime: true, lozinka: true });
+// izvršava sigurnu parsiranje podataka
     const result = schema.safeParse(values);
-
+// ako validacija ne uspije, preusmjerava natrag na formu sa greškama i unesenim vrijednostima
     if (!result.success) {
       const params = new URLSearchParams();
+      // dodaje na krajak jezik
       params.append('lang', lang);
+      // dodaje greške validacije
       result.error.issues.forEach((err) => {
         if (err.path[0]) params.append(`err_${String(err.path[0])}`, err.message);
       });
+      // dodaje unesene vrijednosti za ponovni unos
       Object.entries(values).forEach(([k, v]) => params.append(`val_${k}`, v ?? ''));
       redirect(`/auth/registracija?${params.toString()}`);
     }

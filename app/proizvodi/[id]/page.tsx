@@ -1,9 +1,9 @@
-
 import { notFound } from 'next/navigation';
 import { getProizvodById } from './../../../lib/actions/proizvodi';
-import Image from 'next/image';
-import fs from 'fs';
+import type { Proizvodi } from '../../../types';
+import ImageModal from '../components/ImageModal';
 import path from 'path';
+import fs from 'fs';
 
 function getLocaleMessages(lang: string) {
   const filePath = path.join(process.cwd(), 'i18n/locales', lang, 'proizvodi.json');
@@ -18,7 +18,7 @@ export default async function ProizvodPage({ params, searchParams }: { params: P
   const t = getLocaleMessages(lang);
   const result = await getProizvodById(resolvedParams.id);
   if (!result.success || !result.data) notFound();
-  const proizvod = result.data;
+  const proizvod: Proizvodi = result.data;
 
   const naziv = lang === 'en' ? proizvod.naziv_en : proizvod.naziv_sr;
   const opis = lang === 'en' ? proizvod.opis_en : proizvod.opis_sr;
@@ -43,15 +43,7 @@ export default async function ProizvodPage({ params, searchParams }: { params: P
             {/* Slika proizvoda */}
             <div className="md:w-1/2 p-8 flex items-center justify-center">
               {glavnaSlika ? (
-                <Image
-                  src={glavnaSlika}
-                  alt={naziv || 'Slika proizvoda'}
-                  width={500}
-                  height={400}
-                  className="w-full h-auto object-cover rounded-lg shadow-md"
-                  unoptimized
-                  priority
-                />
+                <ImageModal src={glavnaSlika} alt={naziv || 'Slika proizvoda'} />
               ) : (
                 <div className="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center">
                   <span className="text-gray-500">{t['nema_proizvoda_prikaz'] || 'Nema slike'}</span>
