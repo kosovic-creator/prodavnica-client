@@ -7,21 +7,10 @@ import { redirect } from 'next/navigation';
 import { getPodaciPreuzimanja, createPodaciPreuzimanja, updatePodaciPreuzimanja } from '@/lib/actions/podaci-preuzimanja';
 import { ocistiKorpu } from '@/lib/actions/korpa';
 import { revalidatePath } from 'next/cache';
-import srJson from '@/i18n/locales/sr/podaci-preuzimanja.json';
-import enJson from '@/i18n/locales/en/podaci-preuzimanja.json';
 import ClientLayout from '../components/ClientLayout';
-
-const sr: Record<string, string> = srJson;
-const en: Record<string, string> = enJson;
-
-import { cookies } from 'next/headers';
 import { getServerSession as getSession } from 'next-auth';
 import { z } from 'zod';
-
-function getT(lang: string) {
-  const t = lang === 'en' ? en : sr;
-  return (key: string) => t[key] || key;
-}
+import { getLocaleMessages } from '@/lib/i18n';
 
 export default async function PodaciPreuzimanjaPage({ searchParams }: { searchParams?: Promise<{ lang?: string; error?: string; success?: string }> | { lang?: string; error?: string; success?: string } }) {
   let lang = 'sr';
@@ -31,8 +20,7 @@ export default async function PodaciPreuzimanjaPage({ searchParams }: { searchPa
       lang = 'en';
     }
   }
-  const t = getT(lang);
-
+  const t = getLocaleMessages(lang, 'podaci-preuzimanja');
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     redirect('/auth/prijava');
@@ -66,11 +54,6 @@ export default async function PodaciPreuzimanjaPage({ searchParams }: { searchPa
       redirect('/auth/prijava');
     }
     const userId = session.user.id;
-    let lang = 'sr';
-    const cookieStore = await cookies();
-    const nextLang = cookieStore.get('NEXT_LOCALE')?.value;
-    if (nextLang === 'en') lang = 'en';
-    const t = getT(lang);
     const podaciSchema = z.object({
       adresa: z.string().min(2, t('adresa_error') || 'Adresa je obavezna'),
       drzava: z.string().min(2, t('drzava_error') || 'Država je obavezna'),
