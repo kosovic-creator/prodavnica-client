@@ -110,7 +110,13 @@ export default async function MojePorudzbinePage({ searchParams }: { searchParam
                           ? 'bg-yellow-100 text-yellow-800'
                           : 'bg-gray-100 text-gray-800'
                         }`}>
-                        {porudzbina.status}
+                        {porudzbina.status === 'Završeno'
+                          ? t.status_zavrseno || 'Završeno'
+                          : porudzbina.status === 'Na čekanju'
+                            ? t.status_na_cekanju || 'Na čekanju'
+                            : porudzbina.status === 'Otkazano'
+                              ? t.status_otkazano || 'Otkazano'
+                              : porudzbina.status}
                       </span>
                     </div>
                   </div>

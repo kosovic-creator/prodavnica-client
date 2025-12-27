@@ -10,5 +10,8 @@
   "sledeca": "Sledeća",
   "stranica": "Stranica",
   "od": "od",
-  "ukupno_porudzbina": "Ukupno porudžbina"
+  "ukupno_porudzbina": "Ukupno porudžbina",
+  "status_na_cekanju": "Na čekanju",
+  "status_zavrseno": "Završeno",
+  "status_otkazano": "Otkazano"
 }

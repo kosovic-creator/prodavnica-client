@@ -10,5 +10,8 @@
   "sledeca": "Next",
   "stranica": "Page",
   "od": "of",
-  "ukupno_porudzbina": "Total orders"
+  "ukupno_porudzbina": "Total orders",
+  "status_na_cekanju": "Pending",
+  "status_zavrseno": "Completed",
+  "status_otkazano": "Cancelled"
 }
