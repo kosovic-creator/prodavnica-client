@@ -7,18 +7,15 @@ import { getOmiljeni } from '@/lib/actions/omiljeni';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FaHeart, FaEye } from 'react-icons/fa';
-import { FiX } from 'react-icons/fi'; // Dodajemo ikonu za delete
 
-import sr from '@/i18n/locales/sr/omiljeni-page.json';
-import en from '@/i18n/locales/en/omiljeni-page.json';
 import ClientLayout from '../components/ClientLayout';
 import { getKorpa } from '@/lib/actions/korpa';
 import OmiljeniList from './OmiljeniList';
+import { getLocaleMessages } from '@/lib/i18n';
 export default async function OmiljeniPage({ searchParams }: { searchParams?: Promise<{ lang?: string }> }) {
   const params = searchParams ? await searchParams : {};
   const lang = params?.lang === 'en' ? 'en' : 'sr';
-  const t = lang === 'en' ? en : sr;
-
+  const t = getLocaleMessages(lang, 'omiljeni');
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;
   let omiljeni: any[] = [];
